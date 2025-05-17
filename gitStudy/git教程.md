@@ -282,7 +282,7 @@ git config相关指令：
   git show 版本号 //查看对应版本提交的内容
   ```
   
-  ![image-20250507202127578](assets/image-20250507202127578.png)s
+  ![image-20250507202127578](assets/image-20250507202127578.png)
 
 + 查看帮助,可查询git的全部指令
 
@@ -987,9 +987,11 @@ github相当于git的一个远程仓库，它跟git没有任何直接的关系�
 
 要使用GitHub先要注册创建个人账户。先进入**github官网**https://github.com/。
 
-个人账户(2946376928)注册完毕后,就可以创建一个自己的仓库。
+个人账户注册完毕后,就可以创建一个自己的仓库。
 
 ### 4.1 仓库 repository
+
+#### 4.1.1 搭建远程仓库
 
 创建仓库步骤很简单。流程如下图：
 
@@ -999,13 +1001,23 @@ github相当于git的一个远程仓库，它跟git没有任何直接的关系�
 
 创建完成后就可以获得一个远程仓库地址https://github.com/Kitaily/demo1.git
 
-+ 本地代码推送到远程仓库
+#### 4.1.2 push与origin
 
-+ ```console
+创建完成远程仓库后就利用远程仓库地址push本地代码。
+
++ 远程仓库地址取别名
+
+  ```console
   //添加别名 origin就是远程仓库地址
   git remote add origin https://github.com/Kitaily/demo1.git
-  //推送本地代码到远程仓库 -u表示默认，可以不写
+  ```
+
++ 本地代码推送到远程仓库
+
+  ```console
+  //推送本地代码到远程仓库 -u表示默认，可以不写 推送的是master分支
   git push -u origin master
+  //-u的属性可以省略，其含义undefined默认的，就是设置git push默认为提交到origin的master分支，写一次后，后续写git push就跟上边效果一样
   ```
 
 如果推送出现问题，输入账户密码可能失败。可以采用三种**免密登录**方式解决问题：
@@ -1026,7 +1038,13 @@ github相当于git的一个远程仓库，它跟git没有任何直接的关系�
 
    + 在生成的文件路径中打开公钥文件`C:\Users\wang\.ssh\id_rsa.pub`其他系统在`~/.ssh/id_rsa.pub`,私钥文件为id_rsa
 
-   + 拷贝公钥内容，复制到github中，创建一个SSHkey就行
+   + 拷贝公钥内容，复制到github中，创建一个SSHkey，创建SSHkey的地方有两个
+
+     ①是给创建的仓库创建sshkey
+
+     ![image-20250517193431452](./assets/image-20250517193431452.png)
+
+     ②是给账户创建sshkey，这个key就是全局的，以后所有该账户创建的仓库都可以用这key
 
      ![image-20250502195147643](assets/image-20250502195147643.png)
 
@@ -1038,12 +1056,55 @@ github相当于git的一个远程仓库，它跟git没有任何直接的关系�
 
 3. **基于操作系统创建git凭证**，让git自动管理凭证。该功能是系统完成，就是输入成功一次密码自动保存。
 
-推送完成后，就可以看到master分支，如果还需要推送dev分支，就再推送一次dev即可，注意origin只需要添加一次
+推送成功后，就可以在远程仓库看到master分支，如果还需要推送dev分支，就再推送一次dev即可，注意origin只需要添加一次
 
 ```console
-git push -u origin dev
-//-u的属性可以省略，其含义undefined默认的，-u就是把内容提交到origin的dev分支，也就是以后如果写git push就跟上边指令一样
+git push origin dev
 ```
+
+>**补充知识：**
+>
+>在Git中,`git push.default`是一个配置选项，用于控制`git push`命令的默认行为。这个选项有五个不同的值，每个值对应不同的推送策略：
+>
+>1. **nothing**: 直接执行 *git push* 会出错，需要显式指定推送的远程分支。例如：*git push origin master*。
+>2. **current**: 只会推送当前所在的分支到远程同名分支。如果远程分支不存在相应的同名分支，则创建该分支。
+>3. **upstream**: 推送当前分支到它的上游分支（upstream branch）。这个模式只适用于推送到与拉取数据相同的仓库。
+>4. **simple**: 在中央仓库工作流程模式下，只能推送到与本地分支名一致的上游分支。如果推送的远程仓库和拉取数据的远程仓库不一致，那么该模式会像 *current* 模式一样进行操作。因为该选项对于新手来说是最安全的，所以在 Git 2.0 中，*simple* 是 push.default的默认值配置项（2.0以前的默认配置项是 *matching*）。
+>5. **matching**: 推送本地和远程都存在的同名分支。
+>
+>+ 查看push.default的配置(默认没有)
+>
+>  ```console
+>  git config --system -l
+>  ```
+>
+>+ 修改push.default的配置
+>
+>  ```console
+>  git config --global push.default matching(模式)
+>  ```
+>
+>解决推送问题，如果在推送时遇到类似以下的警告：
+>
+>**The current branch newBranch has no upstream branch. To push the current branch and set the remote as upstream, use**
+>
+>**git push --set-upstream origin newBranch**
+>
+>可以通过以下两种方法解决：
+>
+>1. 修改仓库默认配置为current，然后执行git push
+>
+>```console
+>git config --local push.default current
+>```
+>
+>2. 指定推送的远程分支名，这种方法更推荐，例如：
+>
+>```console
+>git push origin newBranch
+>```
+>
+>通过了解和配置 `git push.default`，可以更好地控制代码推送的行为，避免不必要的错误和冲突。
 
 推送完成后github上的效果
 
@@ -1068,10 +1129,26 @@ git push -u origin dev
   ```console
   git remote set-url origin 新的url地址
   ```
+  
++ 查看所有远程地址别名
 
-当然还可直接在配置文件中修改origin的值
+  ```console
+  git remote show
+  ```
+
++ 显示别名内容(有测试连接远程地址的效果，因为该的信息是从远程获取的)
+
+  ```console
+  git remote show origin(远程地址别名不一定是origin)
+  ```
+
+  ![image-20250517194246299](./assets/image-20250517194246299.png)
+
+还可直接在配置文件中修改origin的值(不推荐)
 
 ![image-20250428151321939](assets/image-20250428151321939.png)
+
+#### 4.1.3 clone与pull下载远程代码
 
 推送完成后，如何在新的电脑下载GitHub上的项目。这时就需要先在新电脑上clone一次github上的项目。
 
@@ -1115,6 +1192,25 @@ git merge origin/分支 或 git rebase origin/分支 //代码从版本库合并�
 加上远程仓库后三大区域的指令
 
 <img src="assets/image-20250428162710574.png" alt="image-20250428162710574" style="zoom:50%;" />
+
+#### 4.1.4 远程仓库推送原理
+
+当本地仓库与远程仓库建立联系后，添加新文件查看状态就会发现不同
+
+![image-20250517224402109](./assets/image-20250517224402109.png)
+
+为了保证本地与远程仓库的联系，创建了一个中间分支origin/master来与远程仓库绑定。该分支是隐藏的需使用-a才能查看到
+
+```console
+git branch -a  //-a就是-all的简写
+```
+
+![image-20250517225015601](./assets/image-20250517225015601.png)
+
+**本地代码如何与远程仓库联系的原理**：最主要就是创建的远程分支`remotes/origin/master`,它就是远程与本地的桥梁，它绑定的是本地的master分支。其作用如下：
+
++ 当本地master分支更新要push给远程仓库，先会把内容更新合并到`remotes/origin/master`分支，也就是该分支的HEAD指针向前推进了几个版本，完成后再将该分支内容推送到远程
++ 当本地要获取远程仓库内容，也是远程先推送到本地绑定的`remotes/origin/master`分支，然后再合并到本地的master分支上
 
 ### 4.2 github页面
 
