@@ -1,5 +1,9 @@
 # Git基础入门
 
+[TOC]
+
+
+
 ## 一、Git是什么？
 
 git是一款分布式版本控制的软件。git作用跟svn一样，都是用于版本控制，俩者不同之处在于svn是**集中式**的，git是**分布式**的。
@@ -172,6 +176,8 @@ git做版本控制本质上就是让git管理一个文件夹。其初始化步�
    
    commit的id作用就是下一个版本有id值可以指向该版本，一个版本就是一个快照其中parent值就是上一个版本的id。
    
+   commit提交时，git会创建一个commit对象，并将commit对象的parent指针设置为HEAD所指向的引用的SHA-1值。
+   
    ![image-20250515201126461](./assets/image-20250515201126461.png)
 
 #### 3.2.2 git config
@@ -227,6 +233,19 @@ git config相关指令：
   ```console
   git config -e //-e是edit的简写，这里没指定配置文件，默认就是--local文件
   ```
+  
++ 配置git命令别名，其效果就是用更短的命令代替原本的命令
+
+  ```console
+  git config --local alias.br branch  //git br==git branch
+  git config --local alias.unstage 'reset HEAD'  //git unstage=git reset HEAD
+  ```
+
++ 配置外部命令别名,这样需要使用`！`，否则无法识别外部命令
+
+  ```console
+  git config --local alias.ui '!gitk' //git ui =gitk，没有！git ui=git gitk命令是错误的
+  ```
 
 #### 3.2.3 git查询指令
 
@@ -263,6 +282,7 @@ git config相关指令：
   git log --graph  // 图像化log内容
   //pretty表示指定格式展示内容
   git log --pretty=oneline //单行显示内容
+  git log --graph --pretty=fromat:"%h %s"
   git log --graph --pretty=fromat:"%h - %an,%ar : %s" //图像化log内容并简略信息
   git log --graph --abbrev-commit  //简写信息
   ```
@@ -413,7 +433,7 @@ git reset HEAD 文件名  //删除文件放入工作区
 + 查看回滚前的版本信息
 
   ```console
-  git reflog
+  git reflog  //reflog记录的HEAD指针，对于HEAD的任何修改动作都会被记录，包括切换分支，pull，commit等
   ```
 
   ![image-20250427165104790](assets/image-20250427165104790.png)
@@ -430,13 +450,13 @@ commit提交的版本，会发现版本号是不规则的数字，这样是不�
   git tag 标签名 //给当前版本取别名
   ```
 
-+ 给特定的版本添加标签tag
++ 给特定的版本添加标签tag(轻量级标签，标签内容就是对应的版本id)
 
   ```console
   git tag 版本名 版本号
   ```
 
-+ 给特定版本添加tag与附注信息
++ 给特定版本添加tag与附注信息(对象标签，标签不仅有自身的对象id,也保存了对应版本的id)
 
   ```console
   git tag -a 标签名 版本号 -m '附注信息'
@@ -479,7 +499,26 @@ commit提交的版本，会发现版本号是不规则的数字，这样是不�
   git push origin --tags  //表示将远程仓库没有的tag都推送上去
   ```
 
-  远程仓库有了tag就可直接下载对应版本，也可利用tag创建release版本用于下载。
+  远程仓库有了tag就可直接下载对应版本，也可利用tag创建release版本用于下载。git pull也会自动拉取标签。
+  
++ 删除远程标签
+
+  ```console
+  git push origin :refs/tags/标签名  //推送空标签删除
+  git push origin --delete tag 标签名 //删除标签，推荐使用
+  ```
+
++ 完整推送标签
+
+  ```console
+  git push origin refs/tags/本地标签名：refs/tags/远程标签名
+  ```
+
++ 特定拉取标签,git pull是拉取全部内容
+
+  ```console
+  git fetch origin tag 标签名
+  ```
 
 #### 3.2.7 git diff
 
@@ -551,6 +590,74 @@ git commit是必须要有日志信息的，如果日志写错，git中是可以�
 1. 忽略警告：如果这个警告不会影响你的工作，可以选择忽略它;
 2. 禁用自动转换：可以通过设置 `git config --local core.autocrlf false`来禁用Git自动将LF转换为CRLF的功能;
 3. 使用**.gitattributes**文件：在项目根目录下创建一个`.gitattributes` 文件，明确指定文件的换行符处理方式。
+
+#### 3.2.9 git merge原理
+
+Git在自动合并时会使用**递归三路合并算法**对不同文件进行差异分析，该算法是：
+
+![Dec-29-2020 22-40-46](./assets/Dec-29-2020-merge.gif)
+
+Git首先找到两个分支最近的**唯一共同祖先**提交A，然后分别对A、C、F提交的文件快照进行对比，我们下文称呼它们为A、C、F文件。接下来Git将逐行对三个文件的内容进行比较，如果三个文件中有两个文件该行的内容一致，则丢弃A文件中该行的内容，保留与A文件中不同的内容放到结果文件中。具体来说有几种情况：（A是父版本，C、F是子版本）
+
++ 假如A、C内容一致，说明这是在F中更改的内容，需要保留该更改；
++ A、F内容一致同理；
++ 假如C、F内容一致，说明C和F都相对于A做了同样的更改，同样需要保留。除此之外的内容差异仅剩两种情况：如果A、C、F的内容都一致，说明什么都没有发生；如果该行在A、C、F的内容都不一致，说明发生了冲突，需要我们手动合并选择需要保留的内容。
+
+结束对比后Git会以最终的结果文件快照创建一个新的Merge提交并指向它。
+
+三路合并算法的基础是找到被合并文件的共同祖先，在一些简单的场景中这还能行的通，但在遇到[十字交叉合并（criss-cross merge）]时，不存在唯一的最近共同祖先，如下图：
+
+![20201229152228-criss-cross-merge](./assets/20201229152228-criss-cross-merge.png)
+
+现在我们需要从`main`分支合并feature`分支，即把C7合并到C8，会发现C8和C7有两个共同祖先，这下怎么办呢？Git采取的是递归三路合并（Recursive three-way merge），会先合并C3和C5这两个共同祖先创建一个虚拟的唯一最近祖先（假设为 C9），接着在C9、C7、C8之间执行三路合并，如果在合并 C3 和 C5 的过程中又发生没有唯一共同祖先的情况，则递归执行上述过程。
+
+#### 3.2.10 git gc文件压缩
+
+`git gc`其实就是git的垃圾收集指令，它主要工作就是压缩git目录、git文件或对象，减小体积。实际开发很少直接使用，git gc默认git后台会自动进行。
+
+.git目录中的**refs**工作目录，里面存放的是各种分支、tag信息。
+
+**objects**目录里面存放的就是各个版本，其中文件夹名是版本前两个字符
+
+![image-20250518221342639](./assets/image-20250518221342639.png)
+
+压缩目录，等会gc命令就会产生文件在该目录
+
+![image-20250518221525018](./assets/image-20250518221525018.png)
+
+logs目录存放的是日志信息，其中HEAD存放的是全部日志，refs文件夹中存放的是本地各个分支的日志与远程各个分支的日志。
+
+![image-20250518221952295](./assets/image-20250518221952295.png)
+
+其它文件的内容
+
+![image-20250518222244003](./assets/image-20250518222244003.png)
+
+执行`git gc`指令后效果：
+
+1. refs文件夹的内容大部分被压缩到packed-refs文件中，info文件夹中会多出一个**refs文件**，也是记录refs文件信息。
+
+   ![image-20250518222700495](./assets/image-20250518222700495.png)
+
+2. objects对象被压缩，内容被压缩到pack文件目录中
+
+   ![image-20250518223050444](./assets/image-20250518223050444.png)
+
+   
+
+文件内容很少，压缩效果不会很明显，只有项目很大压缩效果才会明显。
+
+#### 3.2.11 git裸库
+
+所谓git裸库，就是没有工作区的仓库，它常用于服务器的仓库，上边只需要管理版本，不会添加文件。
+
+创建git裸库的命令
+
+```console
+git init --bare
+```
+
+![image-20250519155435863](./assets/image-20250519155435863.png)
 
 ### 3.3 分支
 
@@ -770,6 +877,32 @@ git branch 分支名 游离的版本名
 
   ![image-20250516003606347](./assets/image-20250516003606347.png)
 
+### 3.5 git cherry-pick
+
+在分支比较多时，有时可能因疏忽，添加内容添加到错误的分支，如果需要把提交错的版本移动到正确的分支上，这时使用`cherry-pick`最好，如果采用直接剪切复制文件的方式，会脱离git导致错误。
+
+![image-20250520174852752](./assets/image-20250520174852752.png)
+
+```console
+git cherry-pick 版本号
+```
+
+如果添加的版本与master分支没有间隔，例如v1.1则可以直接添加成功，如果有隔离例如1.3，则会出现冲突，要先解决冲突才能提交。
+
+<img src="./assets/image-20250520175540999.png" alt="image-20250520175540999" style="zoom:50%;" />
+
+使用该命令获取了dev分支的内容，但dev分支中依然还有错误的提交，需要回滚。
+
+1. 可使用`git reset --hard版本号`回滚
+
+2. 也可使用`git checkout 版本号`进入游离分支，然后删除dev分支，最后命名为dev分支即可。
+
+   ```console
+    git checkout 版本号 
+    git branch -D dev  //删除dev分支
+    git switch -c dev //重命名游离分支为dev
+   ```
+
 ### 3.5 .gitignore忽略文件
 
 git是帮我们完全管理一个文件夹中所有的内容，但当遇到我们不想要git管理某些文件时，就可以创建一个**.gitignore**文件完成。
@@ -804,11 +937,25 @@ touch .gitignore
 
 ![image-20250502202359115](assets/image-20250502202359115.png)
 
-### 3.6 git可视化操作工具
+### 3.6 git自带可视化操作工具
+
+**gitK**工具，只需要在git bash输入命令`gitk`即可打开工具。
+
+![image-20250518112746415](./assets/image-20250518112746415.png)
+
+**gitK**可以很清晰的查看版本内容，但依然要使用命令为主，它为辅助，毕竟命令也可以展示这些内容并且帮我我们理解git。
+
+gitGUI工具，也是可以在git bash工具中使用`git gui`指令打开的。
+
+![image-20250518114839185](./assets/image-20250518114839185.png)
+
+**Amend last commit**就是修改之前提交的信息。
+
+### 3.7 git可视化操作工具
 
 对应开发人员使用命令操作git是很简单的，但如果不懂代码的人员也要使用git，就可以使用工具帮助完成git的指令操作。
 
-git自带可视化工具Git GUI,但其操作比较复杂，不常用。最好用的还是小乌龟**TortoiseGit**。
+git自带可视化工具Git GUI,但如果不会可使用第三方工具，例如小乌龟**TortoiseGit**,gitDesktop等。
 
 进入官网直接下载工具安装https://tortoisegit.org/，记得下载好软件后下载汉化包，这样就可以变为中文。
 
@@ -840,7 +987,7 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\windows\CurrentVersion\Explorer //打开�
 
 ![image-20250507202243748](assets/image-20250507202243748.png)
 
-### 3.7 Oh-My-Zsh(美化命令行)(了解)
+### 3.8 Oh-My-Zsh(美化命令行)(了解)
 
 在Windows上使用**Oh My Zsh**可以让你的终端更加美观和功能强大。以下是详细的步骤：
 
@@ -1001,7 +1148,86 @@ github相当于git的一个远程仓库，它跟git没有任何直接的关系�
 
 创建完成后就可以获得一个远程仓库地址https://github.com/Kitaily/demo1.git
 
-#### 4.1.2 push与origin
+#### 4.1.2 远程仓库推送原理
+
+当本地仓库与远程仓库建立联系后，添加新文件查看状态就会发现不同
+
+![image-20250517224402109](./assets/image-20250517224402109.png)
+
+为了保证本地与远程仓库的联系，创建了一个中间分支origin/master来与远程仓库绑定。该分支是隐藏的需使用-a才能查看到
+
+```console
+git branch -a  //-a就是-all的简写
+git branch -av //除了显示全部分支，还会显示相应的版本
+```
+
+![image-20250518090354591](./assets/image-20250518090354591.png)
+
+当本地提交的新的版本，而没有push到远程仓库时
+
+![image-20250518090558199](./assets/image-20250518090558199.png)
+
+push成功时会看到，push不仅会把内容推送到远程，也会再同时更新本地origin/master分支内容
+
+![image-20250518091137944](./assets/image-20250518091137944.png)
+
+本地的origin/master分支是不可操作的，它的内容是git自动修改的，即使使用git checkout 该分支名也无法切换到该分支。
+
+除了git push推送代码外，还可以使用git clone从远程下载代码
+
+```console
+git clone 远程仓库地址  //默认使用仓库名作为git文件名
+git clone 远程仓库地址 文件名 //指定下拉代码文件名
+```
+
+![image-20250518092145966](./assets/image-20250518092145966.png)
+
+> **本地代码如何与远程仓库联系的原理**：最主要就是创建的远程分支`origin/master`(remotes可忽略),它就是远程与本地的桥梁，它绑定的是本地的master分支。其作用如下：
+>
+> + 当本地master分支更新要push给远程仓库，先会把本地分支推送到远程，然后分支内容更新合并到`origin/master`分支，也就是该分支的HEAD指针向前推进了几个版本,如果与远程有冲突，直接推送失败
+> + 当本地master分支要获取远程仓库内容，先把远程分支拉取到`origin/master`分支，然后本地分支合并到`origin/master`分支，
+> + pull出现冲突时，依然会先拉代码，合并`origin/master`分支与本地分支会失败(相当于两个分支合并)，这时会分离`origin/master`分支与本地分支，解决完冲突后，两者才会再次关联，再push将两者内容同步。
+
+pull指令其实也是由两个指令合成的
+
+```console
+git fetch origin 分支 //远程仓库拉代码本地分支origin/分支
+git merge origin/分支 或 git rebase origin/分支 //代码从版本库合并到工作区，有merge指令所以会出现冲突
+```
+
+git fetch完整写法
+
+```console
+git fetch origin 远程分支名：本地分支名
+//拉取远程分支master的内容到本地mymaster中，这里本地分支直接使用ref路径表达
+git fetch origin master:refs/remotes/origin/mymaster 
+```
+
+![image-20250518102309125](./assets/image-20250518102309125.png)
+
+加上远程仓库后三大区域的指令
+
+<img src="assets/image-20250428162710574.png" alt="image-20250428162710574" style="zoom:50%;" />
+
+在没有添加远程仓库时，`git romote add`命令会自动生成远程仓库相关的refspec文件内容。git会获取远程仓库refs/heads下的所有引用，并将他们写到本地的`refs/remotes/origin`目录下。其内容都写在config目录下：
+
+![image-20250518193414668](./assets/image-20250518193414668.png)
+
+写入的内容就在**refs**目录中，其中heads是保存本地所有分支信息，remotes是远程信息，tags是标签
+
+![image-20250518193528504](./assets/image-20250518193528504.png)
+
+查看远程分支日志，该内容是被下载到本地的，不用联网。
+
+```console
+git log origin/分支名  //这是查看的远端分支的日志
+git log remotes/origin/分支名
+git log refs/remotes/origin/分支名 //写入了远程日志完整路径
+```
+
+
+
+#### 4.1.3 push与origin
 
 创建完成远程仓库后就利用远程仓库地址push本地代码。
 
@@ -1012,12 +1238,22 @@ github相当于git的一个远程仓库，它跟git没有任何直接的关系�
   git remote add origin https://github.com/Kitaily/demo1.git
   ```
 
-+ 本地代码推送到远程仓库
++ 本地代码推送到远程仓库，-u就是设置`git push`推送设置为默认配置
 
   ```console
-  //推送本地代码到远程仓库 -u表示默认，可以不写 推送的是master分支
+  //推送本地代码到远程仓库 -u表示默认，-u的属性可以省略不写，其含义undefined默认的，
   git push -u origin master
-  //-u的属性可以省略，其含义undefined默认的，就是设置git push默认为提交到origin的master分支，写一次后，后续写git push就跟上边效果一样
+  //git push的完成参数写法，上边的简写实际是本地分支与远程分支同名
+  git push origin 本地分支名:远程分支名
+  ```
+  
++ 如果推送远程错误，想要回退版本
+
+  ```console
+  //先在本地回退版本
+  git reset --hard 版本
+  //然后推送到远程，-f表示强制，如果不写推送会失败
+  git push -f origin master 
   ```
 
 如果推送出现问题，输入账户密码可能失败。可以采用三种**免密登录**方式解决问题：
@@ -1056,11 +1292,9 @@ github相当于git的一个远程仓库，它跟git没有任何直接的关系�
 
 3. **基于操作系统创建git凭证**，让git自动管理凭证。该功能是系统完成，就是输入成功一次密码自动保存。
 
-推送成功后，就可以在远程仓库看到master分支，如果还需要推送dev分支，就再推送一次dev即可，注意origin只需要添加一次
+推送成功后，就可以在远程仓库看到master分支。（注意origin只需要添加一次）
 
-```console
-git push origin dev
-```
+![image-20250428151504361](assets/image-20250428151504361.png)
 
 >**补充知识：**
 >
@@ -1106,10 +1340,6 @@ git push origin dev
 >
 >通过了解和配置 `git push.default`，可以更好地控制代码推送的行为，避免不必要的错误和冲突。
 
-推送完成后github上的效果
-
-![image-20250428151504361](assets/image-20250428151504361.png)
-
 操作origin的其它指令：
 
 + 查看origin
@@ -1142,13 +1372,13 @@ git push origin dev
   git remote show origin(远程地址别名不一定是origin)
   ```
 
-  ![image-20250517194246299](./assets/image-20250517194246299.png)
+  ![image-20250518092753698](./assets/image-20250518092753698.png)
 
 还可直接在配置文件中修改origin的值(不推荐)
 
 ![image-20250428151321939](assets/image-20250428151321939.png)
 
-#### 4.1.3 clone与pull下载远程代码
+#### 4.1.4 clone与pull下载远程代码
 
 推送完成后，如何在新的电脑下载GitHub上的项目。这时就需要先在新电脑上clone一次github上的项目。
 
@@ -1174,43 +1404,117 @@ git push origin dev
 
   ```console
    git pull origin 分支名
+   //完整命令
+   git pull origin 远程分支名：本地分支名
   ```
 
-使用github默认流程就是pull拉代码，push推送代码就可实现两地开发，但如果出现某个地方忘记推送，下一次pull代码就会出现代码合并，就可能出现冲突。
+**同时修改同一文件时，如果已经有人推送了内容，另一人再想推送自己的内容会失败**。(跟本地两个分支合并冲突一样)
 
-![image-20250428161143070](assets/image-20250428161143070.png)
+![image-20250518093422340](./assets/image-20250518093422340.png)
+
+pull拉代码，会出现出现冲突。
+
+![image-20250518094345780](./assets/image-20250518094345780.png)
 
 出现冲突就先解决冲突，然后将修改代码提交，最后在推送到远程就可以了。
 
-出现冲突可以看出pull指令其实也是由两个指令合成的
+![image-20250518094709782](./assets/image-20250518094709782.png)
+
+> 上述问题可以看出，每次push前，我们最好都先pull一次代码，保证本地与远程一致后再push。
+
+远程连接成功后，本地.git会多出两个新文件**ORIGIN_HEAD**与**FETCH_HEAD**，它们都记录了远程分支版本id，其中FETCH_HEAD多了提交信息。
+
+![image-20250518174847307](./assets/image-20250518174847307.png)
+
+#### 4.1.5 远程分支
+
+在远程仓库已经有分支后，如果在本地创建新分支添，直接推送到远程时就会出错，这时需要先创建远程分支来绑定新分支后才可推送。
+
+方式一：**创建远程分支**绑定本地分支：(名称是可以不与本地相同的)
 
 ```console
-git fetch origin 分支 //远程仓库拉代码到版本库
-git merge origin/分支 或 git rebase origin/分支 //代码从版本库合并到工作区，有merge指令所以会出现冲突
+git push --set-upstream origin develop //推荐使用
 ```
 
-加上远程仓库后三大区域的指令
+![image-20250518151814354](./assets/image-20250518151814354.png)
 
-<img src="assets/image-20250428162710574.png" alt="image-20250428162710574" style="zoom:50%;" />
+推送上的新分支，别人如何通过pull拉取下来，直接拉取是成功的，会在本地创建origin/develop分支。
 
-#### 4.1.4 远程仓库推送原理
-
-当本地仓库与远程仓库建立联系后，添加新文件查看状态就会发现不同
-
-![image-20250517224402109](./assets/image-20250517224402109.png)
-
-为了保证本地与远程仓库的联系，创建了一个中间分支origin/master来与远程仓库绑定。该分支是隐藏的需使用-a才能查看到
+**因本地没有develop分支，需要绑定develop与origin/develop才能实现远程与本地绑定**
 
 ```console
-git branch -a  //-a就是-all的简写
+git checkout -b develop origin/develop 
 ```
 
-![image-20250517225015601](./assets/image-20250517225015601.png)
+![image-20250518163425469](./assets/image-20250518163425469.png)
 
-**本地代码如何与远程仓库联系的原理**：最主要就是创建的远程分支`remotes/origin/master`,它就是远程与本地的桥梁，它绑定的是本地的master分支。其作用如下：
+方式二：可用推送新分支方式创建远程分支,该指令就是第一次我们推送时的指令，-u其实也包含了set-upstream的内容。
 
-+ 当本地master分支更新要push给远程仓库，先会把内容更新合并到`remotes/origin/master`分支，也就是该分支的HEAD指针向前推进了几个版本，完成后再将该分支内容推送到远程
-+ 当本地要获取远程仓库内容，也是远程先推送到本地绑定的`remotes/origin/master`分支，然后再合并到本地的master分支上
+```console
+git push -u origin 分支名  
+```
+
+![image-20250518164030961](./assets/image-20250518164030961.png)
+
+拉取新分支后也可以用新的指令创建分支，这种创建有个缺点就是创建的分支名与远程名一定会一致
+
+```console
+git checkout --track origin/分支名 //不推荐
+```
+
+![image-20250518164414296](./assets/image-20250518164414296.png)
+
+**删除远程分支**
+
+```console
+//方式1，推送一个空分支到远程,这里是push的完整写法
+git push origin :分支名
+//方式2 新版git的功能
+git push origin --delete develop
+```
+
+> 注意上边删除远程分支同时本地的**origin/分支**也会被删除。
+
+创建分支依然使用之前的`git push --set-upstream origin 分支名`即可
+
+![image-20250518170618610](./assets/image-20250518170618610.png)
+
+也可让远程分支名与本地分支不同。
+
+```console
+git push --set-upstream origin develop：develop2 //远程分支名为develop2
+```
+
+![image-20250518171005459](./assets/image-20250518171005459.png)
+
+分支名相同时可以直接`git push`，分支名不同时则会失败。必须要完整的推送指令才能推送成功
+
+![image-20250518171140260](./assets/image-20250518171140260.png)
+
+```console
+git push origin HEAD:develop2  //HEAD表示当前分支当前版本
+git push origin develop:develop2 //该方式与效果是一样的
+```
+
+查看分支对应关系
+
+```console
+git remote show origin
+```
+
+![image-20250518172254754](./assets/image-20250518172254754.png)
+
+如果一人删除了远程分支，其他成员本地并没有删除，就会出现拉取远程分支错误
+
+```console
+git remote prune origin  //清除多余的远程分支
+```
+
+![image-20250518182725528](./assets/image-20250518182725528.png)
+
+> git pull中develop内容依然存在是因为本地分支develop还在，只要删除本地的develop它就会消失。
+>
+> 或者使用命令删除`git branch --unset-upstream`,他的效果就相当于消除本地的关联与`git remote prune origin`搭配使用  
 
 ### 4.2 github页面
 
@@ -1328,34 +1632,110 @@ git rebase -i HEAD~3  //就表示前3个合并也就是跟上边的完成＋v3�
 
 ### 5.2 合并分支记录
 
-以前合并分支是使用merge指令，但是该合并的分支记录会出现分叉，使用指令查看
+以前合并分支是使用merge指令，但是该合并的分支记录会出现分叉，使用`git log --graph`可查看
+
+使用rebase合并，它将不会产生分叉。它会改变分支的版本流程，将变基对象的版本与分支合并成一条直线。**变基对象只能是个人的分支**，如果提交到远程有多人开发，就不能使用，否则流程改变会导致各种错误，当然要上线的master也不能用。
+
+例如：原本的topic分支与dev分支流程如下
 
 ```console
-git log --graph
+          A---B---C topic
+         /
+    D---E---F---G dev
 ```
 
-![image-20250428170711114](assets/image-20250428170711114.png)
-
-也可简化信息展示信息
+如果在topic上使用merge
 
 ```console
-git log --graph --pretty=fromat:"%h %s"
+git merge dev
 ```
 
-![image-20250428170857737](assets/image-20250428170857737.png)
+最终合并的结果
 
-如果使用rebase合并，就不会出现分叉，该流程是先切回要合并的分支，也就是dev分支，执行rebase命令
-
-```conlsole
-git checkout 分支 //切回要变基的分支
-git rebase 主分支   //变基 该分支就是要合并过去的分支与切换分支的不同
-git checkout 主分支 //切换回主分支
-git merge 分支
+```console
+     A--B--C——F     topic分支上产生一个F分支
+             /
+D---E---F---G       dev
 ```
 
-变基效果
+如果在topic上使用变基指令，意思就是让dev分支变成topic分支的基础，
 
-![image-20250428171945177](assets/image-20250428171945177.png)
+```console
+git rebase dev
+git rebase dev topic //与上边是等价的写法
+```
+
+最终合并的结果就是topic的分支前面追加所有的dev分支
+
+```console
+                  A'--B'--C' topic上所有版本都变化
+                 /
+    D---E---F---G dev   dev分支不变
+```
+
+变基指令实现的具体步骤：
+
+1. git会把所有的topic版本临时保存下来，删除topic分支，
+
+2. HEAD切换到dev分支最新版本上，基于此创建一个新的topic分支，
+
+3. 最后把临时保存的topic版本一个个的merge到新的topic上，这时合并的topic版本号将与原来完全不同
+
+   合并的流程为A的内容就会与G先合并，有冲突先解决冲突，然后add添加冲突文件,继续执行rebase，这时A与G合成的版本为A'
+
+   ```console
+   git rebase --continue  //表示继续rebase流程
+   //如果不需要A的内容，执行skip表示跳过当前
+   git rebase --skip 
+   //如果rebase错误不想在执行，abort表示取消这次rebase，所有内容恢复最开始的样子
+   git rebase --abort
+   ```
+
+   继续的下一次就是B的与A'的内容对比进行合并，同样的流程，合并B',最后就是C。
+
+如果出现情况特殊情况，topic中有版本内容与dev一样，A等于A'，A的位置随意。
+
+```
+          A---B---C topic
+         /
+    D---E---A'---F dev
+```
+
+最终合并的结果，其流程也与之前一致，只是在合并A版本时发现与前面一致就直接skip舍弃。
+
+```
+                   B'---C' topic
+                  /
+    D---E---A'---F master
+```
+
+rebase还能实现插入的效果
+
+```console
+ A---B---C----F---G       dev
+          \
+           D——E            topic
+```
+
+执行指令
+
+```console
+git rebase topic  //注意是以topic为基础改变dev
+```
+
+最终结果dev分支改变，好像把topic的内容嵌入dev中
+
+```console
+A---B---C--D'--E'--F---G       dev
+         \
+          D——E            topic
+```
+
+变基后都记得切换到另一个分支将内容merge下来，让两者保持一致。
+
+![image-20250520201549410](./assets/image-20250520201549410.png)
+
+
 
 ### 5.3 合并远程仓库记录
 
@@ -1368,7 +1748,7 @@ git fetch origin 分支 //拉取远程内容
 git rebase origin/分支 //变基合并
 ```
 
-这种合并就相当于之前合并分支记录一样的效果，只是合并对象变成远程仓库的代码。
+这里的git rebase可以替换为merge,它是拉取的分支与本地的origin/分支进行合并。rebase合并的分支没有分叉，merge有。
 
 如果使用rebase产生冲突，其执行步骤
 
@@ -1553,11 +1933,250 @@ github的release相当于创建一个线上下载release版本。点击github页
 
 别人下载了release版本也能测试代码，有问题就可修改然后完成后变成下一版。
 
-## 八、Github搭建网站
+## 八、git submodule
+
+submodule就是子模块，例如在开发java项目中,可能会把项目分为许多功能，但这些功能又要放入整体项目中才有效果。这时java就会采取两种方式解决：
+
++ 将子功能打包为jar文件，然后引入项目，可行，但要求功能不能频繁更改；
+
++ 将子功能以class文件放入项目中，这种就可以频繁更改，但git要管理这种项目，就必须使用submodule才行。
+
+  >注意：嵌套的子项目本身也是一个项目，因此它也有git,submodule管理就相当于git项目中嵌套git项目
+
+### 8.1 搭建submodule项目
+
+在github中创建两个项目，分别为**parent**项目与**child**子项目。在本地也创建两个对应的项目关联远程的项目。该创建过程跟之前创建普通git项项目完全一样。做好后就相当于有两个git项目在github上。
+
++ 将child项目设置成parent项目的子项目,进入父项目执行
+
+  ```console
+  //使用child的远程地址下载内容，mymodule可以是多级目录，但不能存在否则git会报错，它用于存储子项目的内容
+  git submodule add git@github.com:WHCmetel/child.git mymodule 
+  ```
+
+  ![image-20250519162748721](./assets/image-20250519162748721.png)
+
+  mymodule文件夹中存放子项目的内容，.gitmodules配置文件配置了子项目的路径
+
+  ![image-20250519163500300](./assets/image-20250519163500300.png)
+
+  子项目的.git文件在父亲项目的.git文件中的modules/mymodule文件夹中
+
+  ![image-20250519163713034](./assets/image-20250519163713034.png)
+
++ 绑定好后，将新增的内容add加commit添加到版本中，然后推送到远程，点击子模块文件夹会直接跳转到子项目
+
+  ![image-20250519164011000](./assets/image-20250519164011000.png)
+
+### 8.2 submodule项目操作
+
+当**子项目内容发生变化**。它的操作依然是正常的操作，变化的内容推送到远程即可。
+
+父项目要获取子项目的变化，方式有两种：
+
++ 进入mymodule目录，执行命令git pull
+
+  ![image-20250519164635603](./assets/image-20250519164635603.png)
+
++ 直接在父目录，执行命令，foreach循环pull,这样不仅可以多个子模块同时更新，而且操作简单
+
+  ```console
+  git submodule foreach git pull  //子模块多少推荐使用
+  ```
+
+  ![image-20250519165547903](./assets/image-20250519165547903.png)
+
+提交子模块版本，并提交到远程。
+
+![image-20250519165821617](./assets/image-20250519165821617.png)
+
+**克隆父项目与子项目的全部内容**,有两种方式：
+
++ 直接克隆父项目,会发现子模块内容没有，还需要执行识别子模块的命令
+
+  ```console
+  git clone git@github.com:WHCmetel/parent.git  parent2 //克隆内容到文件夹parent2中
+  git submodule init //识别初始化子模块的内容
+  git submodule update --recursive  //更新子模块内容
+  ```
+
+  ![image-20250519170920181](./assets/image-20250519170920181.png)
+
+  这时进入子模块会发现，分支不是具体分支而是最新版本，直接切换到主分支就算完成克隆了
+
+  ![image-20250519171013622](./assets/image-20250519171013622.png)
+
++ 另一种方式是在克隆时加参数
+
+  ```
+  git clone git@github.com:WHCmetel/parent.git  parent3 --recursive //所有子模块都克隆下来
+  ```
+
+  ![image-20250519171321847](./assets/image-20250519171321847.png)
+
+删除子项目，git没有直接的删除方式，可以使用多步指令组合进行删除，删除子模块的步骤
+
+1. **删除子模块目录**：首先，你需要删除子模块的目录和源码。这可以通过执行`rm -rf`子模块目录*命令来完成。
+
+   ```console
+   git rm --cached mymodule  //从暂存区移除子模块目录
+   rm -rf mymodule //从工作区删除子模块
+   ```
+
+2. **编辑.gitmodules文件**：需要编辑项目根目录下的.gitmodules文件，删除与子模块相关的条目。只有一个模块就删除文件。
+
+   ```console
+   rm .gitmodules //删除配置文件,删除只有一个子模块的情况
+   vim .gitmodules //如果有多个就编辑
+   git add .gitmodules 
+   ```
+
+3. **编辑.git/config文件**：然后，你需要编辑.git/config文件，删除其中与子模块相关的配置条目。
+
+   ```console
+   cd .git
+   vim config
+   ```
+
+4. **删除.git/modules中的子模块目录**：在.git/modules目录下，每个子模块都有一个对应的目录。你需要删除与要移除的子模块对应的目录。
+
+   ```console
+   rm -rf modules/模块目录 //删除modules目录下的模块目录
+   ```
+
+5. **清除缓存**：如果在删除子模块后，Git报错，你可以执行`git rm --cached`子模块名称来清除缓存。
+
+6. **提交更改**：完成上述步骤后，你需要提交这些更改到你的仓库。这可以通过执行git commit命令来完成。
+
+   ```console
+   git commit -m '版本信息'
+   git push
+   ```
+
+   ![image-20250519173130145](./assets/image-20250519173130145.png)
+
+submodule项目外层父模块内容的操作跟以前没有任何区别，只有子模块的内容需要多几步操作。
+
+## 九、git subtree
+
+submodule是git早期解决多模块项目的方案，但其有一些缺点：一是没有删除的指令，并且子模块只能在子项目中修改，父项目中无法修改提交到子项目中。这时git就使用了一个新的技术subtree来完美代替submodule。
+
+```console
+git subtree //可直接查看subtree指令
+```
+
+<img src="./assets/image-20250520102651246.png" alt="image-20250520102651246" style="zoom:50%;" />
+
+subtree的使用方式跟submodule很相似，也是创建父子项目，绑定远程github，然后再绑定子项目到父项目中。subtree使用流程：
+
+1. 为防止写过多的远程地址，创建一个子项目链接的subtree的origin
+
+   ```console
+   git remote add subtree_origin git@github.com:WHCmetel/child.git 
+   ```
+
+2. **添加子项目**，并绑定到父项目中,放入的文件夹名称为subtree，可自定义为其他名称，有三种写法
+
+   ```console
+   //--squash参数可写可不写
+   git subtree add --prefix=subtree subtree_origin master 
+   //写法2空格代替=号
+   git subtree add --prefix subtree subtree_origin master --squash
+   //写法3-P代替--prefix
+   git subtree add -P subtree subtree_origin master --squash
+   ```
+
+   使用--squash的效果
+
+   <img src="./assets/image-20250520104829861.png" alt="image-20250520104829861" style="zoom:50%;" />
+
+   不使用--squash的效果
+
+   <img src="./assets/image-20250520140207201.png" alt="image-20250520140207201" style="zoom:50%;" />
+
+   可以看到不管是否使用--squash，在添加完子项目后，git都会再合并一个版本
+
+   > --squash 参数其实是merge的参数，在之前的rebase中设置s就是它的简写，它的含义是将分支的多个提交版本合并成一个版本由合并的分支提交
+   >
+   > subtree使用该参数的好处是防止子项目的提交污染父项目，这样父项目的提交就全是父项目的版本，没有子项目的日志版本
+   >
+   > 注意：subtree如果开始就使用--squash参数，后续所有pull子项目的操作都要加该参数，防止报错。
+   >
+   > 慎重使用--squash参数，如果没有合并分支提交版本的要求，最好不使用
+
+3. 推送父项目到远程，因为比远程多了两个版本
+
+   ```console
+   git push  //父项目
+   ```
+
+   
+
+   ![image-20250520105321806](./assets/image-20250520105321806.png)
+
+4. 修改子项目内容,提交到远程，该过程正常操作即可
+
+5. 父项目拉取子项目新内容，如果前面使用--squash，这里必须写--squash，拉取完成后提交到父项目远程即可
+
+   ```console
+   git subtree pull --prefix=subtree subtree_origin master --squash
+   ```
+
+   <img src="./assets/image-20250520105940614.png" alt="image-20250520105940614" style="zoom:50%;" />
+
+   如果后续不使用--squash，就会报错
+
+   ![image-20250520124753483](./assets/image-20250520124753483.png)
+
+6. **父项目中修改子项目的内容**，并提交到远程,其中子项目也需要提交一次才能修改子项目远程内容
+
+   ```console
+   git push //父项目提交远程
+   git subtree push --prefix=subtree subtree_origin master  //子项目提交远程
+   ```
+
+7. 子项目拉取远程内容，也就是父项目提交的内容
+
+   ```console
+   git pull //子项目
+   ```
+
+8. 在子项目中再次修改内容，提交到远程，然后父项目拉取子项目内容，这时就会出现一个冲突
+
+   ```console
+   git subtree pull --prefix=subtree subtree_origin master --squash
+   ```
+
+   ![image-20250520111732751](./assets/image-20250520111732751.png)
+
+   按照一般情况，这里是不会又冲突的，因为我们的版本都是依次向前，两者都是再最新的版本上修改提交的。这时冲突的内容也不一样。
+
+   ![image-20250520112029512](./assets/image-20250520112029512.png)
+
+   产生冲突的原因分析：查看日志，发现父项目修改的版本与子项目拉取的版本日志id不同
+
+   ![image-20250520112658229](./assets/image-20250520112658229.png)
+
+   使用gitk查看，可看到两者没有共同的父项目（本来上边两个日志就是他们共同父亲，但实际不同），因此合并就会产生冲突
+
+   ![image-20250520152027837](./assets/image-20250520152027837.png)
+
+   上述效果产生的原因是父项目中修改子项目的内容，提交时有两个提交：
+
+   + 先是子项目在内部进行了一次提交，产生的版本就是ca57c32
+   + 然后子项目的内容合并到父项目，又提交一个版本74fe4，也就是上边两个不同id的日志
+
+   subtree推送到子项目内部的版本是ca57c32版本，与父项目版本74fe4不同。因此当子项目修改内容提交父项目拉取合并时就会产生冲突。因为两者没有共同的父版本。它也相当于父版本提交了一个没有修改内容版本与子版本合并。
+
+   ![image-20250520120417741](./assets/image-20250520120417741.png)
+
+   要避免上述冲突，方法很简单，在父项目推送完子项目后，再从子项目远程pull一次，这样就能保证子项目与主项目版本一致，下次再修改子项目就不会有冲突。
+
+## 十、Github搭建网站
 
 github功能强大，可以很容易的搭建静态网站，有两种方式可以搭建。
 
-### 8.1 仓库网站
+### 10.1 仓库网站
 
 创建仓库，但仓库名称必须是账户名.github.io。
 
@@ -1573,7 +2192,7 @@ github功能强大，可以很容易的搭建静态网站，有两种方式可�
 
 ![image-20250503233231981](assets/image-20250503233231981.png)
 
-### 8.2 项目网站
+### 10.2 项目网站
 
 1. **创建或选择一个仓库**： 您可以在新仓库或现有仓库中创建，仓库名称随便，注意在项目中创建一个index.html文件
 
@@ -1640,4 +2259,17 @@ GitHub Pages支持多种静态网站生成工具，如**Jekyll**、Hugo、Gatsby
 
    ![在这里插入图片描述](assets/ae141d57f4443a2bc6273a7e771424e8.png)
 
-   
+
+## 十一、 gitLab
+
+github是国外的服务器，而gitlab是可以本地搭建的自己的服务器。它相当于自己做的github服务器。
+
+gitlab是官方网站为：https://about.gitlab.com/
+
+其安装包的下载地址为：https://packages.gitlab.com/gitlab/gitlab-ce
+
+gitlab只能安装在linux系统中，安装的什么系统就按照对应版本的gitlab即可。
+
+![image-20250521224941974](./assets/image-20250521224941974.png)
+
+gitlab安装比较复杂，需要安装许多插件，可以去看专门的资料进行安装。安装好后，gitlab的使用基本跟github一样。
