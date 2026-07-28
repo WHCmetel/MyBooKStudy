@@ -1,13 +1,14 @@
 # HTML5基础
 
 [TOC]
+
 ```md
 ##强制换页代码 这是可以写在md文档用于换页的代码
 <div style="page-break-after:always;"></div>
 ```
 ## 一、网站与网页
 
-**网站**是由许多网页组合构成的，**网页**就是网站中的"一页"，它其实就是由HTML标签编写的HTML格式的文件在浏览器中展示的效果.
+**网站**是由许多网页组合构成的，**网页**就是网站中的"一页"，它其实就是由HTML标签编写的HTML格式的文件在浏览器中展示的效果。
 
 ### 1.1 HTML简介
 
@@ -15,8 +16,8 @@
 
 **超文本**的含义：
 
-1. 它不仅使用文字，也可加入图片、声音、动画、多媒体等内容，超越了普通文本的限制
-2. 它还可以从一个文件跳转到另一个文件，与多个主机文件链接形成了**超级链接文本**
+1. 它不仅可以使用文字，也可加入图片、声音、动画、多媒体等内容，超越了普通文本的限制；
+2. 它还可以从一个文件跳转到另一个文件，与多个主机文件链接形成了**超级链接文本**。
 
 用HTML编写最简单的网页代码：
 
@@ -31,7 +32,7 @@
 
 ### 1.2 浏览器简介
 
-常用的浏览器有IE、火狐、谷歌、Safari和Opera等，个人使用随意，开发推荐使用谷歌浏览器
+常用的浏览器有IE、火狐、谷歌、Safari和Opera等，个人使用随意，开发推荐使用谷歌浏览器。
 
 <img src="HTML5基础.assets/image-20230625193304283.png" alt="image-20230625193304283" style="zoom:50%;" />
 
@@ -58,12 +59,12 @@ web标准的作用就是**防止不同浏览器出现页面或排版差异**，�
 
 当然除了上述作用外，web标准的好处还有：
 
-1. web内容能被更多的设备访问
-2. 网站更易于维护
-3. 提高浏览速度
-4. 节省网站流量
+1. web内容能被更多的设备访问；
+2. 网站更易于维护；
+3. 提高浏览速度；
+4. 节省网站流量。
 
-web标准的组成元素
+web标准的组成元素：
 
 + **结构(Structure)**:结构用于对网页元素进行整理和分类、最为重要，目前主要表现的内容就是**HTML**。
 + **表现(Presentation)**:表现用于设置网页元素的版式、颜色、大小等外观样式、主要为**CSS**.
@@ -95,7 +96,7 @@ HTML标签书写规范一般都是**放在<>中的成对出现的**，例如:`<h
 
 页面其他标签也是在基本结构标签中书写的，它是类似页面的框架，是最重要最基本的内容。
 
-第一个html标签案例：
+最简单的html页面案例：
 ```html
 <html>
 	<head>
@@ -108,61 +109,128 @@ HTML标签书写规范一般都是**放在<>中的成对出现的**，例如:`<h
 ```
 
 
-|      标签名       | 定义     | 说明                                                 |
-| :---------------: | -------- | ---------------------------------------------------- |
-|  `<html></html>`  | HTML标签 | 页面中最大的标签，称为**根标签**                     |
-|  `<head></head>`  | 头部标签 | 在head标签中必须要设置title标签``                    |
-| `<title></title>` | 标题标签 | 网页标题内容的设置                                   |
-|  `<body></body>`  | 主体标签 | 元素中包含文档所有内容，基本所有的网页内容都在body中 |
+|      标签名       | 定义     | 说明                                                     |
+| :---------------: | -------- | -------------------------------------------------------- |
+|  `<html></html>`  | HTML标签 | 页面中最大的标签，称为**根标签**                         |
+|  `<head></head>`  | 头部标签 | 在head标签中必须要设置**title标签**                      |
+| `<title></title>` | 标题标签 | 网页标题内容的设置                                       |
+|  `<body></body>`  | 主体标签 | 元素中包含文档所有内容，**基本所有的网页内容都在body中** |
 
 运行效果：
 ![image-20230625203120361](HTML5基础.assets/image-20230625203120361.png)
 
-### 2.2 其他结构标签
-
-**文档类型声明标签**`<!DOCTYPE>`，它用于文档类型声明，作用就是告诉浏览器使用哪个HTML版本来显示网页。
+**文档类型声明标签**`<!DOCTYPE>`，它用于**文档类型声明**，作用就是告诉浏览器使用哪个HTML版本来显示网页。
 
 `<!DOCTYPE html>`意思是使用**HTML5**版本来显示网页，注意：`<!DOCTYPE html>`必须声明在文件最开始的位置，在`<html>`之前，且该标签并不是HTML标签。
 
-**lang语言显示种类设置**`<html lang='zh-CN>'`就是设置语言为中文，默认为en是英文的意思,该标签就是简单定义网页为英文还是中文，但对于显示来说，定义en也可以在body中写中文显示正常，该属性对浏览器与搜索引擎说有意义的，并且如果要做多语言网页该属性就有用了。`
+**lang语言显示种类设置**`<html lang='zh-CN>'`就是设置语言为中文，默认为`en`是英文的意思,该标签就是简单定义网页为英文还是中文，但对于显示来说，定义en也可以在body中写中文显示正常，该属性对浏览器与搜索引擎说有意义的，并且如果要做多语言网页该属性就有用了。
 
-`<meta>`单标签,主要用于定义页面元素元信息的标签，必须定义在`<head></head>`标签中
+### 2.2 head头部标签
 
+head中的标签大部分都是设置网页相关信息，不会直接影响网页中内容。
 
+#### 2.2.1 meta标签
 
-其属性有
+`<meta>`为单标签,其主要作用是向浏览器、搜索引擎、爬虫、社交平台等传递网页配置信息与描述信息。其必须定义在`<head></head>`标签中才能生效，作用也仅作用于当前页面，无全局跨页面效果。
 
-|                             属性                             |                              值                              | 描述                                         |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | -------------------------------------------- |
-| [charset](https://www.w3school.com.cn/tags/att_meta_charset.asp) |                        character_set                         | 规定 HTML 文档的字符编码。                   |
-|                         **content**                          |                             text                             | 定义与 http-equiv 或 name 属性相关的元信息。 |
-|                        **http-equiv**                        | content-security-policy  content-type  default-style  refresh | 把 content 属性关联到 HTTP 头部。            |
-|                           **name**                           | application-name  author  description  generator  keywords  viewport | 把 content 属性关联到一个名称。              |
-|                          **scheme**                          |                          some_text                           | 定义用于翻译 content 属性值的格式            |
+meta标签根据配置内容不同，作用也不相同：
 
-其中` <meta charset="UTF-8">`就是定义文档编码为UTF-8，可以防止网页显示出现乱码的情况，其中UTF-8不要写成utf-8等其他形式防止网页无法识别
+1. **页面编码配置**，作用是页面统一编码，防止页面乱码；
+2. **移动端适配**，也就是常说的视口配置，作用主要是适配手机屏幕，解决排版错乱的问题；
+3. **页面描述，SEO优化**，作用是配置搜索引擎抓取的页面简介信息，直接影响搜索结果展示；
+4. **爬虫控制**,作用是控制页面收录与链接抓取；
+5. **浏览器兼容**，兼容旧版IE浏览器的配置，其写法为：
+6. **页面跳转**，实现页面自动延迟跳转；
+7. **缓存控制**，禁止浏览器页面缓存；
+8. **UI定制**，修改移动端浏览器顶部状态栏颜色；
+9. **安全防护**，配置资源加载规则，防止XSS攻击；
+10. **社交分享**，优化微信、QQ等平台分享卡牌样式。
+11. **scheme属性**，其主要用于设置或返回解释content属性的值的格式。
 
-**name 属性**
+meta配置的具体案例如下：
 
-提供了名称/值对中的名称。HTML 和 XHTML 标签都没有**指定任何预先定义的 `<meta>` 名称**。通常情况下，您可以自由使用对自己和源文档的读者来说富有意义的名称。
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- 1.页面编码配置 -->
+    <meta charset="UTF-8" />
 
-"keywords" 是一个经常被用到的名称。它为文档定义了一组关键字。某些搜索引擎在遇到这些关键字时，会用这些关键字对文档进行分类。
+    <!-- 2.移动端适配 
+     width=device-width表示让宽度自适应手机屏幕宽度 
+     initial-scale=1.0页面初始加载缩放比例为1，也就是无缩放 
+     maximum-scale=1.0，现在用户最大缩放比
+     user-scalable=no 禁止用户双指缩放页面，小程序，活动页面常用-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-类似这样的 meta 标签可能对于进入搜索引擎的索引有帮助：
+    <!-- 3.SEO优化 -->
+    <!-- description-->
+    <meta name="description" content="品优购商城-专业的综合网上购物商城。。。"/>
+    <!-- 关键词 -->
+    <meta name="keywords" content="网上购物,网上商城,家电,手机,电脑,服装,居家,母婴,美妆,个护,食品,生鲜,品优购"/>
+    <!-- 作者 -->
+    <meta name="author" content="张三" />
+    <!-- title也能影响搜索引擎-->
+    <title>Document</title>
+
+    <!-- 4. 爬虫控制，参数index表示允许搜索引擎收录当前页面、noindex表示禁止收录当前页面、follow表示允许爬虫抓取页面内所有链接，nofollow表示禁止爬虫 -->
+    <meta name="robots" content="noindex,nofollow" />
+
+    <!-- 5. 浏览器兼容,兼容IE浏览器 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    
+    <!-- 6. 页面跳转 表示页面将在0秒后跳转到hello.html。-->
+    <meta http-equiv="refresh" content="0;url=hello.html" />
+
+    <!-- 7.缓存控制，四种设置，
+     no-cache: 强制每次请求都从服务器获取最新内容，而不是使用缓存。
+     no-store: 防止任何缓存存储页面数据，确保敏感信息不会被缓存。
+     must-revalidate: 要求缓存内容在过期后必须重新验证。
+     max-age: 指定缓存的最大存活时间（以秒为单位）。 -->
+    <!-- 禁止缓存 -->
+    <meta http-equiv="Cache-Control" content="no-cache" />
+
+    <!-- 8.主题UI定制 ,设置移动端浏览器主题色-->
+    <meta name="theme-color" content="#1677ff" />
+
+    <!-- 9.安全防护 下面配置的作用是告诉浏览器，可以把所属本站的所有 http 连接升级为 https 连接-->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+
+    <!-- 10.社交分享OG -->
+    <meta property="og:title" content="网站分享标题" />
+    <meta property="og:description" content="网站分享描述" />
+    <meta property="og:image" content="图片地址" />
+    <meta property="og:type" content="website" />
+
+    <!-- 11.schema属性，就是设置解读content属性的格式，日期格式，名字是链接 -->
+    <meta name="revised" content="2011-02-03" scheme="YYYY-MM-DD" />
+    <meta name="author" content="John Doe" scheme="https://schema.org/Person" />
+  </head>
+  <body></body>
+</html>
+```
+
+总结上述案例，可以看出meta本质就只有两种配置方式：`name/content`配置以及`http-equiv/content`配置。
+
+> 其中` <meta charset="UTF-8">`就是定义文档编码为UTF-8是特殊写法，可以防止网页显示出现乱码的情况，其中UTF-8不要写成utf-8等其他形式防止网页无法识别。
+
+**name属性**
+
+HTML和XHTML标签都没有**指定任何预先定义的`<meta>`名称**。通常情况下，您可以自由使用对自己和源文档的读者来说富有意义的名称。"keywords" 是一个经常被用到的名称。它为文档定义了一组关键字。
 
 ```
 <meta name="keywords" content="HTML,ASP,PHP,SQL">
 ```
 
-如果没有提供 name 属性，那么名称/值对中的名称会采用 http-equiv 属性的值。
+如果没有提供name属性，那么名称会采用http-equiv属性的值。
 
-**http-equiv 属性**
+**http-equiv属性**
 
-http-equiv 属性为名称/值对提供了名称。并**指示服务器在发送实际的文档之前先在要传送给浏览器的 MIME 文档头部包含名称/值对**。
+http-equiv属性**指示服务器在发送实际的文档之前先在要传送给浏览器的MIME文档头部包含键值对**。
 
-当服务器向浏览器发送文档时，会先发送许多名称/值对。虽然有些服务器会发送许多这种名称/值对，但是所有服务器都至少要发送一个：**content-type:text/html**。这将告诉浏览器准备接受一个 HTML 文档。
+当服务器向浏览器发送文档时，会先发送许多键值对。虽然有些服务器会发送许多这种键值对，但是所有服务器都至少要发送一个`content-type:text/html`。这将告诉浏览器准备接受一个HTML文档。
 
-使用带有 http-equiv 属性的 <meta> 标签时，服务器将把名称/值对添加到发送给浏览器的内容头部。例如，添加：
+使用带有http-equiv属性的<meta>标签时，**服务器将把键值对添加到发送给浏览器的内容头部**。例如，
 
 ```
 <meta http-equiv="charset" content="iso-8859-1">
@@ -181,13 +249,13 @@ expires:31 Dec 2008
 
 **content 属性**
 
-content 属性提供了名称/值对中的值。该值可以是任何有效的字符串。**content 属性始终要和 name 属性或 http-equiv 属性一起使用。**
+content属性提供了键值对中的**值**。该值可以是任何有效的字符串。**content属性始终要和name属性或http-equiv属性一起使用。**
 
 **scheme 属性**
 
-scheme 属性用于指定要**用来翻译属性值的方案**。此方案应该在由 <head> 标签的 profile 属性指定的概况文件中进行了定义。
+scheme属性用于指定要**用来翻译属性值的方案**。此方案应该在由 <head> 标签的**profile**属性指定的概况文件中进行了定义。
 
-#### 2.2-x 网站TDK三大标签SEO优化(扩展)
+#### 2.2.2 网站TDK三大标签SEO优化(扩展)
 
 **SEO(search Engine Optimization)**名为搜索引擎优化，是一致利用**搜索引擎的规则**提供网站在有关搜索引擎内的自然排名的方式。
 
@@ -195,7 +263,7 @@ seo的目的是对网站进行深度优化，从而帮助网站获取免费的�
 
 一般页面必须有三个标签用来符合SEO优化：
 
-1. **title**：其具有不可替代性，也是网页第一个重要的标签，是搜索引擎了解网页入口和对网页主题归属的最佳判断点。写法建议：==**网站名(产品名)-网站的简介**==,一般不超过30个汉字。例如：**小米商城**-小米5s、红米Note4、小米MIX、小米笔记本**官方**网站
+1. **title**：其具有不可替代性，也是网页第一个重要的标签，是搜索引擎了解网页入口和对网页主题归属的最佳判断点。写法建议：**网站名(产品名)-网站的简介**,一般不超过30个汉字。例如：**小米商城**-小米5s、红米Note4、小米MIX、小米笔记本**官方**网站
 2. **description**：网站说明，主要介绍网站是做什么的，主要写网站业务和主题，多采用"我们是..."，"xxx网作为...","电话：010..."之类的话语。例如：京东JD.COM-专业的综合网上购物商城，为您提供正品低价的购物选择、优质便捷的服务体验。商品来自全球数十万品牌商家，囊括家电、手机、电脑、服装、居家、母婴、美妆、个护、食品、生鲜等丰富品类，满足各种购物需求。
 3. **keyword**s：是**页面的关键词**，是搜索引擎的关注点之一。最好限制为6~8个关键词，关键词用`，`隔开，采用关键词1，关键词2的形式。**关键词越靠前，越容易被引擎搜索**到。例如：网上购物,网上商城,家电,手机,电脑,服装,居家,母婴,美妆,个护,食品,生鲜,京东
 
@@ -222,7 +290,100 @@ seo的目的是对网站进行深度优化，从而帮助网站获取免费的�
 
 一般这些描述会找专业的人员编写。里边用词是十分讲究的。
 
-### 2.3 常用标签
+#### 2.2.3 head中其他标签
+
+除了meta标签外，head中还可以设置其他标签：	
+
+1. **link**标签，用于引入外部资源，主要用于引入css以及其他图片等外部文件；
+2. **style**标签，编写css样式，只能写在head中；
+3. **script**标签，编写JS代码，既可以写在head中也可写在body中，一般写在body中；
+4. **noscript**，用于在浏览器禁用JavaScript或不支持JavaScript时显示替代内容。它可以在HTML文档的head或body中使用；
+5. **base**，**定义页面中所有链接默认的链接目标地址**。描述了基本的链接地址/链接目标，该标签作为HTML文档中所有的链接标签的默认链接。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- 1.link标签引入外部资源  text/css表示css文件-->
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
+    <link href="https://g.csdnimg.cn/static/logo/favicon32.ico" rel="shortcut icon" type="image/x-icon"/>
+    <!-- 2.css脚本-->
+    <style>
+      /* 编写CSS样式 */
+    </style>
+    <!-- 3.js脚本 -->
+    <script>
+      // 编写js脚本
+    </script>
+    <!-- 外部引入js脚本 -->
+    <script src="myScript.js"></script>
+      
+    <!-- 4.noscript脚本 -->
+    <noscript>
+        <p>抱歉，您的浏览器不支持 JavaScript 或已禁用它。</p>
+    </noscript>
+      
+    <!-- 5.定义默认访问资源路径，也就是服务器默认地址 -->
+    <base href="http://www.runoob.com/images/" target="_blank">
+  </head>
+  <body></body>
+</html>
+```
+
+#### 2.2.4 link标签详解（重要）
+
+link标签是单标签。主要用于引入外部资源，该资源会作用于整个网页。
+
+link有四大属性：
+
++ **rel**，定义当前页面与外部资源的关联关系，是必填属性，它决定了link标签的功能，例如，stylesheet就表示引入外部css
++ **href**，指定外部资源路径地址，支持绝对路径、相对路径、CDN地址，网络资源地址等
++ **type**，指定外部资源的MIME类型，HTML5中可省略，浏览器会自动识别资源类型，旧项目兼容使用；
++ **media**,指定资源生效的设备媒介条件，可实现PC/移动端、屏幕尺寸、打印场景的**资源差异化加载**。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- 1. 网页图标加载 -->
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <!-- 设置高清图标 -->
+    <link rel="icon" href="./favicon.ico" type="image/png" />
+    <link rel="apple-touch-icon" href="./applie-icon.png" />
+
+    <!-- 2. 资源加载 -->
+    <!-- 预加载关键资源preload,也就是提前加载需要的资源
+        crossorigin属性anonymous，匿名跨域、不携带token，常用
+        crossorigin属性use-credentials,携带跨域凭证、需服务端配置-->
+    <link rel="preload" href="./font/iconfont.woff2"  as="font" type="font/woff2" crossorigin="use-credentials">
+    <!-- 第三方域名预连接优化速度,也就是提前建立连接 -->
+    <link rel="preconnect" href="https://cdn.bootcdn.net" />
+    <!-- 提前解析域名DNS -->
+    <link rel="dns-prefetch" href="https://cdn.bootcdn.net">
+
+    <!-- 3. 全局样式引入，重点 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./css/global.css" />
+
+    <!-- 4. SEO规范地址 -->
+    <link rel="cannoical" href="https://www.xxx.com" />
+    <!-- 指定页面移动端适配地址、多语言地址 -->
+    <link rel="alternate" href="https://m.xxx.com" media="only screen and (max-width:768px)">
+
+    <!-- 5. disabled属性 ,表示禁用当前link引入的资源,也就是该引入无效-->
+    <link rel="stylesheet" href="./dark.css" disabled id="darkstyle">
+  </head>
+  <body></body>
+</html>
+```
+
+### 2.3 body内容标签
 
 #### 2.3.1 标题标签
 
@@ -872,7 +1033,7 @@ video的常用属性
 |  **height**  |  像素值   |                           视频高度                           |
 |   **loop**   |   loop    |                         视频循环播放                         |
 |   preload    | auto/none | 规定是否在未播放前**预先加载视频**，如果设置了`autoplay`就表示要预先加载,忽略该属性 |
-| **==src==**  |    url    |                       视频路径(必须的)                       |
+|   **src**    |    url    |                       视频路径(必须的)                       |
 |  **poster**  |  Imgurl   |              视频未播放或加载未完成时显示的图片              |
 |  **muted**   |   muted   |                           静音播放                           |
 
@@ -969,18 +1130,18 @@ video的常用属性
 
 为了满足用户各种类型的输入，HTML5新增许多input类型(红色的最常用)表示不同表单类型，可以限制用户输入内容，防止错误。
 
-|     属性值     |            说明             |
-| :------------: | :-------------------------: |
-|   **email**    | 限制用户输入必须是Email类型 |
-|    **url**     |  限制用户输入必须是URL类型  |
-|    **date**    | 限制用户输入必须是日期类型  |
-|    **time**    | 限制用户输入必须是时间类型  |
-|   **month**    | 限制用户输入必须是月份类型  |
-|    **week**    |  限制用户输入必须是周类型   |
-| ==**number**== | 限制用户输入必须是数字类型  |
-|  ==**tel**==   |          手机电话           |
-| ==**search**== |           搜索框            |
-|   **color**    |    生成一个颜色选择表单     |
+|   属性值   |            说明             |
+| :--------: | :-------------------------: |
+| **email**  | 限制用户输入必须是Email类型 |
+|  **url**   |  限制用户输入必须是URL类型  |
+|  **date**  | 限制用户输入必须是日期类型  |
+|  **time**  | 限制用户输入必须是时间类型  |
+| **month**  | 限制用户输入必须是月份类型  |
+|  **week**  |  限制用户输入必须是周类型   |
+| **number** | 限制用户输入必须是数字类型  |
+|  **tel**   |          手机电话           |
+| **search** |           搜索框            |
+| **color**  |    生成一个颜色选择表单     |
 
 ```html
 <!DOCTYPE html>
@@ -1027,13 +1188,13 @@ video的常用属性
 
 html5新增表单属性可以帮助我们完成更多想要的功能,常用的如下
 
-|        属性         |    值     |                             说明                             |
-| :-----------------: | :-------: | :----------------------------------------------------------: |
-|  ==**required**==   | required  |             表单拥有该属性表示内容不能为空，必填             |
-| ==**placeholder**== | 提示文本  |            表单提示信息，只显示不影响value值内容             |
-|  **==autofocus==**  | autofocus |         自动聚焦属性，页面加载完成自动聚焦到指定表单         |
-|    autocomplete     |  off/on   | 常结合search类型使用，默认是on开启的，要使用该功能确保name属性有值，且成功提交过，这样才会**出现以前的输入记录**。为了安全不保留提交记录可以off关闭 |
-|    **multiple**     | multiple  | 多选文件提交，一般与file类型的input一起使用，可以同时提交多个文件 |
+|      属性       |    值     |                             说明                             |
+| :-------------: | :-------: | :----------------------------------------------------------: |
+|  **required**   | required  |             表单拥有该属性表示内容不能为空，必填             |
+| **placeholder** | 提示文本  |            表单提示信息，只显示不影响value值内容             |
+|  **autofocus**  | autofocus |         自动聚焦属性，页面加载完成自动聚焦到指定表单         |
+|  autocomplete   |  off/on   | 常结合search类型使用，默认是on开启的，要使用该功能确保name属性有值，且成功提交过，这样才会**出现以前的输入记录**。为了安全不保留提交记录可以off关闭 |
+|  **multiple**   | multiple  | 多选文件提交，一般与file类型的input一起使用，可以同时提交多个文件 |
 
 ```html
 <!DOCTYPE html>
