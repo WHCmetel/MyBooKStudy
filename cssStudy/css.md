@@ -5675,7 +5675,7 @@ ps软件：利用**标尺辅助线确定x,y坐标，切片确定大小位置**�
 
 ![image-20240801175110267](css.assets/image-20240801175110267.png)
 
-fonts文件放好后，在css中引入如下代码，代码可以直接在下载文件的css.style文件中复制，其内容就是导入我们的四个字体文件
+fonts文件放好后，在css中引入如下代码，代码可以直接在下载文件的`style.css`文件中复制，其内容就是导入我们的四个字体文件
 
 ```css
 @font-face {
@@ -5742,7 +5742,34 @@ fonts文件放好后，在css中引入如下代码，代码可以直接在下载
 
 ![image-20240801180259307](css.assets/image-20240801180259307.png)
 
-### 14.3 字体图标追加
+### 14.3 通过类名使用字体图标
+
+除了上边的方式外，我们还可以通过类名使用字体图标。其步骤分为两步：
+
+1. HTML页面中引入字体图标中的CSS文件，也就是`style.css`文件；
+2. 标签就可直接调用图标对应的类名即可。(类名在css文件中有标注)。
+
+案例代码
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>图标使用</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="icon-bag"></div>
+    <div class="icon-clock"></div>
+  </body>
+</html>
+```
+
+![image-20260822234625799](css.assets/image-20260822234625799.png)
+
+### 14.4 字体图标追加
 
 如果下载的字体图标不够用了，我们需要添加新的字体图标到原来的字体文件中。这时可以先打开字体图标网页，如果发现没有之前的内容，只需导入下载目录的`selection.json`文件，重新上传内容即可。
 
@@ -9491,6 +9518,67 @@ css中使用动画的步骤为：
 效果
 
 ![image-20240810000827631](css.assets/image-20240810000827631.png)
+
+### 16.9 边框图片 border-image
+
+出现**边框样式**一样，但边框**大小不一样**情况时，不能直接使用背景图，但可使用`css3的边框图片`制作，`border-image`属性，这个属性允许指定一张图作为元素的边框。
+
+边框图片切图原理：使用代码切四角，也就是九宫格的由来。四个角不变，中间部分可以**铺排**，**拉伸**或者**环绕**。切的顺序是**上右下左**。
+
+![image-20260822224016161](css.assets/image-20260822224016161.png)
+
+边框图片语法：
+
+| 属性                   | 描述                                                         |
+| ---------------------- | ------------------------------------------------------------ |
+| border-image-source    | 用在边框图片的路径，也就是设置图片路径                       |
+| **border-image-slice** | 边框图片内向偏移。也就是切图，按照上右下左顺序设置距离即可，不加单位 |
+| border-image-width     | 边框图片宽度，要加单位，这个不是边框宽度，是图片的宽度，因此设置后不会占空间 |
+| border-image-repeat    | 边框图片是否为平铺(repeat)、铺满(round)或拉伸(stretch)，默认拉伸 |
+
+案例代码
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>边框图片</title>
+    <style>
+      .div1 {
+        width: 300px;
+        height: 200px;
+        border: 15px solid red;
+        border-image-source: url(/images/border.png);
+        /* 正方形上下左右都一样 */
+        border-image-slice: 33 33 33 33;
+      }
+
+      .div2 {
+        width: 300px;
+        height: 200px;
+        border: 15px solid red;
+        border-image-source: url(/images/border.png);
+        /* 正方形上下左右都一样 */
+        border-image-slice: 33;
+        /* 该属性默认值是border的宽度，如果怕border太宽导致无法写内容，可以设置该属性让内容范围变大 */
+        /* 边框图片宽度不会挤压文字 */
+        border-image-width: 30px;
+        border-image-repeat: round;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="div1">div内容1</div>
+    <div class="div2">div内容2</div>
+  </body>
+</html>
+```
+
+效果
+
+![image-20260822230729956](css.assets/image-20260822230729956.png)
 
 ## 十七、浏览器私有前缀
 

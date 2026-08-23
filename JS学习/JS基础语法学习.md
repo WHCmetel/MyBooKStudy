@@ -1,9 +1,5 @@
 # JS学习
 
-[TOC]
-
-
-
 ## 一、JavaScript简介
 
 JS就是JavaScript的简称，它是一种**轻量级的脚本语言**。
@@ -3284,6 +3280,29 @@ console.log(document); //整个文档树
 </html>
 ```
 
+还可以直接**使用id名获取元素**，但该方式容易被变量覆盖，一般测试用，正规代码不推荐使用。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="aaaa">sdfsss</div>
+    <script>
+      // 正规写法
+      var div = document.getElementById("aaaa");
+      console.log(div, div.innerHTML); //<div id="aaaa">sdfsss</div>  sdfsss
+      //直接使用id名获取,结果和上边一致
+      console.log(aaaa, aaaa.innerHTML); //<div id="aaaa">sdfsss</div>  sdfsss
+    </script>
+  </body>
+</html>
+```
+
 ##### 3.2.1.2 html标签名(TagName)获取元素
 
 成功返回**伪数组的对象**(`HtmlColletion`实例)，其可**实时反映html文档的变化**。失败表示没有匹配任何元素，返回一个**空集**。
@@ -4260,7 +4279,9 @@ console.log(document); //整个文档树
 css操作是指通过js设置css样式的方式。主要有两种方法：
 
 + **style**修改样式，该方式有三种写法，核心都是操作**style**属性；
-+ **className**，类名操作样式，该方法主要通过操作样式类名来操作样式，主要有两种写法。
++ **className**，类名操作样式，该方法主要通过操作样式类名来操作样式，主要有两种写法:
+  1. 通过`className`对象属性来修改样式;
+  2. 使用`classList`对象方法修改样式。
 
 ```html
 <!DOCTYPE html>
@@ -4357,7 +4378,11 @@ css操作是指通过js设置css样式的方式。主要有两种方法：
 </html>
 ```
 
-上边的修改元素的样式都是通过**style属性**完成的。但在实际开发中，如果修改的样式比较多，功能比较复杂，就不建议使用style修改样式，而是通过`className`对象属性来修改样式。或者使用`classList`对象方法修改样式。
+上边的修改元素的样式都是通过**style属性**完成的。
+
+在实际开发中，如果修改的样式比较多，功能比较复杂，就不建议使用style修改样式，而是通过`className`对象属性来修改样式或使用`classList`对象方法修改样式。
+
+classList对象是HTML5新增的，返回元素类名的列表清单**DOMTokenList**。IE10以上版本才支持。
 
 ```html
 <!DOCTYPE html>
@@ -4410,6 +4435,44 @@ css操作是指通过js设置css样式的方式。主要有两种方法：
       } else {
         console.log("没有box3属性");
       }
+    </script>
+  </body>
+</html>
+```
+
+案例：开关灯
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      .bg {
+        background-color: black;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="one two"></div>
+    <button>开关灯</button>
+    <script>
+      //classList返回元素类名
+      var div = document.querySelector("div");
+      console.log(div.classList); //DOMTokenList(2) ['one', 'two', value: 'one two']
+      //添加的类名没有.
+      div.classList.add("three");
+      //删除
+      div.classList.remove("one");
+      //切换类名，开关灯
+      var btn = document.querySelector("button");
+      btn.addEventListener("click", function () {
+        document.body.classList.toggle("bg");
+      });
     </script>
   </body>
 </html>
@@ -6769,7 +6832,7 @@ JS事件流运行流程案例，同时给父子节点都绑定点击事件，捕
 </html>
 ```
 
-区分target与this的案例
+**区分target与this的案例**
 
 ```html
 <!DOCTYPE html>
@@ -10030,13 +10093,8867 @@ window.addEventListener("load", function () {
 >
 > 在元素内部的距离=a-c；
 >
-> 元素新位置=b-在元素内部的距离=b-（a-c）=**b-a+c**。
+> 元素新位置=b-在元素内部的距离=b-(a-c)=**b-a+c**。
 
 #### 3.7.3 移动端轮播图
 
-移动端的轮播图与PC端轮播图功能基本一致都可以自动播放图片或者点击圆点切换，不同的是移动端可以用**手指拖动播放轮播图**。
+移动端的轮播图与PC端轮播图功能很相似都有**自动播放图片**功能或者点击圆点切换，不同的是移动端可以用**手指左右拖动轮播图**。
+
+移动端轮播图要实现无缝滚动，不仅需要在最后复制第一张图，还要在第一张前面复制最后一张图。
+
+页面结构`移动端轮播图.html`(案例中轮播图片数量固定为3,直接在结构中复制前后图)。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>aa</title>
+    <style>
+      body {
+        max-width: 540px;
+        min-width: 320px;
+        margin: 0 auto;
+        font: normal 14px/1.5 Tahoma, "Lucida Grande", Verdana,
+          "Microsoft Yahei", STXihei, hei;
+        color: #000;
+        background: #f2f2f2;
+        overflow-x: hidden;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* focus */
+      .focus {
+        position: relative;
+        padding-top: 44px;
+        /* 溢出隐藏 */
+        overflow: hidden;
+      }
+
+      .focus img {
+        width: 100%;
+      }
+
+      .focus ul {
+        /* 清除浮动 */
+        overflow: hidden;
+        /* ul设置5倍父亲宽度 */
+        width: 500%;
+        /* 默认向右移动一张图片，防止复制的图位于第一位 */
+        margin-left: -100%;
+      }
+
+      .focus ul li {
+        float: left;
+        /* li每次只占ul的5分之一宽，不设置会导致图片放大 */
+        width: 20%;
+      }
+
+      /* 小圆点，子绝父相 */
+      .focus ol {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        /* 清除默认边距 */
+        margin: 0;
+      }
+
+      .focus ol li {
+        /* 一行显示 */
+        display: inline-block;
+        width: 5px;
+        height: 5px;
+        background-color: #fff;
+        list-style: none;
+        /* 圆角 */
+        border-radius: 2px;
+        /* 小圆点的过渡动画 */
+        transition: all 0.3s;
+      }
+
+      /* 选中圆点宽度更宽 */
+      .focus ol li.current {
+        width: 15px;
+      }
+    </style>
+    <script src="移动端轮播图.js"></script>
+  </head>
+
+  <body>
+    <!-- 焦点图模块 -->
+    <div class="focus">
+      <!-- 轮播图片结构一般为ul>li>img -->
+      <ul>
+        <!-- 复制最后一张图，防止第一张图向右滚动时露出白底，该图索引为-1 -->
+        <li><img src="images/focus3.jpg" alt="" /></li>
+        <!-- 默认显示第一张图，索引为1 -->
+        <li><img src="images/focus1.jpg" alt="" /></li>
+        <li><img src="images/focus2.jpg" alt="" /></li>
+        <li><img src="images/focus3.jpg" alt="" /></li>
+        <!-- 复制第一张图，用于完成轮播图无缝滚动 -->
+        <li><img src="images/focus1.jpg" alt="" /></li>
+      </ul>
+      <!-- 小圆点，选中的圆点更宽 -->
+      <ol>
+        <li class="current"></li>
+        <li></li>
+        <li></li>
+      </ol>
+    </div>
+  </body>
+</html>
+```
+
+`移动端轮播图.js`,因为移动端没有兼容性问题，因此轮播图滚动效果可**直接使用CSS3的`translate`函数移动**，该方式不需要元素添加定位。
+
+如果需要动画，就添加使用`transiton`过渡效果。
+
+```js
+window.addEventListener("load", function () {
+  var focus = document.querySelector(".focus");
+  var ul = focus.children[0];
+  // 获得focus的宽度，也就是一张图片的宽度
+  var w = focus.offsetWidth;
+  var ol = focus.children[1];
+  // 1. 利用定时器自动轮播图图片
+  //index记录当前图片的索引
+  var index = 0;
+  var timer = setInterval(function () {
+    index++;
+    var translatex = -index * w;
+    //设置过渡效果，0.3s完成
+    ul.style.transition = "all .3s";
+    //只移动X轴，距离根据图片索引计算
+    ul.style.transform = "translateX(" + translatex + "px)";
+  }, 2000);
+  //2.无缝滚动,需等着我们过渡完成之后，再去判断,监听过渡完成的事件 transitionend
+  ul.addEventListener("transitionend", function () {
+    //当滚动到最后一张图时,不要直接==3,index有可能大于3出现从而出现bug
+    if (index >= 3) {
+      //重置索引
+      index = 0;
+      // 去掉过渡效果 这样让我们的ul快速的跳到目标位置
+      ul.style.transition = "none";
+      var translatex = -index * w;
+      ul.style.transform = "translateX(" + translatex + "px)";
+    } else if (index < 0) {
+      //倒着走到最开始图片时,索引设置到最后一张图,依然无动画跳转
+      index = 2;
+      ul.style.transition = "none";
+      var translatex = -index * w;
+      ul.style.transform = "translateX(" + translatex + "px)";
+    }
+    //3.小圆点跟随变化，不使用for循环，而是把ol里面li带有current类名的选出来去掉类名 remove
+    ol.querySelector(".current").classList.remove("current");
+    // 让当前索引号的小li加上current   add
+    ol.children[index].classList.add("current");
+  });
+
+  // 4. 手指拖动轮播图
+  // 触摸元素 touchstart： 获取手指初始坐标，只需要X轴的
+  var startX = 0;
+  // 后面我们会使用这个移动距离所以要定义一个全局变量
+  var moveX = 0;
+  //判断手指是否移动的标签，true表示移动，false表示未移动
+  var flag = false;
+  //5.当手指触摸轮播图时
+  ul.addEventListener("touchstart", function (e) {
+    //获取手指开始位置
+    startX = e.targetTouches[0].pageX;
+    //清除定时器，停止自动播放功能
+    clearInterval(timer);
+  });
+  //6.当手指在轮播图上滑动时 touchmove： 计算手指的滑动距离，并且移动盒子
+  ul.addEventListener("touchmove", function (e) {
+    //计算手指移动距离
+    moveX = e.targetTouches[0].pageX - startX;
+    //移动盒子距离=原盒子位置+手指移动距离，原盒子位置就是-当前索引号*图片宽度，因为默认位置是0
+    var translatex = -index * w + moveX;
+    //手指拖动的时候，不需要动画效果所以要取消过渡效果
+    ul.style.transition = "none";
+    ul.style.transform = "translateX(" + translatex + "px)";
+    //手指移动设置标签
+    flag = true;
+    //阻止滚动屏幕的行为
+    e.preventDefault();
+  });
+
+  //7.当手指离开时,根据移动距离去判断是回弹还是播放上一张下一张
+  ul.addEventListener("touchend", function (e) {
+    //如果手指没移动，就不需要进行操作
+    if (flag) {
+      // (1) 如果移动距离大于50像素我们就播放上一张或者下一张
+      if (Math.abs(moveX) > 50) {
+        // 如果是右滑就是播放上一张,moveX是正值
+        if (moveX > 0) {
+          index--;
+        } else {
+          //如果是左滑就是播放下一张,moveX是负值
+          index++;
+        }
+        //移动动画
+        var translatex = -index * w;
+        ul.style.transition = "all .3s";
+        ul.style.transform = "translateX(" + translatex + "px)";
+      } else {
+        // (2)如果移动距离小于50像素我们就回弹,index不变
+        var translatex = -index * w;
+        //回弹动画跟快
+        ul.style.transition = "all .1s";
+        ul.style.transform = "translateX(" + translatex + "px)";
+      }
+      //重置flag的值
+      flag = false;
+    }
+    //手指离开时就要重新定时器
+    clearInterval(timer);
+    timer = setInterval(function () {
+      index++;
+      var translatex = -index * w;
+      ul.style.transition = "all .3s";
+      ul.style.transform = "translateX(" + translatex + "px)";
+    }, 2000);
+  });
+});
+```
+
+案例：**返回顶部**。当页面滚动到一定位置，就显示返回顶部按钮，点击按钮就返回顶部。跟之前PC的返回顶部功能一样。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0,user-scalable=no"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>aa</title>
+    <style>
+      body {
+        max-width: 540px;
+        min-width: 320px;
+        margin: 0 auto;
+        font: normal 14px/1.5 Tahoma, "Lucida Grande", Verdana,
+          "Microsoft Yahei", STXihei, hei;
+        color: #000;
+        background: #f2f2f2;
+        overflow-x: hidden;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* 搜索模块 */
+
+      .search-index {
+        display: flex;
+        /* 固定定位跟父级没有关系 它以屏幕为准 */
+        position: fixed;
+        top: 0;
+        left: 50%;
+        z-index: 999;
+        /* 固定的盒子应该有宽度 */
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+        width: 100%;
+        min-width: 320px;
+        max-width: 540px;
+        height: 44px;
+        /* background-color: pink; */
+        background-color: #f6f6f6;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .search {
+        position: relative;
+        height: 26px;
+        line-height: 24px;
+        border: 1px solid #ccc;
+        flex: 1;
+        font-size: 12px;
+        color: #666;
+        margin: 7px 10px;
+        padding-left: 25px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .search::before {
+        content: "";
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 15px;
+        height: 15px;
+        background: url(../images/sprite2.png) no-repeat -59px -279px;
+        background-size: 104px auto;
+      }
+
+      .user {
+        width: 44px;
+        height: 44px;
+        /* background-color: purple; */
+        font-size: 12px;
+        text-align: center;
+        color: #2eaae0;
+      }
+
+      .user::before {
+        content: "";
+        display: block;
+        width: 23px;
+        height: 23px;
+        background: url(../images/sprite2.png) no-repeat -59px -194px;
+        background-size: 104px auto;
+        margin: 4px auto -2px;
+      }
+
+      /* goBack */
+
+      .goBack {
+        display: none;
+        position: fixed;
+        bottom: 50px;
+        right: 20px;
+        width: 38px;
+        height: 38px;
+        background: url(../images/back.png) no-repeat;
+        background-size: 38px 38px;
+      }
+
+      /* focus */
+      .focus {
+        position: relative;
+        padding-top: 44px;
+        /* 溢出隐藏 */
+        overflow: hidden;
+      }
+
+      .focus img {
+        width: 100%;
+      }
+
+      .focus ul {
+        /* 清除浮动 */
+        overflow: hidden;
+        /* ul设置5倍父亲宽度 */
+        width: 500%;
+        /* 默认向右移动一张图片，防止复制的图位于第一位 */
+        margin-left: -100%;
+      }
+
+      .focus ul li {
+        float: left;
+        /* li每次只占ul的5分之一宽，不设置会导致图片放大 */
+        width: 20%;
+      }
+
+      /* 小圆点，子绝父相 */
+      .focus ol {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        /* 清除默认边距 */
+        margin: 0;
+      }
+
+      .focus ol li {
+        /* 一行显示 */
+        display: inline-block;
+        width: 5px;
+        height: 5px;
+        background-color: #fff;
+        list-style: none;
+        /* 圆角 */
+        border-radius: 2px;
+        transition: all 0.3s;
+      }
+
+      /* 选中圆点宽度更宽 */
+      .focus ol li.current {
+        width: 15px;
+      }
+
+      /* nav */
+      nav {
+        overflow: hidden;
+        border-radius: 8px;
+        margin: 0 4px 3px;
+        height: 3000px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 返回顶部模块 -->
+    <div class="goBack"></div>
+    <!-- 顶部搜索 -->
+    <div class="search-index">
+      <div class="search">搜索:目的地/酒店/景点/航班号</div>
+      <a href="#" class="user">我 的</a>
+    </div>
+    <!-- 焦点图模块 -->
+    <div class="focus">
+      <!-- 轮播图片结构一般为ul>li>img -->
+      <ul>
+        <!-- 复制最后一张图，防止第一张图向右滚动时露出白底，该图索引为-1 -->
+        <li><img src="images/focus3.jpg" alt="" /></li>
+        <!-- 默认显示第一张图，索引为1 -->
+        <li><img src="images/focus1.jpg" alt="" /></li>
+        <li><img src="images/focus2.jpg" alt="" /></li>
+        <li><img src="images/focus3.jpg" alt="" /></li>
+        <!-- 复制第一张图，用于完成轮播图无缝滚动 -->
+        <li><img src="images/focus1.jpg" alt="" /></li>
+      </ul>
+      <!-- 小圆点，选中的圆点更宽 -->
+      <ol>
+        <li class="current"></li>
+        <li></li>
+        <li></li>
+      </ol>
+    </div>
+    <!-- 主导航栏 -->
+    <nav>主体内容</nav>
+      
+    <script src="返回顶部.js"></script>
+  </body>
+</html>
+```
+
+js代码**返回顶部.js**
+
+```js
+//返回顶部功能
+var goBack = document.querySelector(".goBack");
+var nav = document.querySelector("nav");
+//给窗口window绑定滚动事件
+window.addEventListener("scroll", function () {
+  //滚动到nav处就显示goBack按钮
+  if (window.pageYOffset >= nav.offsetTop) {
+    goBack.style.display = "block";
+  } else {
+    goBack.style.display = "none";
+  }
+});
+//点击返回顶部
+goBack.addEventListener("click", function () {
+  window.scroll(0, 0);
+});
+```
+
+js部分的代码跟之前PC端的一模一样。**说明大部分pc端的js代码在移动端都是通用的**。
+
+#### 3.7.4 click延时解决方案
+
+移动端click事件是会有300ms的延时问题，其产生的原因是移动端**屏幕双击**(double tap to zoom)会有缩放页面效果。为了确认该点击是否为双击，移动端出现一次点击后会等300ms，如果在300ms内有再次点击，说明是双击，否则为单击事件。
+
+解决该问题的方案有三种：
+
+1. 禁用缩放功能。浏览器禁用默认双击缩放行为并且会去掉300ms的点击延迟,配置视口为禁用缩放；
+
+   ```html
+   <meta name="viewport" content="user-scalable=no" /> 
+   ```
+
+2. 自己利用touch事件封装解决300ms延迟的**tap点击函数**,其原理是当手指触摸屏幕，记录触摸时间。当手指离开屏幕，用**离开时间减去触摸时间**，时间小于150ms，并且没有滑动屏幕，就是单击。
+
+   ```js
+   //封装tap函数解决click事件的300ms延时
+   function tap(obj, callback) {
+     var isMove = false;
+     var startTime = 0;
+     obj.addEventListener("touchstart", function (e) {
+       startTime = Date.now(); //记录触摸时间
+     });
+     obj.addEventListener("touchmove", function (e) {
+       isMove = true; //记录是否有滑动，滑动算拖拽不算点击
+     });
+     obj.addEventListener("touchend", function (e) {
+       var time = Date.now() - startTime;
+       console.log(time);
+       if (!isMove && time < 150) {
+         //时间小于150ms，有回调函数就调用回调函数
+         callback && callback();
+       }
+       isMove = false;
+       startTime = 0;
+     });
+   }
+   ```
+
+   自定义点击函数的调用，可以看出一次只能解决一个元素的点击问题，不能全解决。
+
+   ```js
+   //函数调用，回调函数就是点击触发的内容
+   tap(div, function () {
+     console.log("点击函数");
+   });
+   ```
+
+3. 使用插件。**fastclick插件**直接引入就可解决300ms延迟的问题。
+
+   fastclick的git官网：https://github.com/ftlabs/fastclick
+
+   其源码如下：(开头的分号是为了区分多个立即执行函数),源码在**fastclick.js**文件中，内容太多就不说明了，直接引入使用便可：
+
+   ```html
+   <!DOCTYPE html>
+   <html lang="en">
+     <head>
+       <meta charset="UTF-8" />
+       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+       <title>Document</title>
+       <style>
+         div {
+           width: 100px;
+           height: 100px;
+           background-color: red;
+         }
+       </style>
+       <!-- 引入插件 -->
+       <script src="fastclick.js"></script>
+     </head>
+     <body>
+       <div></div>
+       <script>
+         var div = document.querySelector("div");
+         //判断元素有监听函数,页面所有元素都解决问题
+         if ("addEventListener" in document) {
+           document.addEventListener("DOMContentLoaded",function () {
+               FastClick.attach(document.body);
+           },false);
+         }
+         //点击事件不再有延时
+         div.addEventListener("click", function () {
+           alert(1);
+         });
+       </script>
+     </body>
+   </html>
+   ```
+
+上述三种方式，根据情况使用便可，一般使用1、3种方式解决点击延迟的问题。
+
+### 3.8 插件
+
+**JS插件本质就是js文件**，它遵循一定规范编写，方便程序展示效果，拥有特定功能且方便调用。例如：之前我们自己写的**animate.js**文件就是插件，或者别人写的**fastclick.js**文件，也是插件。
+
+插件一般是为了解决某个问题而专门存在的，其功能单一，且文件很小。
+
+#### 3.8.1 Swiper插件
+
+官网地址：https://swiper.com.cn/
+
+插件下载地址：https://swiper.com.cn/download/index.html#file1
+
+swiper插件是一款开源、免费、强大的触摸滑动插件，主要用于解决手机端轮播图滑动功能。
+
+其使用流程如下：
+
+1. 先去官网下载swiper插件，默认是个压缩包，包含插件以及使用案例的demo代码；
+
+2. 找出其最核心文件为`swiper.js`，它是插件的核心源码,`swiper.min.js`则是压缩过的代码；
+
+3. 接着在官网上查看需要的样式，**查找demo**，例如想要使用`分页器(030)`案例，就在案例demo中找到编号030的html文件；
+
+4. 参照demo**引入的必须文件**，例如：`swiper.min.css`就是压缩后的样式文件，`swiper.min.js`是核心代码，这两个都是必须引入的；之后再引入自己编写的js文件，注意要放到`swiper.min.js`之后;
+
+   ```html
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+     <meta charset="utf-8">
+     <title>Swiper demo</title>
+     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+     <!--引入Swiper's CSS -->
+     <link rel="stylesheet" href="/css/swiper.min.css">
+     <!--引入Swiper's JS文件 -->
+     <script src="/js/swiper.min.js"></script>
+     <!--引入自己的文件 -->
+     <script src="/js/my.js"></script>
+   </head>
+   <body>
+     <!--未编写-->
+   </body>
+   </html>
+   ```
+
+5. 按照规范也就是参照demo，**复制HTML的结构内容**，编写body中的元素结构，整体结构不要修改，局部可修改。
+
+   ```html
+   <body>
+     <!-- Swiper结构，不要更改整体结构与类名，内容是可以修改 -->
+       <div class="swiper-container">
+         <!-- 轮播图主体 -->
+         <div class="swiper-wrapper">
+           <div class="swiper-slide">
+             <!-- 内容修改为图片 -->
+             <img src="images/banner1.dpg" />
+           </div>
+           <div class="swiper-slide"><img src="images/banner2.dpg" /></div>
+           <div class="swiper-slide"><img src="images/banner3.dpg" /></div>
+           <div class="swiper-slide">Slide 4</div>
+           <div class="swiper-slide">Slide 5</div>
+           <div class="swiper-slide">Slide 6</div>
+           <div class="swiper-slide">Slide 7</div>
+           <div class="swiper-slide">Slide 8</div>
+           <div class="swiper-slide">Slide 9</div>
+           <div class="swiper-slide">Slide 10</div>
+         </div>
+         <!-- Add Pagination 小圆点-->
+         <div class="swiper-pagination"></div>
+    </body>
+   ```
+
+6. **复制CSS样式内容**到我们自己style样式中
+
+   ```css
+   <!-- Demo styles -->
+     <style>
+       html, body {
+         position: relative;
+         height: 100%;
+       }
+       body {
+         background: #eee;
+         font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+         font-size: 14px;
+         color:#000;
+         margin: 0;
+         padding: 0;
+       }
+       .swiper-container {
+         width: 100%;
+         height: 100%;
+       }
+       .swiper-slide {
+         text-align: center;
+         font-size: 18px;
+         background: #fff;
+   
+         /* Center slide text vertically */
+         display: -webkit-box;
+         display: -ms-flexbox;
+         display: -webkit-flex;
+         display: flex;
+         -webkit-box-pack: center;
+         -ms-flex-pack: center;
+         -webkit-justify-content: center;
+         justify-content: center;
+         -webkit-box-align: center;
+         -ms-flex-align: center;
+         -webkit-align-items: center;
+         align-items: center;
+       }
+     </style>
+   ```
+
+7. 最后，**复制控制轮播图的js代码**，也是参考demo的内容。
+
+   ```js
+   window.addEventListener('load', function() {
+       //new就是新建一个swiper，利用class类名找到容器的div
+       var swiper = new Swiper('.swiper-container', {
+           spaceBetween: 30,
+           centeredSlides: true,
+           autoplay: {
+               delay: 2500,
+               disableOnInteraction: false,
+           },
+           pagination: {
+               el: '.swiper-pagination',
+               clickable: true,
+           },
+           navigation: {
+               nextEl: '.swiper-button-next',
+               prevEl: '.swiper-button-prev',
+           },
+       });
+   })
+   ```
+   
+
+swiper官方使用流程：https://swiper.com.cn/usage/index.html
+
+整体轮播图效果出来后，后续就行进行个性化修改：
+
+1. **修改JS**,可以**参考官方API**修改JS代码中的参数，例如，修改delay为5000,也就是修改自动播放时间变为5s一次。 `clickable: true`就是可点击圆点切换图，如果不需要就设置为false。
+2. **修改CSS样式**，可以先在浏览器中找到要修改样式的元素，复制其class类名，然后在自己的CSS中覆写该类名的样式。
+
+#### 3.8.2 视频插件 zy.media.js
+
+H5的video标签虽然能播放视频文件，但每个浏览器的支持情况是不同的，展示的窗口样式以及暂停、全屏等功能按钮的样式都不同。
+
+要支持不同格式的视频可通过source来解决，但样式就只能自己编写代码，为了简单这里就使用**视频插件**统一样式。其步骤为
+
+1. 引入`zy.media.min.css`和`zy.media.min.js`文件；
+2. 引入demo中的html结构以及css样式；
+3. 编写js代码，也可直接使用demo中的js代码测试；
+4. 根据个人需求修改样式或js代码。
+
+该案例使用插件完成了视频样式统一化。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="zy.media.min.css" />
+    <script src="zy.media.min.js"></script>
+    <style type="text/css">
+      #modelView {
+        background-color: #dddddd;
+        z-index: 0;
+        opacity: 0.7;
+        height: 100%;
+        width: 100%;
+        position: relative;
+      }
+
+      .playvideo {
+        padding-top: auto;
+        z-index: 9999;
+        position: relative;
+        width: 300px;
+        height: 200px;
+      }
+
+      .zy_media {
+        z-index: 999999999;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="playvideo">
+      <div class="zy_media">
+        <video data-config='{"mediaTitle": "视频标题"}'>
+          <source src="mov.mp4" type="video/mp4" />
+          您的浏览器不支持HTML5视频
+        </video>
+      </div>
+      <div id="modelView">&nbsp;杀杀杀</div>
+    </div>
+    <script>
+      zymedia("video", {
+        // 不自动播放
+        autoplay: false
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 3.8.3 框架 
+
+所谓**框架**，就是一套架构，它会基于自身特点向用户提供**一套较为完善的解决方案**。使用框架就要按照框架的规范进行开发。
+
+> **插件与框架对比：**
+>
+> 插件是为了解决某个单一功能存在的，小而专一。
+>
+> 框架是一整套解决方案，大而全。
+>
+> **一套框架可以看作一系列插件组合而成的。**
+
+前端常见的框架有Bootstrap、Vue、Angular、React等。它们既能开发PC端也能开发移动端。
+
+前端常见的插件有swiper、superslide、iscroll等。
+
+Bootstrap官方网址：https://v5.bootcss.com/
+
+Bootstrap官方文档网址：https://v5.bootcss.com/docs/getting-started/introduction/
+
+案例：Bootstrap实现轮播图效果,其步骤为：
+
+1. 创建一个div作为轮播图的盒子，并设置样式focus；
+2. 引入bootstrap框架css样式与js文件；bootstrap框架是基于jQuery开发的，因此在引入`bootstrap.min.js`文件前必须先引入`jquery.min.js`；
+3. 引入完成后，就在官网上查询**轮播图Carousel**的demo案例，复制html案例结构到div盒子中,css样式与js代码；
+4. 如果出现文字或者左右箭头不对，则需要复制字体文件夹`fonts`到项目根目录下**或者直接将整个bootstrap文件都放入根目录下**；
+5. 修改html：根据需求修改html中结构，也就是将轮播图片路径设置为自己的，原来的是`...`,图下面字也可自己修改；
+6. 修改css：css样式可能不匹配，编写自己的css样式覆盖原本的，为防止没效果可使用`!important`；
+7. 最后修改js：添加自动播放或其他功能，可参考官网写法。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <!-- 必须在bootstrap之前引入-->
+    <script src="jquery.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <style type="text/css">
+      .focus{
+        width: 800px;
+        height: 300px;
+        background-color: red;
+        margin:  100px auto;
+      }
+      /* 修改样式 */
+      .carousel,
+        .carousel img {
+            width: 100%;
+            height: 300px!important;
+        }
+    </style>
+  </head>
+
+  <body>
+    <!-- 轮播图的外部盒子 -->
+    <div class="focus">
+      <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+            <!-- Indicators 小圆点 -->
+            <ol class="carousel-indicators">
+                <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+            </ol>
+
+            <!-- Wrapper for slides 轮播图片 -->
+            <div class="carousel-inner" role="listbox">
+                <div class="item active">
+                    <img src="images/banner1.dpg" alt="...">
+                    <div class="carousel-caption">
+                        这是我的图片1
+                    </div>
+                </div>
+                <div class="item">
+                    <img src="images/banner2.dpg" alt="...">
+                    <div class="carousel-caption">
+                        这是我的图片2
+                    </div>
+                </div>
+                <div class="item">
+                    <img src="images/banner3.dpg" alt="...">
+                    <div class="carousel-caption">
+                        这是我的图片3
+                    </div>
+                </div>
+                ...
+            </div>
+
+            <!-- Controls 左右箭头 -->
+            <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    <script>
+      // 添加自动播放功能
+      // $('.carousel').carousel({
+      //       interval: 2000
+      //   })
+    </script>
+  </body>
+</html>
+```
+
+案例：使用bootstrap给阿里百秀css案例中添加轮播图，流程跟上边的一样,先引入，在修改html,css与js。
+
+html代码,阿里百秀.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!-- 引入bootstrap 样式文件 -->
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <!-- 引入我们自己的首页样式文件 -->
+    <link rel="stylesheet" href="index.css" />
+    <!-- 先引入jquery js文件 -->
+    <script src="jquery.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <header class="col-md-2">
+          <div class="logo">
+            <a href="#">
+              <img src="images/logo.png" alt="" class="hidden-xs" />
+              <span class="visible-xs">阿里百秀</span>
+            </a>
+          </div>
+          <div class="nav">
+            <ul>
+              <li><a href="#" class="glyphicon glyphicon-camera">生活馆</a></li>
+              <li>
+                <a href="#" class="glyphicon glyphicon-picture">自然汇</a>
+              </li>
+              <li><a href="#" class="glyphicon glyphicon-phone">科技湖</a></li>
+              <li><a href="#" class="glyphicon glyphicon-gift">奇趣事</a></li>
+              <li><a href="#" class="glyphicon glyphicon-glass">美食杰</a></li>
+            </ul>
+          </div>
+        </header>
+        <article class="col-md-7">
+          <!-- 新闻 -->
+          <div class="news clearfix">
+            <ul>
+              <li>
+                <!--复制bootstrap轮播图结构 -->
+                <div
+                  id="carousel-example-generic"
+                  class="carousel slide"
+                  data-ride="carousel"
+                >
+                  <!-- Wrapper for slides -->
+                  <div class="carousel-inner" role="listbox">
+                    <div class="item active">
+                      <img src="upload/banner.dpg" alt="..." />
+                      <div class="carousel-caption">阿里百秀1</div>
+                    </div>
+                    <div class="item">
+                      <img src="upload/banner1.dpg" alt="..." />
+                      <div class="carousel-caption">阿里百秀2</div>
+                    </div>
+                    <div class="item">
+                      <img src="upload/banner2.dpg" alt="..." />
+                      <div class="carousel-caption">阿里百秀3</div>
+                    </div>
+                  </div>
+
+                  <!-- Controls -->
+                  <a
+                    class="left carousel-control"
+                    href="#carousel-example-generic"
+                    role="button"
+                    data-slide="prev"
+                  >
+                    <span
+                      class="glyphicon glyphicon-chevron-left"
+                      aria-hidden="true"
+                    ></span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                  <a
+                    class="right carousel-control"
+                    href="#carousel-example-generic"
+                    role="button"
+                    data-slide="next"
+                  >
+                    <span
+                      class="glyphicon glyphicon-chevron-right"
+                      aria-hidden="true"
+                    ></span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </div>
+              </li>
+              <li>
+                <a href="#">
+                  <img src="upload/1.jpg" alt="" />
+                  <p>奇了 成都一小区护卫长得像马云 市民纷纷求合影</p>
+                </a>
+              </li>
+
+              <li>
+                <a href="#">
+                  <img src="upload/2.jpg" alt="" />
+                  <p>奇了 成都一小区护卫长得像马云 市民纷纷求合影</p>
+                </a>
+              </li>
+
+              <li>
+                <a href="#">
+                  <img src="upload/3.jpg" alt="" />
+                  <p>奇了 成都一小区护卫长得像马云 市民纷纷求合影</p>
+                </a>
+              </li>
+
+              <li>
+                <a href="#">
+                  <img src="upload/4.jpg" alt="" />
+                  <p>奇了 成都一小区护卫长得像马云 市民纷纷求合影</p>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <!-- 发表 -->
+          <div class="publish">
+            <div class="row">
+              <div class="col-sm-9">
+                <h3>生活馆 关于指甲的10个健康知识 你知道几个？</h3>
+                <p class="text-muted hidden-xs">alibaixiu 发布于 2015-11-23</p>
+                <p class="hidden-xs">
+                  指甲是经常容易被人们忽略的身体部位，
+                  事实上从指甲的健康状况可以看出一个人的身体健康状况，
+                  快来看看10个暗藏在指甲里知识吧！
+                </p>
+                <p class="text-muted">
+                  阅读(2417)评论(1)赞 (18)
+                  <span class="hidden-xs"
+                    >标签：健康 / 感染 / 指甲 / 疾病 / 皮肤 / 营养 /
+                    趣味生活</span
+                  >
+                </p>
+              </div>
+              <div class="col-sm-3 pic hidden-xs">
+                <img src="upload/3.jpg" alt="" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-9">
+                <h3>生活馆 关于指甲的10个健康知识 你知道几个？</h3>
+                <p class="text-muted hidden-xs">alibaixiu 发布于 2015-11-23</p>
+                <p class="hidden-xs">
+                  指甲是经常容易被人们忽略的身体部位，
+                  事实上从指甲的健康状况可以看出一个人的身体健康状况，
+                  快来看看10个暗藏在指甲里知识吧！
+                </p>
+                <p class="text-muted">
+                  阅读(2417)评论(1)赞 (18)
+                  <span class="hidden-xs"
+                    >标签：健康 / 感染 / 指甲 / 疾病 / 皮肤 / 营养 /
+                    趣味生活</span
+                  >
+                </p>
+              </div>
+              <div class="col-sm-3 pic hidden-xs">
+                <img src="upload/3.jpg" alt="" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-9">
+                <h3>生活馆 关于指甲的10个健康知识 你知道几个？</h3>
+                <p class="text-muted hidden-xs">alibaixiu 发布于 2015-11-23</p>
+                <p class="hidden-xs">
+                  指甲是经常容易被人们忽略的身体部位，
+                  事实上从指甲的健康状况可以看出一个人的身体健康状况，
+                  快来看看10个暗藏在指甲里知识吧！
+                </p>
+                <p class="text-muted">
+                  阅读(2417)评论(1)赞 (18)
+                  <span class="hidden-xs"
+                    >标签：健康 / 感染 / 指甲 / 疾病 / 皮肤 / 营养 /
+                    趣味生活</span
+                  >
+                </p>
+              </div>
+              <div class="col-sm-3 pic hidden-xs">
+                <img src="upload/3.jpg" alt="" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-9">
+                <h3>生活馆 关于指甲的10个健康知识 你知道几个？</h3>
+                <p class="text-muted hidden-xs">alibaixiu 发布于 2015-11-23</p>
+                <p class="hidden-xs">
+                  指甲是经常容易被人们忽略的身体部位，
+                  事实上从指甲的健康状况可以看出一个人的身体健康状况，
+                  快来看看10个暗藏在指甲里知识吧！
+                </p>
+                <p class="text-muted">
+                  阅读(2417)评论(1)赞 (18)
+                  <span class="hidden-xs"
+                    >标签：健康 / 感染 / 指甲 / 疾病 / 皮肤 / 营养 /
+                    趣味生活</span
+                  >
+                </p>
+              </div>
+              <div class="col-sm-3 pic hidden-xs">
+                <img src="upload/3.jpg" alt="" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-9">
+                <h3>生活馆 关于指甲的10个健康知识 你知道几个？</h3>
+                <p class="text-muted hidden-xs">alibaixiu 发布于 2015-11-23</p>
+                <p class="hidden-xs">
+                  指甲是经常容易被人们忽略的身体部位，
+                  事实上从指甲的健康状况可以看出一个人的身体健康状况，
+                  快来看看10个暗藏在指甲里知识吧！
+                </p>
+                <p class="text-muted">
+                  阅读(2417)评论(1)赞 (18)
+                  <span class="hidden-xs"
+                    >标签：健康 / 感染 / 指甲 / 疾病 / 皮肤 / 营养 /
+                    趣味生活</span
+                  >
+                </p>
+              </div>
+              <div class="col-sm-3 pic hidden-xs">
+                <img src="upload/3.jpg" alt="" />
+              </div>
+            </div>
+          </div>
+        </article>
+        <aside class="col-md-3">
+          <a href="#" class="banner">
+            <img src="upload/zgboke.jpg" alt="" />
+          </a>
+          <a href="#" class="hot">
+            <span class="btn btn-primary">热搜</span>
+            <h4 class="text-primary">欢迎加入中国博客联盟</h4>
+            <p>
+              这里收录国内各个领域的优秀博客，是一个全人工编辑的开放式博客联盟交流和展示平台......
+            </p>
+          </a>
+        </aside>
+      </div>
+    </div>
+    <script>
+      $(".carousel").carousel({
+        interval: 2000
+      });
+    </script>
+  </body>
+</html>
+```
+
+css代码，index.css
+
+```css
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: #666;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+body {
+    background-color: #f5f5f5;
+}
+
+.container {
+    background-color: #fff;
+}
+
+
+/* 修改container的最大宽度为 1280 根据设计稿来走的 */
+
+@media screen and (min-width: 1280px) {
+    .container {
+        width: 1280px;
+    }
+}
+
+
+/* header */
+
+header {
+    padding-left: 0!important;
+}
+
+.logo {
+    background-color: #429ad9;
+}
+
+.logo img {
+    display: block;
+    /* width: 100%; */
+    /* logo图片不需要缩放 */
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+
+/* 1.我们如果进入了超小屏幕下  logo里面的图片就隐藏起来 */
+
+
+/* 2. 我们事先准备好一个盒子 在logo里面，它平时是隐藏起来的，只有在超小屏幕下显示 */
+
+.logo span {
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+}
+
+.nav {
+    background-color: #eee;
+    border-bottom: 1px solid #ccc;
+}
+
+.nav a {
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    padding-left: 30px;
+    font-size: 16px;
+}
+
+.nav a:hover {
+    background-color: #fff;
+    color: #333;
+}
+
+.nav a::before {
+    vertical-align: middle;
+    padding-right: 5px;
+}
+
+
+/* 当我们进入 小屏幕 还有 超小屏幕的时候 我们 nav 里面的li 浮动起来 并且宽度为 20%  */
+
+@media screen and (max-width: 991px) {
+    .nav li {
+        float: left;
+        width: 20%;
+    }
+    article {
+        margin-top: 10px;
+    }
+}
+
+
+/* 当我们进入 超小屏幕的时候 我们 nav 文字会变成14px  */
+
+@media screen and (max-width: 767px) {
+    .nav li a {
+        font-size: 14px;
+        padding-left: 3px;
+    }
+    /* 当我们处于超小屏幕 news 第一个li 宽度为 100%  剩下的小li  各 50% */
+    .news li:nth-child(1) {
+        width: 100%!important;
+    }
+    .news li {
+        width: 50%!important;
+    }
+    .publish h3 {
+        font-size: 14px;
+    }
+}
+
+.news li>a {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.news li {
+    float: left;
+    width: 25%;
+    height: 128px;
+    padding-right: 10px;
+    margin-bottom: 10px;
+}
+
+.news li:nth-child(1) {
+    width: 50%;
+    height: 266px;
+}
+
+.carousel,
+.carousel img {
+    width: 100%;
+    height: 266px!important;
+}
+
+.news li:nth-child(1) p {
+    line-height: 41px;
+    font-size: 20px;
+    padding: 0 10px;
+}
+
+.news li a img {
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-caption {
+    line-height: 41px;
+    font-size: 16px!important;
+    padding: 0!important;
+}
+
+.news li a p,
+.carousel-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 41px;
+    padding: 5px 10px;
+    margin-bottom: 0;
+    background: rgba(0, 0, 0, .5);
+    font-size: 12px;
+    color: #fff;
+}
+
+.publish {
+    border-top: 1px solid #ccc;
+}
+
+.publish .row {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+}
+
+.pic {
+    margin-top: 10px;
+}
+
+.pic img {
+    width: 100%;
+}
+
+.banner img {
+    width: 100%;
+}
+
+.hot {
+    display: block;
+    margin-top: 20px;
+    padding: 0 20px 20px;
+    border: 1px solid #ccc;
+}
+
+.hot span {
+    border-radius: 0;
+    margin-bottom: 20px;
+}
+
+.hot p {
+    font-size: 12px;
+}
+```
+
+#### 3.8.4 插件使用总结
+
+移动端还有两个比较好用的插件
+
++ superslide:http://www.superslide2.com/
++ iscroll:https://github.com/cubiq/iscroll
+
+插件与框架使用流程总结：
+
+1. 确认插件实现的功能；
+2. 去官网查看使用说明；
+3. 下载插件；
+4. 打开demo实例文件。查看需要引入的相关文件并引入；
+5. 复制demo实例文件的html结构,css样式以及js代码；
+6. 根据需求修改html,css以及js的内容。
+
+### 3.9 本地存储
+
+随着网页应用越来越复杂，为满足各种需求，会经常需要在**浏览器**本地存储大量的数据。
+
+本地存储主要分为两个：`sessionStorage`与`localStorage`。
+
+本地存储的特性：
+
+1. 数据存储在**用户浏览器**中；
+2. 设置、读取方便，甚至页面刷新也不会丢失数据；
+3. 容量较大，sessionStorage约5M的空间，localStorage约20M的空间;
+4. **只能存储字符串**，可以将对象转化为字符串,用`JSON.stringify()`函数编码后再存储。
+
+浏览器中查看本地存储数据的位置：
+
+![image-20260815221917771](./assets/image-20260815221917771.png)
+
+#### 3.9.1 sessionStorage
+
+sessionStorage存储(又称**会话存储**)的特点：
+
+1. 生命周期为关闭浏览器窗口，也就是**关闭浏览器窗口数据就自动清除**,**刷新页面是不会清除的**；
+2. 数据是单页面共享的,不同页面数据是分开的，也就是**一个session对应一个页面窗口**；
+3. 以**键值对**的形式进行存储的。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- 用户输入框 -->
+    <input type="text" />
+    <button class="set">存储数据</button>
+    <button class="get">获取数据</button>
+    <button class="remove">删除数据</button>
+    <button class="del">清空数据</button>
+    <script>
+      var ipt = document.querySelector("input");
+      var set = document.querySelector(".set");
+      var get = document.querySelector(".get");
+      var remove = document.querySelector(".remove");
+      var del = document.querySelector(".del");
+
+      set.addEventListener("click", function () {
+        var val = ipt.value;
+        //存储数据名固定为uname,值为input输入的值,window可省略
+        window.sessionStorage.setItem("uname", val);
+      });
+
+      get.addEventListener("click", function () {
+        //获取
+        var val = sessionStorage.getItem("uname");
+        console.log(val);
+      });
+
+      remove.addEventListener("click", function () {
+        //删除
+        sessionStorage.removeItem("uname");
+      });
+
+      del.addEventListener("click", function () {
+        //清空
+        sessionStorage.clear();
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 3.9.2 localStorage
+
+localStorage存储（又叫本地存储）的特点：
+
+1. 生命周期永久生效，**即使关闭页面或浏览器也会继续存在**，只能手动删除；
+2. 同一浏览器可以**多个页面共享**，只要在同一浏览器中，不同页面窗口都可共用数据；
+3. 以键值对的形式进行存储。
+
+使用方式跟sessionStorage基本一样。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- 用户输入框 -->
+    <input type="text" />
+    <button class="set">存储数据</button>
+    <button class="get">获取数据</button>
+    <button class="remove">删除数据</button>
+    <button class="del">清空数据</button>
+    <script>
+      var ipt = document.querySelector("input");
+      var set = document.querySelector(".set");
+      var get = document.querySelector(".get");
+      var remove = document.querySelector(".remove");
+      var del = document.querySelector(".del");
+
+      set.addEventListener("click", function () {
+        var val = ipt.value;
+        //存储数据名固定为uname,值为input输入的值,window可省略
+        window.localStorage.setItem("uname", val);
+      });
+
+      get.addEventListener("click", function () {
+        //获取
+        var val = localStorage.getItem("uname");
+        console.log(val);
+      });
+
+      remove.addEventListener("click", function () {
+        //删除
+        localStorage.removeItem("uname");
+      });
+
+      del.addEventListener("click", function () {
+        //清空
+        localStorage.clear();
+      });
+    </script>
+  </body>
+</html>
+```
+
+案例：**记录用户名**，使用localStorage存储才行
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- 用户输入框，如果存储有数据就显示，没有就显示 -->
+    <input type="text" id="username" />
+    <!-- 勾选框，勾选就存储文本数据到localStorage,不勾选就删除 -->
+    <input type="checkbox" name="" id="remember" /> 记住用户名
+
+    <script>
+      var username = document.querySelector("#username");
+      var remember = document.querySelector("#remember");
+
+      //有数据直接赋值input，并勾选
+      if (localStorage.getItem("username")) {
+        username.value = localStorage.getItem("username");
+        remember.checked = true;
+      }
+
+      //监听复选框改变事件
+      remember.addEventListener("change", function () {
+        //username不能为空
+        if (this.checked && username.value) {
+          localStorage.setItem("username", username.value);
+        } else {
+          localStorage.removeItem("username");
+        }
+      });
+    </script>
+  </body>
+</html>
+```
+
+## 四、jQuery
+
+### 4.1 jQuery的概述
+
+**JavaScript库**，即library,是一个**封装好的特定方法与函数的合集**。这个库中封装了很多预先定义好的函数，例如动画animate函数、hide函数、show函数、兼容性问题解决函数以及获取元素函数等，要使用时不用再编写函数内容直接调用即可。
+
+JavaScript库也是一个js文件，里面对**原生的js代码进行了函数封装**，存放到里面，这样就可高效快速的使用封装好的功能函数。其**内部都是用js代码实现的**。
+
+JavaScript库、插件、框架本质都是js文件，只是功能目的不同：
+
+1. JavaScript库主要封装js源码方便快速使；
+2. 插件是解决特定功能的js代码，小而功能单一；
+3. 框架是一整套解决方案，大而全。
+
+**jQuery**就是为了**快速方便的操作DOM**而封装的JavaScript库，里面基本都是函数。除了jQuery外，常见的JavaScript库有：Prototype、YUI、Dojo、Ext JS、移动端的zepto（也是快速操作DOM）等。
+
+jQuery是一个快速、简洁的JavaScript库，其提倡写更少代码做更多事。j是JavaScript，Query是查询的意思。它对js中的DOM操作进行的封装，让我们可以快速的查询使用里面的功能。
+
+jQuery封装的内容优化了DOM操作、事件处理、动画设计和Ajax交互。学习jQuery的本质就是**学习调用里面的函数**。
+
+jQuery的优点：
+
+1. 轻量级。核心文件只有几十kb,不会影响页面加载速度；
+2. 跨浏览器兼容。基本兼容了主流的浏览器；
+3. 支持**链式编程**、**隐式迭代**；
+4. **对事件、样式、动画支持，大大简化了DOM操作**；
+5. **支持插件扩展开发**。有丰富的第三方插件，例如:树形菜单、日期控件、轮播图等；
+6. 免费开源。
+
+jQuery官方网址：https://jquery.com/
+
+jQuery官方文档：https://api.jquery.com/
+
+> jQuery版本说明
+>
+> 1.0x:兼容IE678等低版本浏览器，官网不再更新；
+>
+> 2.0x:不兼容IE678等低版本浏览器，官网不再更新；
+>
+> 3.0x:不兼容IE678等低版本浏览器，官网不再更新；
+>
+> 4.0x:不兼容IE678等低版本浏览器，官网最后更新维护的版本；
+
+jQuery下载地址：https://jquery.com/download/
+
+其版本分为：`jquery-4.0.0.min.js`压缩版本，也就是develop版本，和源码版本`jquery-4.0.0.js`。下载方法就是打开网页直接全选代码复制到js文件中即可。还有一种`jquery-4.0.0.min.map`文件，它是js文件再压缩的版本，一般不使用。
+
+### 4.2 jQuery的基本使用与入口函数
+
+有了jQuery文件，其使用方式就是直接引入js，然后在自己的js中调用jQuery函数。下面是调用hide函数的效果。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- 引入jQuery文件 -->
+    <script src="jquery.min.js"></script>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div></div>
+    <script>
+      // jQuery隐藏div元素，相当于div.style.dispaly='none'
+      $("div").hide();
+    </script>
+  </body>
+</html>
+```
+
+上述js代码要**写在div元素之后**才能生效，否则会因查询不到元素而无效。
+
+js中我们采用监听`load`或者`DOMContentLoaded`事件来实现等待页面元素加载完再执行代码。这就是JS的入口函数。
+
+jQuery中也有其对应的入口函数，其效果是等待DOM结构渲染完成就执行，相当于`DOMContentLoaded`事件，写法有两种：
+
+```js
+//写法一 传统写法
+$(document).ready(function () {
+   //内部代码，此处是页面DOM加载完成后的入口
+});
+
+//写法二 简洁写法
+$(function () {
+    //内部代码，此处是页面DOM加载完成后的入口
+});
+```
+
+简单案例，js代码放到元素前依然生效。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- 引入jQuery文件 -->
+    <script src="jquery.min.js"></script>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- js代码有效 -->
+    <script>
+      $(function () {
+        $("div").hide();
+      });
+    </script>
+    <div></div>
+  </body>
+</html>
+```
+
+### 4.3 jQuery的顶级对象 $(重点)
+
+**$其实是jQuery对象的别名**，在代码中可以使用jQuery获取顶级对象，为了简便，就直接使用$代替jQuery。
+
+jQuery的顶级对象，其相当于原生JavaScript中的window对象。
+
+之前案例中的代码可替换为下面代码，效果完全一样
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- 引入jQuery文件 -->
+    <script src="jquery.min.js"></script>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- $==jQuery -->
+    <script>
+      jQuery(function () {
+        jQuery("div").hide();
+      });
+    </script>
+    <div></div>
+  </body>
+</html>
+```
+
+### 4.4 jQuery对象和DOM对象(重点)
+
+DOM对象，就是使用原生js获取过来的元素对象就是DOM对象。
+
+jQuery对象，就是用jQuery方式获取过来的元素对象就是jQuery对象。本质是利用$把DOM元素对象包装后产生的对象，是以**伪数组形式存储**的。jQuery对象只能使用jQuery方法，DOM对象只能使用原生js方法，两者不能混用。
+
+DOM对象比jQuery对象更大。因为jQuery只是封装了常用的方法，不常用的只有原生DOM对象才有。因此要使用这些方法，就需要**在DOM对象与jQuery对象之间进行相互转换**。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- 引入jQuery文件 -->
+    <script src="jquery.min.js"></script>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div></div>
+    <script>
+      //DOM对象
+      var div = document.querySelector("div");
+      console.log(div); //div元素对象
+      //1. jQuery对象
+      var div2 = $("div");
+      console.log(div2); //w.fn.init {0: div, length: 1, prevObject: w.fn.init}
+      console.log(div2[0]); //div元素对象
+        
+      //2.jQuery对象只能使用jQuery方法，DOM对象只能使用原生js方法，两者不能混用。
+      //DOM方法
+      div.style.display = "none";
+      //jQuery方法
+      div2.hide();
+        
+      //3.jQuery对象变为DOM对象，就是使用索引号获取,方式有两种
+      div2[0].style.display = "block";
+      div2.get(0).style.display = "block";
+      //DOM对象转换为jQuery对象
+      $(div).hide();
+    </script>
+  </body>
+</html>
+```
+
+### 4.5 jQuery元素操作
+
+结合之前DOM学习经验，jQuery学习流程跟其是类似对应的。
+
+#### 4.5.1 元素获取
+
+原生js获取元素方式很多很杂，且兼容性不一致，因此jQuery给我们做了疯子，使用统一的方式获取元素。
+
+`$("选择器")` ,里面的选择器直接写CSS选择器即可。
+
+| 名称       | 用法               | 描述                                                         |
+| ---------- | ------------------ | ------------------------------------------------------------ |
+| ID选择器   | `$('#id')`         | 根据id获取元素                                               |
+| 标签选择器 | `$('div')`         | 根据标签名div获取元素                                        |
+| 类选择器   | `$('.class')`      | 根据类名获取元素                                             |
+| 全选选择器 | `$('*')`           | 匹配所有元素                                                 |
+| 并集选择器 | `$('div,p,li')`    | 使用`，`符号，同时获取多个元素                               |
+| 交集选择器 | `$('div.current')` | 使用`.`符号，获取div中类名为current的元素                    |
+| 子代选择器 | `$('div>li')`      | 使用`>`符号，获取div下的亲儿子li元素                         |
+| 后代选择器 | `$('div li')`      | 使用`空格`，获取div下的所有li元素，不仅包括亲儿子，孙子这些也包含 |
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+</head>
+<body>
+    <div>我是div</div>
+    <div class="nav">我是nav div</div>
+    <p>我是p</p>
+    <ol>
+        <li>我是ol 的</li>
+        <li>我是ol 的</li>
+        <li>我是ol 的</li>
+        <li>我是ol 的</li>
+    </ol>
+    <ul>
+        <li>我是ul 的</li>
+        <li>我是ul 的</li>
+        <li>我是ul 的</li>
+        <li>我是ul 的</li>
+    </ul>
+    <script>
+        $(function() {
+            console.log($(".nav"));
+            console.log($("ul li"));
+        })
+    </script>
+</body>
+</html>
+```
+
+**筛选选择器**，从多个元素中选择其中某一个
+
+| 名称       | 用法                    | 描述                                                 |
+| ---------- | ----------------------- | ---------------------------------------------------- |
+| :first     | `$('li:first')`         | 获取第一个元素                                       |
+| :last      | `$('li:last')`          | 获取最后一个元素                                     |
+| :eq(index) | `$('li:eq(2)')`         | 获取索引号为2的元素，索引号从0开始，也就是第三个元素 |
+| :odd       | `$('li:odd')`           | 获取索引号为奇数的所有元素                           |
+| :even      | `$('li:even')`          | 获取索引号为偶数的所有元素                           |
+| :checked   | `$('checkbox:checked')` | 获取复选框被选中的所有元素                           |
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+  <body>
+    <ul>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+    </ul>
+    <ol>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+      <li>多个里面筛选几个</li>
+    </ol>
+
+    男：<input type="checkbox" checked /> 女：<input type="checkbox" />
+    中性：<input type="checkbox" />
+    <script>
+      $(function () {
+        $("ul li:first").css("color", "red");
+        $("ul li:eq(2)").css("color", "blue");
+        $("ol li:odd").css("color", "skyblue");
+        $("ol li:even").css("color", "pink");
+        console.log($("input:checked").length); //1
+      });
+    </script>
+  </body>
+</html>
+```
+
+**筛选方法**获取元素
+
+| 名称                   | 用法                              | 描述                                                         |
+| ---------------------- | --------------------------------- | ------------------------------------------------------------ |
+| **parent()**           | `$('li').parent()`                | 获取li元素的父级元素                                         |
+| **parents()**          | `$('li').parents('多级父元素')`   | 获取li元素的多级父级元素，无参数就是所有父亲(body,html也是)，有参数就是特定的父亲 |
+| **children(selector)** | `$('ul').children("li")`          | 相当于`ul>li`的效果，找亲儿子                                |
+| **find(selector)**     | `$('ul').find("li")`              | 相当于`ul li`的效果，找所有后代                              |
+| **siblings(selector)** | `$('.first').siblings("li")`      | 查找**兄弟节点**，不包括自己本身                             |
+| nextAll([expr])        | `$('.first').nextAll()`           | 查找**当前元素之后**的所有同级元素                           |
+| prevtAll([expr])       | `$('.last').preAll()`             | 查找**当前元素之前**的所有同级元素                           |
+| hasClass(class)        | `$('.div').hasClass("protected")` | 检查当前元素是否包含某个特定类，如果有返回true               |
+| **eq(index)**          | `$('li').eq(2)`                   | 相当于`li:eq(2)`,index从0开始                                |
+
+父子选择器方法
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="yeye">
+      <div class="father">
+        <div class="son">儿子</div>
+      </div>
+    </div>
+    <div class="nav">
+      <p>我是儿子p</p>
+      <div>
+        <p>我是孙子p</p>
+      </div>
+    </div>
+    <script>
+      // 注意一下都是方法带括号
+      $(function () {
+        // 1. 查找父级parent()返回的是最近一级的父级元素 亲爸爸
+        console.log($(".son").parent());
+        onsole.log($(".son").parents()); //找出所有父亲
+        console.log($(".son").parents(".yeye")); //找出特定父亲，相当于$(".son").parent().parent()
+        // 2. 子
+        // (1) 亲儿子 children()  类似子代选择器  ul>li
+        $(".nav").children("p").css("color", "blue");
+        // (2) 可以选里面所有的孩子 包括儿子和孙子 find() 类似于后代选择器
+        $(".nav").find("p").css("color", "red");
+      });
+    </script>
+  </body>
+</html>
+```
+
+兄弟选择器方法
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <ol>
+      <li>我是ol 的li</li>
+      <li>我是ol 的li</li>
+      <li class="item">我是ol 的li</li>
+      <li>我是ol 的li</li>
+      <li>我是ol 的li</li>
+      <li>我是ol 的li</li>
+    </ol>
+    <ul>
+      <li>我是ol 的li</li>
+      <li>我是ol 的li</li>
+      <li>我是ol 的li</li>
+      <li>我是ol 的li</li>
+      <li>我是ol 的li</li>
+      <li>我是ol 的li</li>
+    </ul>
+    <div class="current">俺有current</div>
+    <div>俺木有current</div>
+    <script>
+      // 注意一下都是方法 带括号
+      $(function () {
+        // 1. 兄弟元素siblings 除了自身元素之外的所有亲兄弟
+        $("ol .item").siblings("li").css("color", "red");
+        //查找后面所有兄弟
+        $("ol .item").nextAll().css("color", "blue");
+        //查找前面所有兄弟
+        $("ol .item").prevAll().css("color", "pink");
+        // 2. 第n个元素
+        var index = 2;
+        // (1) 我们可以利用选择器的方式选择
+        $("ul li:eq(2)").css("color", "blue");
+        $("ul li:eq(" + index + ")").css("color", "blue");
+        // (2) 我们可以利用选择方法的方式选择 更推荐这种写法
+        $("ul li").eq(2).css("color", "blue");
+        $("ul li").eq(index).css("color", "blue");
+        // 3. 判断是否有某个类名
+        console.log($("div:first").hasClass("current")); //true
+        console.log($("div:last").hasClass("current")); //false
+      });
+    </script>
+  </body>
+</html>
+```
+
+案例：新浪下拉菜单
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        list-style-type: none;
+      }
+
+      a {
+        text-decoration: none;
+        font-size: 14px;
+      }
+
+      .nav {
+        margin: 100px;
+      }
+
+      .nav > li {
+        position: relative;
+        float: left;
+        width: 80px;
+        height: 41px;
+        text-align: center;
+      }
+
+      .nav li a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        line-height: 41px;
+        color: #333;
+      }
+
+      .nav > li > a:hover {
+        background-color: #eee;
+      }
+
+      .nav ul {
+        display: none;
+        position: absolute;
+        top: 41px;
+        left: 0;
+        width: 100%;
+        border-left: 1px solid #fecc5b;
+        border-right: 1px solid #fecc5b;
+      }
+
+      .nav ul li {
+        border-bottom: 1px solid #fecc5b;
+      }
+
+      .nav ul li a:hover {
+        background-color: #fff5da;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <ul class="nav">
+      <li>
+        <a href="#">微博</a>
+        <ul>
+          <li>
+            <a href="">私信</a>
+          </li>
+          <li>
+            <a href="">评论</a>
+          </li>
+          <li>
+            <a href="">@我</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">微博</a>
+        <ul>
+          <li>
+            <a href="">私信</a>
+          </li>
+          <li>
+            <a href="">评论</a>
+          </li>
+          <li>
+            <a href="">@我</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">微博</a>
+        <ul>
+          <li>
+            <a href="">私信</a>
+          </li>
+          <li>
+            <a href="">评论</a>
+          </li>
+          <li>
+            <a href="">@我</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">微博</a>
+        <ul>
+          <li>
+            <a href="">私信</a>
+          </li>
+          <li>
+            <a href="">评论</a>
+          </li>
+          <li>
+            <a href="">@我</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <script>
+      $(function () {
+        // 鼠标经过事件 mouseover 有隐式迭代
+        $(".nav>li").mouseover(function () {
+          // $(this) jQuery当前元素 this是DOM元素  this不要加引号
+          // show() 显示元素  hide() 隐藏元素
+          $(this).children("ul").show();
+        });
+        // 鼠标离开事件 mouseout
+        $(".nav>li").mouseout(function () {
+          $(this).children("ul").hide();
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.5.2 隐式迭代、排它思想与当前索引index()
+
+遍历内部DOM元素(伪数组形式存储)的过程就叫做**隐式迭代**。
+
+简单理解：给匹配到的所有元素进行循环遍历，执行相同的方法，而不用我们再进行for循环，简化了操作方便我们调用。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div>惊喜不，意外不</div>
+    <div>惊喜不，意外不</div>
+    <div>惊喜不，意外不</div>
+    <div>惊喜不，意外不</div>
+    <ul>
+      <li>相同的操作</li>
+      <li>相同的操作</li>
+      <li>相同的操作</li>
+    </ul>
+    <script>
+      // 1. 获取四个div元素
+      console.log($("div"));
+      // 2. 给四个div设置背景颜色为粉色 jquery对象不能使用style
+      $("div").css("background", "pink");
+      // 3. 隐式迭代就是把匹配的所有元素内部进行遍历循环，给每一个元素添加css这个方法,
+      //相当于jQuery内部使用for循环执行三次css的代码
+      $("ul li").css("color", "red");
+    </script>
+  </body>
+</html>
+```
+
+jQuery的**排它思想**很简单，利用隐式迭代+兄弟选择器只需要两句话就能完成。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <script>
+      $(function () {
+        // 1. 隐式迭代 给所有的按钮都绑定了点击事件
+        $("button").click(function () {
+          // 2. 当前的元素变化背景颜色
+          $(this).css("background", "pink");
+          // 3. 其余的兄弟去掉背景颜色 隐式迭代
+          $(this).siblings("button").css("background", "");
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+获取当前元素索引号的方法`$(this).index()`。该方法只能**获取连续相邻相同元素**的索引，不相邻则无效。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div>
+      <a href="#">1</a>
+      <a href="#">2</a>
+      <a href="#">3</a>
+    </div>
+    <ul>
+      <li><a href="#">a</a></li>
+      <li><a href="#">b</a></li>
+      <li><a href="#">c</a></li>
+    </ul>
+    <script>
+      //能获取成功
+      $("div a").click(function () {
+        console.log($(this).index()); //0,1,2
+      });
+      //获取失败
+      $("ul a").click(function () {
+        console.log($(this).index()); //0 0 0 都是0就是因为所有a都不相邻，因此获取的都是第一个
+      });
+    </script>
+  </body>
+</html>
+```
+
+案例：淘宝精品服饰案例，鼠标移动到哪个左边文字就切换到对应图片
+
+```html
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8" />
+    <title></title>
+    <style type="text/css">
+      * {
+        margin: 0;
+        padding: 0;
+        font-size: 12px;
+      }
+      ul {
+        list-style: none;
+      }
+      a {
+        text-decoration: none;
+      }
+      .wrapper {
+        width: 250px;
+        height: 248px;
+        margin: 100px auto 0;
+        border: 1px solid pink;
+        border-right: 0;
+        overflow: hidden;
+      }
+      #left,
+      #content {
+        float: left;
+      }
+      #left li {
+        background: url(images/lili.jpg) repeat-x;
+      }
+      #left li a {
+        display: block;
+        width: 48px;
+        height: 27px;
+        border-bottom: 1px solid pink;
+        line-height: 27px;
+        text-align: center;
+        color: black;
+      }
+      #left li a:hover {
+        background-image: url(images/abg.gif);
+      }
+      #content {
+        border-left: 1px solid pink;
+        border-right: 1px solid pink;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        // 1. 鼠标经过左侧的小li
+        $("#left li").mouseover(function () {
+          // 2. 得到当前小li 的索引号
+          var index = $(this).index();
+          // 3. 让我们右侧的盒子相应索引号的图片显示出来就好了
+          $("#content div").eq(index).show();
+          // 4. 让其余的图片（就是其他的兄弟）隐藏起来
+          $("#content div").eq(index).siblings().hide();
+          // 链式编程
+          // $("#content div").eq(index).show().siblings().hide();
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <ul id="left">
+        <li><a href="#">女靴</a></li>
+        <li><a href="#">雪地靴</a></li>
+        <li><a href="#">冬裙</a></li>
+        <li><a href="#">呢大衣</a></li>
+        <li><a href="#">毛衣</a></li>
+        <li><a href="#">棉服</a></li>
+        <li><a href="#">女裤</a></li>
+        <li><a href="#">羽绒服</a></li>
+        <li><a href="#">牛仔裤</a></li>
+      </ul>
+      <div id="content">
+        <div>
+          <a href="#"><img src="images/女靴.jpg" width="200" height="250" /></a>
+        </div>
+        <div>
+          <a href="#"><img src="images/雪地靴.jpg" width="200" height="250"/></a>
+        </div>
+        <div>
+          <a href="#"><img src="images/冬裙.jpg" width="200" height="250" /></a>
+        </div>
+        <div>
+          <a href="#"><img src="images/呢大衣.jpg" width="200" height="250"/></a>
+        </div>
+        <div>
+          <a href="#"><img src="images/毛衣.jpg" width="200" height="250" /></a>
+        </div>
+        <div>
+          <a href="#"><img src="images/棉服.jpg" width="200" height="250" /></a>
+        </div>
+        <div>
+          <a href="#"><img src="images/女裤.jpg" width="200" height="250" /></a>
+        </div>
+        <div>
+          <a href="#"><img src="images/羽绒服.jpg" width="200" height="250"/></a>
+        </div>
+        <div>
+          <a href="#"><img src="images/牛仔裤.jpg" width="200" height="250"/></a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+```
+
+#### 4.5.3 链式编程
+
+链式编程是为了节约代码量，让代码看起来更优雅。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    woshi body 的文字
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <button>快速</button>
+    <script>
+      $(function () {
+        // 1. 隐式迭代 给所有的按钮都绑定了点击事件
+        $("button").click(function () {
+          // 2. 让当前元素颜色变为红色
+          // $(this).css("color", "red");
+          // 3. 让其余的兄弟元素不变色
+          // $(this).siblings().css("color", "");
+          // // 上述代码的链式编程 // 我的颜色为红色, 我的兄弟的颜色为空
+          // $(this).css("color", "red").siblings().css("color", "");
+
+          //更明确的写法,明确操作对象
+          $(this).css("color", "yellow")
+                 .siblings().css("color", "");
+          // 我的兄弟变为红色 ,我本身不变颜色
+          // $(this).siblings().css('color', 'red');
+
+          // 最后是给我的兄弟的爸爸 body 变化颜色
+          $(this).siblings().parent().css("color", "blue");
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.5.4 元素样式修改
+
+jQuery使用`css方法`来修改简单元素样式，也可以使用对象同时修改多个样式。还可以操作类样式(操作类名不加点)，类似之前classList。
+
+**参数只写属性名**,属性名必须带引号，则返回属性值，带单位。
+
+```js
+$("div").css("width"))
+```
+
+参数是属性名、属性值、逗号分隔，是设置一组样式，属性名必须加引号，属性值如果是数字可以不用跟单位和引号。
+
+```js
+$("div").css("width", 300);
+$("div").css("width", "300px");
+```
+
+参数可以是**对象形式**，可设置多组样式。属性名和属性值用：分开，属性名可以不用引号。
+
+```js
+$("div").css({
+         width: 400,
+         height: "400px",
+        // 如果是复合属性则必须采取驼峰命名法，如果值不是数字，则需要加引号
+         backgroundColor:"red"
+})
+```
+
+简单案例
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+    <style>
+      div {
+        width: 200px;
+        height: 200px;
+        background-color: pink;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div></div>
+    <script>
+      // 操作样式之css方法
+      $(function () {
+        console.log($("div").css("width"));
+        $("div").css("width", "300px");
+        // $("div").css("width", 300);
+        // $("div").css(height, "300px"); //属性名一定要加引号,否则会报错
+        $("div").css({
+          width: 400,
+          height: 400,
+          // 如果是复合属性则必须采取驼峰命名法，如果值不是数字，则需要加引号
+          backgroundColor: "red"
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+类样式操作，注意类名不用加点。
+
+**添加类**
+
+```js
+$('div').addClass("current");
+```
+
+**移除类**
+
+```js
+$('div').removeClass("current");
+```
+
+**切换类**,有就加没有就删除
+
+```js
+$('div').toggleClass("current");
+```
+
+> **jQuery、className以及classList区别**
+>
+> 原生的className属性是直接操作所有类名，会覆盖原先的类名。
+>
+> 原生的classList操作是类名的修改，不会覆盖原先类名。
+>
+> jQuery里面的操作也是类名的修改，不会覆盖原先类名。
+
+简单案例
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+    <style>
+      div {
+        width: 200px;
+        height: 200px;
+        background-color: pink;
+        margin: 100px auto;
+      }
+      .current {
+        background-color: red;
+      }
+
+      .current2 {
+        background-color: red;
+        transition: all 0.5s;
+        transform: rotate(360deg);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div></div>
+    <script>
+      $(function () {
+        //添加类 addClass
+        $("div").click(function () {
+          $(this).addClass("current");
+        });
+
+        //删除类 removeClass
+        $("div").mouseout(function () {
+          $(this).removeClass("current");
+        });
+
+        //切换类 toggleClass
+        $("div").mouseenter(function () {
+          $(this).toggleClass("current2");
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+案例优化：tab栏切换
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        list-style-type: none;
+      }
+
+      .tab {
+        width: 978px;
+        margin: 100px auto;
+      }
+
+      .tab_list {
+        height: 39px;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+      }
+
+      .tab_list li {
+        float: left;
+        height: 39px;
+        line-height: 39px;
+        padding: 0 20px;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .tab_list .current {
+        background-color: #c81623;
+        color: #fff;
+      }
+
+      .item_info {
+        padding: 20px 0 0 20px;
+      }
+
+      .item {
+        display: none;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div class="tab">
+      <div class="tab_list">
+        <ul>
+          <li class="current">商品介绍</li>
+          <li>规格与包装</li>
+          <li>售后保障</li>
+          <li>商品评价（50000）</li>
+          <li>手机社区</li>
+        </ul>
+      </div>
+      <div class="tab_con">
+        <div class="item" style="display: block">商品介绍模块内容</div>
+        <div class="item">规格与包装模块内容</div>
+        <div class="item">售后保障模块内容</div>
+        <div class="item">商品评价（50000）模块内容</div>
+        <div class="item">手机社区模块内容</div>
+      </div>
+    </div>
+    <script>
+      $(function () {
+        // 1.点击上部的li，当前li 添加current类，其余兄弟移除类
+        $(".tab_list li").click(function () {
+          // 链式编程操作
+          $(this).addClass("current").siblings().removeClass("current");
+          // 2.点击的同时，得到当前li 的索引号
+          var index = $(this).index();
+          // 3.让下部里面相应索引号的item显示，其余的item隐藏
+          $(".tab_con .item").eq(index).show().siblings().hide();
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.5.5 jQuery的动画效果
+
+jQuery给我们封装了很多动画效果，最常见的如下：
+
+1. 元素显示与隐藏：show()、hide()、toggle();
+2. 滑动效果：slideDown()、slideUp()、slideToggle();
+3. 淡入淡出效果：fadeIn()、fadeOut()、fadeToggle()、fadeTo();
+4. 自定义动画：animate()，该函数中有个**scrollTop**属性，可设置位置，做出类似返回顶部的效果。
+
+大部分的动画函数参数都类似，我们先把统一的参数函数列出，防止后面重复罗列。**中括号`[]`表示参数可省略**。
+
+| 参数名     | 参数效果                                                     |
+| ---------- | ------------------------------------------------------------ |
+| **speed**  | 动画速度参数，可使用三种预定速度：(`slow`,`normal`,`fast`)或设置动画时长`1000`表示1000ms |
+| **easing** | 用来指定切换效果，默认是`swing`,表示开始慢然后变快再变慢的效果，还是设置`linear`,表示匀速 |
+| **fn**     | 回调函数，在动画完成时执行函数，每个元素执行一次             |
+
+<strong style="color:red;font-size:18px">显示与隐藏</strong>
+
+**显示函数show()**：
+
+```js
+//参数都省略就无动画效果直接显示
+show([speed,[easing],[fn]])
+```
+
+**隐藏函数hide()**:
+
+```js
+hide([speed,[easing],[fn]])
+```
+
+**切换函数toggle()**:
+
+```js
+toggle([speed,[easing],[fn]])
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      div {
+        width: 150px;
+        height: 300px;
+        background-color: pink;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <button>显示</button>
+    <button>隐藏</button>
+    <button>切换</button>
+    <div></div>
+    <script>
+      // 一般情况下，我们都不加参数直接显示隐藏就可以了,这种动画不好看
+      $(function () {
+        $("button").eq(0).click(function () {
+            $("div").show(1000, function () {
+              alert("show");
+            });
+          });
+        $("button")
+          .eq(1)
+          .click(function () {
+            $("div").hide(1000, "linear", function () {
+              alert("hide");
+            });
+          });
+        $("button")
+          .eq(2)
+          .click(function () {
+            $("div").toggle(1000);
+          });
+      });
+    </script>
+  </body>
+</html>
+```
+
+<strong style="color:red;font-size:18px">滑动</strong>
+
+**下拉滑动slideDown()**:
+
+```js
+slideDown([speed,[easing],[fn]])
+```
+
+**上拉滑动slideUp()**:
+
+```js
+slideUp([speed,[easing],[fn]])
+```
+
+**滑动切换slideToggle()**:
+
+```js
+slideToggle([speed,[easing],[fn]])
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      div {
+        width: 150px;
+        height: 300px;
+        background-color: pink;
+        display: none;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <button>下拉滑动</button>
+    <button>上拉滑动</button>
+    <button>切换滑动</button>
+    <div></div>
+    <script>
+      $(function () {
+        $("button")
+          .eq(0)
+          .click(function () {
+            // 下滑动 slideDown()
+            $("div").slideDown();
+          });
+        $("button")
+          .eq(1)
+          .click(function () {
+            // 上滑动 slideUp()
+            $("div").slideUp(500, "linear");
+          });
+        $("button")
+          .eq(2)
+          .click(function () {
+            // 滑动切换 slideToggle()
+            $("div").slideToggle(500);
+          });
+      });
+    </script>
+  </body>
+</html>
+```
+
+<strong style="color:red;font-size:18px">事件切换与动画停止</strong>
+
+jQuery为了使代码跟简洁，提供了一个事件切换函数`hover()`,它用一个函数表示**鼠标经过**与**离开**两个函数。
+
++ 参数over表示`鼠标进入mouseover()`的回调函数；
++ 参数out表示`鼠标离开mouseout()`的回调函数；
++ 可只写一个函数，鼠标进入与离开都会触发一次。
+
+```js
+hover([over,]out)
+```
+
+jQuery中的动画有排队队列，一旦触发就会执行，如果动画切换过快多次触发，就会出现一个一个动画排队执行的效果。为了防止同时触发多个动画，一般会在动画函数前添加`stop()`函数。
+
+stop()函数表示停止所有在指定元素上正在运行的动画。如果队列中有等待执行的动画(并且clearQueue没有设为true)，他们将被马上执行。
+
++ **queue**:用来停止动画的队列名称
++ **clearQueue**:如果设置成true，则清空队列。可以立即结束动画。
++ **jumpToEnd**:如果设置成true，则完成队列。可以立即完成动画
+
+```js
+//一般很少使用参数
+stop([queue],[clearQueue],[jumpToEnd])
+```
+
+案例优化：新浪下拉菜单
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        list-style-type: none;
+      }
+
+      a {
+        text-decoration: none;
+        font-size: 14px;
+      }
+
+      .nav {
+        margin: 100px;
+      }
+
+      .nav > li {
+        position: relative;
+        float: left;
+        width: 80px;
+        height: 41px;
+        text-align: center;
+      }
+
+      .nav li a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        line-height: 41px;
+        color: #333;
+      }
+
+      .nav > li > a:hover {
+        background-color: #eee;
+      }
+
+      .nav ul {
+        display: none;
+        position: absolute;
+        top: 41px;
+        left: 0;
+        width: 100%;
+        border-left: 1px solid #fecc5b;
+        border-right: 1px solid #fecc5b;
+      }
+
+      .nav ul li {
+        border-bottom: 1px solid #fecc5b;
+      }
+
+      .nav ul li a:hover {
+        background-color: #fff5da;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <ul class="nav">
+      <li>
+        <a href="#">微博</a>
+        <ul>
+          <li>
+            <a href="">私信</a>
+          </li>
+          <li>
+            <a href="">评论</a>
+          </li>
+          <li>
+            <a href="">@我</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">微博</a>
+        <ul>
+          <li>
+            <a href="">私信</a>
+          </li>
+          <li>
+            <a href="">评论</a>
+          </li>
+          <li>
+            <a href="">@我</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">微博</a>
+        <ul>
+          <li>
+            <a href="">私信</a>
+          </li>
+          <li>
+            <a href="">评论</a>
+          </li>
+          <li>
+            <a href="">@我</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">微博</a>
+        <ul>
+          <li>
+            <a href="">私信</a>
+          </li>
+          <li>
+            <a href="">评论</a>
+          </li>
+          <li>
+            <a href="">@我</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <script>
+      //1.优化方案一
+      // $(".nav>li").hover(
+      //   //鼠标进入
+      //   function () {
+      //     $(this).children("ul").slideDown(200);
+      //   },
+      //   function () {
+      //     //鼠标离开
+      //     $(this).children("ul").slideUp(200);
+      //   }
+      // );
+      //2. 优化方案二,并添加stop()函数
+      $(".nav>li").hover(function () {
+        //stop必须写在slideToggle动画函数前才会生效
+        $(this).children("ul").stop().slideToggle();
+      });
+    </script>
+  </body>
+</html>
+```
+
+<strong style="color:red;font-size:18px">淡入淡出效果</strong>
+
+**淡入fadeIn()**:
+
+```js
+fadeIn([speed,[easing],[fn]])
+```
+
+**淡出fadeOut()**:
+
+```js
+fadeOut([speed,[easing],[fn]])
+```
+
+**淡入淡出切换fadeToggle()**:
+
+```js
+fadeToggle([speed,[easing],[fn]])
+```
+
+**修改透明度fadeTo()**:
+
++ 该函数的speed参数与opacity参数是必写的；
++ speed参数依然是速度跟之前一样；
++ opacity表示要修改为透明度值，取值范围在0~1之间。
+
+```js
+fadeTo([[speed],opacity,[easing],[fn]])
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      div {
+        width: 150px;
+        height: 300px;
+        background-color: red;
+        display: none;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <button>淡入效果</button>
+    <button>淡出效果</button>
+    <button>淡入淡出切换</button>
+    <button>修改透明度</button>
+    <div></div>
+    <script>
+      $(function () {
+        $("button")
+          .eq(0)
+          .click(function () {
+            // 淡入 fadeIn()
+            $("div").fadeIn(1000);
+          });
+        $("button")
+          .eq(1)
+          .click(function () {
+            // 淡出 fadeOut()
+            $("div").fadeOut(1000);
+          });
+        $("button")
+          .eq(2)
+          .click(function () {
+            // 淡入淡出切换 fadeToggle()
+            $("div").fadeToggle(1000);
+          });
+        $("button")
+          .eq(3)
+          .click(function () {
+            //  修改透明度 fadeTo() 这个速度和透明度要必须写
+            $("div").fadeTo(1000, 0.5);
+          });
+      });
+    </script>
+  </body>
+</html>
+```
+
+案例：高亮突出显示
+
+1. 当鼠标进入的时候,其他的li标签透明度:0.5
+2. 当鼠标离开的时候，其他的lili标签透明度:1
+
+```html
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8" />
+    <title></title>
+    <style type="text/css">
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      ul {
+        list-style: none;
+      }
+      body {
+        background: #000;
+      }
+      .wrap {
+        margin: 100px auto 0;
+        width: 630px;
+        height: 394px;
+        padding: 10px 0 0 10px;
+        background: #000;
+        overflow: hidden;
+        border: 1px solid #fff;
+      }
+      .wrap li {
+        float: left;
+        margin: 0 10px 10px 0;
+      }
+      .wrap img {
+        display: block;
+        border: 0;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        //鼠标进入的时候,其他的li标签透明度：0.5
+        $(".wrap li").hover(
+          function () {
+            $(this).siblings().stop().fadeTo(400, 0.5);
+          },
+          function () {
+            // 鼠标离开，其他li 透明度改为 1
+            $(this).siblings().stop().fadeTo(400, 1);
+          }
+        );
+      });
+    </script>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <ul>
+        <li>
+          <a href="#"><img src="images/01.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/02.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/03.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/04.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/05.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/06.jpg" alt="" /></a>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+```
+
+案例：如果不使用鼠标，而是让亮度一个个亮度轮回切换，这样就形成了**老虎机效果**。(还可优化)
+
+```html
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8" />
+    <title></title>
+    <style type="text/css">
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      ul {
+        list-style: none;
+      }
+
+      body {
+        background: #000;
+      }
+
+      .wrap {
+        margin: 100px auto 0;
+        width: 630px;
+        height: 394px;
+        padding: 10px 0 0 10px;
+        background: #000;
+        overflow: hidden;
+        border: 1px solid #fff;
+      }
+
+      .wrap li {
+        float: left;
+        margin: 0 10px 10px 0;
+      }
+
+      .wrap img {
+        display: block;
+        border: 0;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        var index = 0;
+        var timer = null;
+
+        //点击就启动老虎机，再次点击就等待1秒停止老虎机
+        var flag = false;
+        var valid = true; //节流
+        $(".wrap ul").click(function () {
+          if (flag) {
+            if (!valid) {
+              return false;
+            }
+            valid = false;
+            setTimeout(function () {
+              clearInterval(timer);
+              timer = null;
+              flag = false;
+              //开启定时器，将不再重复开启
+              valid = true;
+            }, 1000);
+          } else {
+            tiggerFn();
+            flag = true;
+          }
+        });
+
+        //老虎机函数
+        function tiggerFn() {
+          timer = setInterval(function () {
+            index = index > 5 ? 0 : index;
+            if (3 <= index) {
+              var a = 0;
+              if (index == 3) {
+                a = index + 2;
+                $(".wrap li").eq(a).siblings().stop().fadeTo(400, 0.5);
+                $(".wrap li").eq(a).stop().fadeTo(400, 1);
+              } else if (index == 4) {
+                $(".wrap li").eq(index).siblings().stop().fadeTo(400, 0.5);
+                $(".wrap li").eq(index).stop().fadeTo(400, 1);
+              } else if (index == 5) {
+                a = index - 2;
+                $(".wrap li").eq(a).siblings().stop().fadeTo(400, 0.5);
+                $(".wrap li").eq(a).stop().fadeTo(400, 1);
+              }
+              index++;
+            } else if (0 <= index) {
+              $(".wrap li").eq(index).siblings().stop().fadeTo(400, 0.5);
+              $(".wrap li").eq(index).stop().fadeTo(400, 1);
+              index++;
+            }
+          }, 300);
+        }
+      });
+    </script>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <ul>
+        <li>
+          <a href="#"><img src="images/01.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/02.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/03.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/04.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/05.jpg" alt="" /></a>
+        </li>
+        <li>
+          <a href="#"><img src="images/06.jpg" alt="" /></a>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+```
+
+<strong style="color:red;font-size:18px">自定义动画效果</strong>
+
+**动画animate()**:
+
++ 参数params,想要更改的样式属性，是以**对象的形式传递**，必填。属性名可不带引号，复合属性采用驼峰命名法；
++ 其余参数跟之前的一样，都可省略。
+
+```js
+animate(params,[speed],[easing],[fn]])
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+    <style>
+      div {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background-color: pink;
+      }
+    </style>
+  </head>
+
+  <body>
+    <button>动起来</button>
+    <div></div>
+    <script>
+      $(function () {
+        $("button").click(function () {
+          //向左下移动到[500,300]点，透明度变为0.4,宽度变为500
+          $("div").animate(
+            {
+              left: 500,
+              top: 300,
+              opacity: 0.4,
+              width: "500px"
+            },
+            500
+          );
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+**重要案例：王者荣耀的手风琴,或者叫折叠卡片**
+
++ 结构布局，首先有个大盒子king，包含了一个ul，每个ul下的li标签中是a标签（有点击效果），a标签包含两个图片，big图片`width: 224px`和small图片`width: 69px`；
++ 默认只先显示每个图片的小图片，有个特殊的current图片会显示大图片隐藏小图片；
++ 当鼠标移动到新图片，当前小li宽度变为224px，同时里面的小图片淡出，大图片淡入；
++ 同时其余兄弟小li宽度变为69px，小图片淡入，大图片淡出
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>手风琴案例</title>
+
+    <style type="text/css">
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      img {
+        display: block;
+      }
+
+      ul {
+        list-style: none;
+      }
+
+      .king {
+        width: 752px;
+        margin: 100px auto;
+        background: url(images/bg.png) no-repeat;
+        overflow: hidden;
+        padding: 10px;
+      }
+
+      .king ul {
+        overflow: hidden;
+      }
+
+      .king li {
+        position: relative;
+        float: left;
+        width: 69px;
+        height: 69px;
+        margin-right: 10px;
+      }
+
+      .king li.current {
+        width: 224px;
+      }
+
+      .king li.current .big {
+        display: block;
+      }
+
+      .king li.current .small {
+        display: none;
+      }
+
+      .big {
+        width: 224px;
+        display: none;
+      }
+
+      .small {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 69px;
+        height: 69px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script src="jquery.min.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        // 鼠标经过某个小li 有两步操作：
+        $(".king li").mouseenter(function () {
+          // 1.当前小li 宽度变为 224px， 同时里面的小图片淡出，大图片淡入
+          $(this).stop().animate({
+              width: 224
+          }).find(".small").stop().fadeOut()
+            .siblings(".big").stop().fadeIn();
+          // 2.其余兄弟小li宽度变为69px， 小图片淡入， 大图片淡出
+          $(this).siblings("li").stop().animate({
+              width: 69
+            }).find(".small").stop().fadeIn()
+            .siblings(".big").stop().fadeOut();
+        });
+      });
+    </script>
+    <div class="king">
+      <ul>
+        <li class="current">
+          <a href="#">
+            <img src="images/m1.jpg" alt="" class="small" />
+            <img src="images/m.png" alt="" class="big" />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <img src="images/l1.jpg" alt="" class="small" />
+            <img src="images/l.png" alt="" class="big" />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <img src="images/c1.jpg" alt="" class="small" />
+            <img src="images/c.png" alt="" class="big" />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <img src="images/w1.jpg" alt="" class="small" />
+            <img src="images/w.png" alt="" class="big" />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <img src="images/z1.jpg" alt="" class="small" />
+            <img src="images/z.png" alt="" class="big" />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <img src="images/h1.jpg" alt="" class="small" />
+            <img src="images/h.png" alt="" class="big" />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <img src="images/t1.jpg" alt="" class="small" />
+            <img src="images/t.png" alt="" class="big" />
+          </a>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+```
+
+#### 4.5.6 元素属性操作
+
+所谓元素固有属性就是元素本身自带的属性，比如a标签的href属性。获取元素固有属性的方法`prop()`。
+
+所谓元素自定义属性就是元素本身没有的我们自己编写的属性。获取元素自定义属性的方法`attr()`。
+
+**获取属性值**
+
+```js
+prop('属性名')
+```
+
+**设置属性值**
+
+```js
+prop('属性名','属性值')
+```
+
+**获取自定义属性**,类似原生的`getAttribute()`
+
+```js
+attr('属性名')
+```
+
+**设置自定义属性值**,类似原生的`setAttribute()`
+
+```js
+attr('属性名','属性值')
+```
+
+**获取H5自定义属性**
+
+```js
+attr('H5属性名')
+```
+
+**数据缓存**,`data()`方法可以在指定的元素上存取数据，但并不会修改DOM元素结构(**html上没有改变**)，**一旦页面刷新，之前存放的数据就会被移除**。相当于把元素当成一个对象，data方法就是在对象上添加属性与属性值。
+
+**设置缓存**
+
+```js
+data("数据名"，"数据值")
+```
+
+**获取缓存**
+
+```js
+data("数据名")
+```
+
+**获取H5属性**，返回值的类型是数字型
+
+```js
+data("去除data开头的属性名")
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+  <body>
+    <a href="https://www.baidu.com" title="百度">baidu</a>
+    <input type="checkbox" name="" checked />
+    <!-- index是普通自定义属性,data-index是H5的自定义属性 -->
+    <div index="1" data-index="3">我的div</div>
+    <span>123</span>
+    <script>
+      $(function () {
+        //1.获取属性值
+        console.log($("a").prop("href")); //https://www.baidu.com
+        
+        //2.设置属性值,返回值是修改元素的jQuery对象
+        console.log($("a").prop("title", "新百度")[0]);
+        //复选框状态改变获取属性值
+        $("input").change(function () {
+          console.log($(this).prop("checked"));
+        });
+
+        //3.获取自定义属性
+        console.log($("div").attr("index")); //1
+
+        //4.设置自定义属性
+        console.log($("div").attr("index", 11)[0]);
+
+        //5.获取H5自定义属性
+        console.log($("div").attr("data-index")); //3
+
+        //6.数据缓存,这个数据是存放在元素缓存中的,不会修改DOM元素本身结构，也就是html文档中是看不到的
+        //设置缓存
+        $("span").data("uname", "andy");
+        //获取缓存数据
+        console.log($("span").data("uname"));
+        //获取H5属性
+        console.log($("div").data("index"));
+        //无法设置H5属性
+        //console.log($("div").data("index", 8)[0]);
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.5.7 元素内容文本值操作
+
+**获取普通元素内容**(相当于原生的innerHTML)
+
+```js
+html()
+```
+
+**设置普通元素内容**
+
+```js
+html('修改的内容')
+```
+
+**获取普通元素文本内容**(相当于原生的innerText)
+
+```js
+text()
+```
+
+**设置普通元素文本内容**
+
+```js
+text('修改的内容')
+```
+
+**获取表单元素文本内容**(相当于原生的value)
+
+```js
+val()
+```
+
+**设置表单元素文本内容**
+
+```js
+val('修改的内容')
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+  <body>
+    <div>
+      <span>内容</span>
+    </div>
+    <input type="text" value="input内容" />
+    <script>
+      //1.获取普通元素内容 相当于innerHTML
+      console.log($("div").html()); //<span>内容</span>
+      //设置普通元素内容
+      console.log($("div").html("<span>新内容</span>")[0]); //<div><span>新内容</span></div>
+
+      //2.获取/设置普通元素文本内容 相当于innerText
+      console.log($("div").text()); //新内容
+      console.log($("div").text("新新内容")[0]); //<div>新新内容</div> 这里即使加了span也会变为字符串而不是标签
+
+      //3.获取/设置表单元素文本内容 相当于value
+      console.log($("input").val()); //input内容
+      console.log($("input").val("aaa")[0]); //<input type="text" value="input内容"> 值修改了的但返回的是修改前的对象
+    </script>
+  </body>
+</html>
+```
+
+#### 4.5.8 遍历元素 each
+
+jQuery的隐式迭代是**对同一类元素做同样的操作**。但如果想**给同一类元素做不同操作**，就需要使用遍历。不用使用for循环，jQuery封装了一个强大的each方法可直接遍历元素。
+
+`each()`方法的参数是回调函数，它的参数index表示元素的索引号，domEle表示当前DOM元素对象,不是jQuery对象。
+
+```js
+$('div').each(function(index,domEle){函数内容;})
+```
+
+`$.each()`方法可用于遍历任何对象。不仅是元素对象，数组、对象等都可以遍历。它主要用于数据处理。
+
+它的第一参数为遍历对象，第二个参数为回调函数，其参数跟上边一样。
+
+```js
+$.each($('div'),function(index,domEle){函数内容;})
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+  <body>
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <script>
+      $(function () {
+        //隐式迭代,所有div文字都变为红色
+        $("div").css("color", "rad");
+
+        var sum = 0;
+        //1.each()方法遍历元素,回调函数第一个参数一定为索引号，名字随意
+        var arr = ["red", "yellow", "blue"];
+        $("div").each(function (i, domEle) {
+          //DOM对象转换为jQuery对象,每个元素一个颜色,使用数组完成
+          $(domEle).css("color", arr[i]);
+          //计算总数量
+          sum += parseInt($(domEle).text());
+        });
+        console.log(sum); //6
+
+        //2.$.each()遍历所有对象
+        $.each($("div"), function (index, domEle) {
+          console.log(index); //元素索引号
+          console.log(domEle); //元素对象值
+        });
+        //遍历数组
+        $.each(arr, function (index, domEle) {
+          console.log(index); //数组索引号
+          console.log(domEle); //数组值
+        });
+        //遍历对象 类似for in
+        $.each({ name: "zhangsan", age: 20 }, function (index, domEle) {
+          console.log(index); //对象属性名
+          console.log(domEle); //对象属性值
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.5.9 元素的创建、添加、删除操作
+
+**创建元素**,效果等同于createElement
+
+```js
+$('<li></li>'); //动态创建一个li元素
+```
+
+**添加元素**，分为两种：
+
+1. **内部添加**，就是把创建的元素添加到**指定元素内部**，创建的元素只能添加一次，多次添加以最后一次为主。最终为**父子关系**。
+
+   ```js
+   $('ul').append(li);//将创建的li添加到ul内部最后，跟之前的appendChild效果一样
+   $('ul').prepend(li);//将创建的li添加到ul内部最前面
+   ```
+
+2. **外部添加**，就是把创建的元素添加到**指定元素外部**。创建的元素只能添加一次，多次添加以最后一次为主。最终为**兄弟关系**。
+
+   ```js
+   $(".test").after(div); //添加到指定元素后面
+   $(".test").before(div); //添加到指定元素前面
+   ```
+
+**删除元素**
+
+```js
+element.remove(); //删除匹配元素本身
+element.empty(); //删除匹配元素集合中所有的子节点，不删除元素本身
+element.html("");//修改匹配元素的内容为空，跟empty效果类似，必须有参数否则为读取内容数据
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+  <body>
+    <ul>
+      <li>原来的li</li>
+    </ul>
+    <ol>
+      <li>原来的li2</li>
+    </ol>
+    <div class="test">原来的div</div>
+    <script>
+      $(function () {
+        //1.创建元素
+        var li = $("<li>后面创建的li</li>");
+        var li2 = $("<li>后面创建的li2</li>");
+
+        //2.添加元素
+        // 内部添加元素,注意一个元素只能添加一次,如果重复添加会以最后一次添加为主
+        $("ul").append(li); //将li添加到ul元素内部最后
+        $("ul").prepend(li2); //将li添加到ul元素内部最前
+        // 外部添加元素，就是添加到元素外部，也就是元素兄弟
+        var div = $("<div>后面添加的div1</div>");
+        var div2 = $("<div>后面添加的div2</div>");
+        $(".test").after(div); //添加到指定元素后面
+        $(".test").before(div2); //添加到指定元素前面
+
+        //3.删除元素
+        $("ul").remove(); //删除匹配元素本身,自删
+        $("ol").empty(); //删除匹配元素集合中所有的子节点，不删除元素本身
+        $(".test").html(""); //必须有参数，没有参数表示获取内容，有""相当于赋值内容为""，也起到的类似empty的效果
+      });
+    </script>
+  </body>
+</html>
+```
+
+上述
 
 
 
+#### 4.5.10 购物车案例
+
+该案例是一个综合案例，由许多功能模块组成：
+
+1. **全选功能模块**，点击全选勾选所有复选框，再次点击就取消。小复选框点击时，判断勾选的选择的数量是否等于全部小复选框数量，如果是全部就勾选全选按钮，其他则不勾选；
+2. **增减商品数量模块**，有点击按钮增减，数量改变的同时，小计也会随着数量改变。注意：1.增减商品的数量是本商品的，不会影响其他商品，小计也一样。2.增减变量变化初始值必须是当前文本框的值；
+3. **修改商品小计模块**，该模块内容是根据商品数量*商品价格计算出结果的。注意：1.只能修改当前商品的小计，2.要进行数量计算首先要移除单位￥，最终结果要保留两位小数。如果数量文本框直接输入数字，小计也需要重新计算改变。3.要判断输入的值是否为负值或者小数，是就改变为旧值。保存旧值的方法可使用**focus函数**监听保存。
+4. **购物车总件数与总额模块**，把所有文本框的值相加就是总件数，总额就是所有小计值相加。注意：因为文本框中值不同，需使用each遍历。当数量发送变化时，总件数与总额都会改变。
+5. **清理购物车模块**，核心是使用remove删除元素，主要分为点击删除按钮删除，删除复选框勾选的元素，全部一次删除三种删除。注意不管是什么删除，都会影响总件数与总额的内容。
+6. **选中商品添加背景模块**，就是复选框勾选商品后，其背景变浅粉红色。小复选框勾选会变，全选按钮点击也会变化。购物车.css先添加一个样式`.check-cart-item{background: #fff4e8;}`。
+
+**购物车.html**
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>我的购物车-品优购</title>
+    <meta
+      name="description"
+      content="品优购JD.COM-专业的综合网上购物商城,销售家电、数码通讯、电脑、家居百货、服装服饰、母婴、图书、食品等数万个品牌优质商品.便捷、诚信的服务，为您提供愉悦的网上购物体验!"
+    />
+    <meta
+      name="Keywords"
+      content="网上购物,网上商城,手机,笔记本,电脑,MP3,CD,VCD,DV,相机,数码,配件,手表,存储卡,品优购"
+    />
+    <!-- 引入facicon.ico网页图标 -->
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+
+    <!-- 引入car css -->
+    <link rel="stylesheet" href="购物车.css" />
+    <!-- 先引入jquery  -->
+    <script src="jquery.min.js"></script>
+    <!-- 在引入我们自己的js文件 -->
+    <script src="购物车.js"></script>
+    <style>
+      /* base.csss */
+      /*清除元素默认的内外边距  */
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      /*让所有斜体 不倾斜*/
+      em,
+      i {
+        font-style: normal;
+      }
+      /*去掉列表前面的小点*/
+      li {
+        list-style: none;
+      }
+      /*图片没有边框   去掉图片底侧的空白缝隙*/
+      img {
+        border: 0; /*ie6*/
+        vertical-align: middle;
+      }
+      /*让button 按钮 变成小手*/
+      button {
+        cursor: pointer;
+      }
+      /*取消链接的下划线*/
+      a {
+        color: #666;
+        text-decoration: none;
+      }
+
+      a:hover {
+        color: #e33333;
+      }
+
+      button,
+      input {
+        font-family: "Microsoft YaHei", "Heiti SC", tahoma, arial,
+          "Hiragino Sans GB", \\5B8B\4F53, sans-serif;
+        /*取消轮廓线 蓝色的*/
+        outline: none;
+      }
+
+      body {
+        background-color: #fff;
+        font: 12px/1.5 "Microsoft YaHei", "Heiti SC", tahoma, arial,
+          "Hiragino Sans GB", \\5B8B\4F53, sans-serif;
+        color: #666;
+      }
+
+      .hide,
+      .none {
+        display: none;
+      }
+      /*清除浮动*/
+      .clearfix:after {
+        visibility: hidden;
+        clear: both;
+        display: block;
+        content: ".";
+        height: 0;
+      }
+
+      /* common.css */
+      /*公共样式*/
+      .fl {
+        float: left;
+      }
+
+      .fr {
+        float: right;
+      }
+
+      @font-face {
+        font-family: "icomoon";
+        src: url("../fonts/icomoon.eot?7kkyc2");
+        src: url("../fonts/icomoon.eot?7kkyc2#iefix")
+            format("embedded-opentype"),
+          url("../fonts/icomoon.ttf?7kkyc2") format("truetype"),
+          url("../fonts/icomoon.woff?7kkyc2") format("woff"),
+          url("../fonts/icomoon.svg?7kkyc2#icomoon") format("svg");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      .fr .icomoon {
+        font-family: "icomoon";
+        font-size: 16px;
+        line-height: 26px;
+      }
+
+      /*版心*/
+
+      .w {
+        width: 1200px;
+        margin: 0 auto;
+      }
+
+      .style-red {
+        color: #c81623;
+      }
+
+      .spacer {
+        width: 1px;
+        height: 12px;
+        background-color: #666;
+        margin: 9px 12px 0;
+      }
+
+      /*顶部快捷导航*/
+
+      .shortcut {
+        height: 31px;
+        background-color: #f1f1f1;
+        line-height: 31px;
+      }
+
+      .shortcut li {
+        float: left;
+      }
+
+      /*header区域*/
+
+      .header {
+        position: relative;
+        height: 105px;
+      }
+
+      .logo {
+        position: absolute;
+        top: 25px;
+        left: 0;
+        width: 175px;
+        height: 56px;
+      }
+
+      .logo a {
+        display: block;
+        /*overflow: hidden;*/
+        width: 175px;
+        height: 56px;
+        background: url(../images/logo.png) no-repeat;
+        /*text-indent: -999px;*/
+        font-size: 0;
+      }
+
+      .search {
+        position: absolute;
+        top: 25px;
+        left: 348px;
+      }
+
+      .text {
+        float: left;
+        width: 445px;
+        height: 32px;
+        border: 2px solid #b1191a;
+        padding-left: 10px;
+        color: #ccc;
+      }
+
+      .btn {
+        float: left;
+        width: 82px;
+        height: 36px;
+        background-color: #b1191a;
+        border: 0;
+        font-size: 16px;
+        color: #fff;
+      }
+
+      .hotwrods {
+        position: absolute;
+        top: 65px;
+        left: 348px;
+      }
+
+      .hotwrods a {
+        margin: 0 10px;
+      }
+
+      .shopcar {
+        position: absolute;
+        top: 25px;
+        right: 64px;
+        width: 138px;
+        height: 34px;
+        border: 1px solid #dfdfdf;
+        background-color: #f7f7f7;
+        line-height: 34px;
+        text-align: center;
+      }
+
+      .car {
+        font-family: "icomoon";
+        color: #da5555;
+      }
+
+      .arrow {
+        font-family: "icomoon";
+        margin-left: 5px;
+      }
+
+      .count {
+        position: absolute;
+        top: -5px;
+        /*应该是左侧对齐 文字才能往右走显示*/
+        left: 100px;
+        background-color: #e60012;
+        height: 14px;
+        padding: 0 3px;
+        line-height: 14px;
+        color: #fff;
+        /*border-radius: 左上角 右上角  右下角  左下角;*/
+        border-radius: 7px 7px 7px 0;
+      }
+
+      /*nav start*/
+
+      .nav {
+        height: 45px;
+        border-bottom: 2px solid #b1191a;
+      }
+
+      .dropdown {
+        width: 209px;
+        height: 45px;
+      }
+
+      .dropdown .dt {
+        height: 100%;
+        background-color: #b1191a;
+        font-size: 16px;
+        color: #fff;
+        text-align: center;
+        line-height: 45px;
+      }
+
+      .dropdown .dd {
+        height: 465px;
+        background-color: #c81623;
+        margin-top: 2px;
+      }
+
+      .menu_item:hover {
+        background-color: #fff;
+      }
+
+      /*鼠标经过li 里面的 a变颜色*/
+
+      .menu_item:hover a {
+        color: #c81623;
+      }
+
+      .menu_item {
+        height: 31px;
+        line-height: 31px;
+        margin-left: 1px;
+        padding: 0 10px;
+        transition: all 0.5s;
+      }
+
+      .menu_item:hover {
+        padding-left: 20px;
+      }
+
+      .menu_item a {
+        font-size: 14px;
+        color: #fff;
+      }
+
+      .menu_item i {
+        float: right;
+        font-family: "icomoon";
+        font-size: 18px;
+        color: #fff;
+      }
+
+      .navitems {
+        margin-left: 10px;
+      }
+
+      .navitems li {
+        float: left;
+      }
+
+      .navitems li a {
+        display: block;
+        height: 45px;
+        padding: 0 25px;
+        line-height: 45px;
+        font-size: 16px;
+      }
+
+      /*footer 部分*/
+
+      .footer {
+        height: 386px;
+        background-color: #f5f5f5;
+        padding-top: 30px;
+      }
+
+      .mod_service {
+        height: 79px;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .mod_service li {
+        float: left;
+        width: 240px;
+        height: 79px;
+      }
+
+      .mod-service-icon {
+        /*浮动的盒子 可以直接给大小的 不需要转换*/
+        float: left;
+        width: 50px;
+        height: 50px;
+        margin-left: 35px;
+        background: url(../images/icons.png) no-repeat;
+      }
+
+      .mod_service_zheng {
+        background-position: -253px -3px;
+      }
+
+      .mod_service_tit {
+        float: left;
+        margin-left: 5px;
+      }
+
+      .mod_service_tit h5 {
+        margin: 5px 0;
+      }
+
+      .mod_service_kuai {
+        background-position: -255px -54px;
+      }
+
+      .mod_service_bao {
+        background-position: -257px -105px;
+      }
+
+      .mod_help {
+        height: 187px;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .mod_help_item {
+        float: left;
+        width: 150px;
+        padding: 20px 0 0 50px;
+      }
+
+      .mod_help_item dt {
+        height: 25px;
+        font-size: 16px;
+      }
+
+      .mod_help_item dd {
+        height: 22px;
+      }
+
+      .mod_help_app dt,
+      .mod_help_app p {
+        padding-left: 15px;
+      }
+
+      .mod_help_app img {
+        margin: 7px 0;
+      }
+
+      .mod_copyright {
+        text-align: center;
+      }
+
+      .mod_copyright_links {
+        margin: 20px 0 15px 0;
+      }
+
+      .mod_copyright_info {
+        line-height: 18px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 顶部快捷导航start -->
+    <div class="shortcut">
+      <div class="w">
+        <div class="fl">
+          <ul>
+            <li>品优购欢迎您！</li>
+            <li>
+              <a href="#">请登录</a>
+              <a href="#" class="style-red">免费注册</a>
+            </li>
+          </ul>
+        </div>
+        <div class="fr">
+          <ul>
+            <li><a href="#">我的订单</a></li>
+            <li class="spacer"></li>
+            <li>
+              <a href="#">我的品优购</a>
+              <i class="icomoon"></i>
+            </li>
+            <li class="spacer"></li>
+            <li><a href="#">品优购会员</a></li>
+            <li class="spacer"></li>
+            <li><a href="#">企业采购</a></li>
+            <li class="spacer"></li>
+            <li><a href="#">关注品优购</a> <i class="icomoon"></i></li>
+            <li class="spacer"></li>
+            <li><a href="#">客户服务</a> <i class="icomoon"></i></li>
+            <li class="spacer"></li>
+            <li><a href="#">网站导航</a> <i class="icomoon"></i></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- 顶部快捷导航end  -->
+
+    <div class="car-header">
+      <div class="w">
+        <div class="car-logo">
+          <img src="images/logo.png" alt="" /> <b>购物车</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-container">
+      <div class="w">
+        <div class="cart-filter-bar">
+          <em>全部商品</em>
+        </div>
+        <!-- 购物车主要核心区域 -->
+        <div class="cart-warp">
+          <!-- 头部全选模块 -->
+          <div class="cart-thead">
+            <div class="t-checkbox">
+              <input type="checkbox" name="" id="" class="checkall" /> 全选
+            </div>
+            <div class="t-goods">商品</div>
+            <div class="t-price">单价</div>
+            <div class="t-num">数量</div>
+            <div class="t-sum">小计</div>
+            <div class="t-action">操作</div>
+          </div>
+          <!-- 商品详细模块 -->
+          <div class="cart-item-list">
+            <div class="cart-item check-cart-item">
+              <div class="p-checkbox">
+                <input
+                  type="checkbox"
+                  name=""
+                  id=""
+                  checked
+                  class="j-checkbox"
+                />
+              </div>
+              <div class="p-goods">
+                <div class="p-img">
+                  <img src="images/p1.jpg" alt="" />
+                </div>
+                <div class="p-msg">
+                  【5本26.8元】经典儿童文学彩图青少版八十天环游地球中学生语文教学大纲
+                </div>
+              </div>
+              <div class="p-price">￥12.60</div>
+              <div class="p-num">
+                <div class="quantity-form">
+                  <a href="javascript:;" class="decrement">-</a>
+                  <input type="text" class="itxt" value="1" />
+                  <a href="javascript:;" class="increment">+</a>
+                </div>
+              </div>
+              <div class="p-sum">￥12.60</div>
+              <div class="p-action"><a href="javascript:;">删除</a></div>
+            </div>
+            <div class="cart-item">
+              <div class="p-checkbox">
+                <input type="checkbox" name="" id="" class="j-checkbox" />
+              </div>
+              <div class="p-goods">
+                <div class="p-img">
+                  <img src="images/p2.jpg" alt="" />
+                </div>
+                <div class="p-msg">
+                  【2000张贴纸】贴纸书 3-6岁 贴画儿童 贴画书全套12册 贴画
+                  贴纸儿童 汽
+                </div>
+              </div>
+              <div class="p-price">￥24.80</div>
+              <div class="p-num">
+                <div class="quantity-form">
+                  <a href="javascript:;" class="decrement">-</a>
+                  <input type="text" class="itxt" value="1" />
+                  <a href="javascript:;" class="increment">+</a>
+                </div>
+              </div>
+              <div class="p-sum">￥24.80</div>
+              <div class="p-action"><a href="javascript:;">删除</a></div>
+            </div>
+            <div class="cart-item">
+              <div class="p-checkbox">
+                <input type="checkbox" name="" id="" class="j-checkbox" />
+              </div>
+              <div class="p-goods">
+                <div class="p-img">
+                  <img src="images/p3.jpg" alt="" />
+                </div>
+                <div class="p-msg">
+                  唐诗三百首+成语故事全2册 一年级课外书 精装注音儿童版
+                  小学生二三年级课外阅读书籍
+                </div>
+              </div>
+              <div class="p-price">￥29.80</div>
+              <div class="p-num">
+                <div class="quantity-form">
+                  <a href="javascript:;" class="decrement">-</a>
+                  <input type="text" class="itxt" value="1" />
+                  <a href="javascript:;" class="increment">+</a>
+                </div>
+              </div>
+              <div class="p-sum">￥29.80</div>
+              <div class="p-action"><a href="javascript:;">删除</a></div>
+            </div>
+          </div>
+
+          <!-- 结算模块 -->
+          <div class="cart-floatbar">
+            <div class="select-all">
+              <input type="checkbox" name="" id="" class="checkall" />全选
+            </div>
+            <div class="operation">
+              <a href="javascript:;" class="remove-batch"> 删除选中的商品</a>
+              <a href="javascript:;" class="clear-all">清理购物车</a>
+            </div>
+            <div class="toolbar-right">
+              <div class="amount-sum">已经选<em>1</em>件商品</div>
+              <div class="price-sum">总价： <em>￥12.60</em></div>
+              <div class="btn-area">去结算</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- footer start -->
+    <div class="footer">
+      <div class="w">
+        <!-- mod_service -->
+        <div class="mod_service">
+          <ul>
+            <li>
+              <i class="mod-service-icon mod_service_zheng"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+            <li>
+              <i class="mod-service-icon mod_service_kuai"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+            <li>
+              <i class="mod-service-icon mod_service_bao"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+            <li>
+              <i class="mod-service-icon mod_service_bao"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+            <li>
+              <i class="mod-service-icon mod_service_bao"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- mod_help -->
+        <div class="mod_help">
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item mod_help_app">
+            <dt>帮助中心</dt>
+            <dd>
+              <img src="images/erweima.png" alt="" />
+              <p>品优购客户端</p>
+            </dd>
+          </dl>
+        </div>
+
+        <!-- mod_copyright  -->
+        <div class="mod_copyright">
+          <p class="mod_copyright_links">
+            关于我们 | 联系我们 | 联系客服 | 商家入驻 | 营销中心 | 手机品优购 |
+            友情链接 | 销售联盟 | 品优购社区 | 品优购公益 | English Site |
+            Contact U
+          </p>
+          <p class="mod_copyright_info">
+            地址：北京市昌平区建材城西路金燕龙办公楼一层 邮编：100096
+            电话：400-618-4000 传真：010-82935100 邮箱: zhanghj+itcast.cn <br />
+            京ICP备08001421号京公网安备110108007702
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- footer end -->
+  </body>
+</html>
+```
+
+**购物车.css**
+
+```css
+.car-header {
+    padding: 20px 0;
+}
+
+.car-logo img {
+    vertical-align: middle;
+}
+
+.car-logo b {
+    font-size: 20px;
+    margin-top: 20px;
+    margin-left: 10px;
+}
+
+.cart-filter-bar {
+    font-size: 16px;
+    color: #E2231A;
+    font-weight: 700;
+}
+
+.cart-filter-bar em {
+    padding: 5px;
+    border-bottom: 1px solid #E2231A;
+}
+
+.cart-thead {
+    height: 32px;
+    line-height: 32px;
+    margin: 5px 0 10px;
+    padding: 5px 0;
+    background: #f3f3f3;
+    border: 1px solid #e9e9e9;
+    border-top: 0;
+    position: relative;
+}
+
+.cart-thead>div,
+.cart-item>div {
+    float: left;
+}
+
+.t-checkbox,
+.p-checkbox {
+    height: 18px;
+    line-height: 18px;
+    padding-top: 7px;
+    width: 122px;
+    padding-left: 11px;
+}
+
+.t-goods {
+    width: 400px;
+}
+
+.t-price {
+    width: 120px;
+    padding-right: 40px;
+    text-align: right;
+}
+
+.t-num {
+    width: 150px;
+    text-align: center;
+}
+
+.t-sum {
+    width: 100px;
+    text-align: right;
+}
+
+.t-action {
+    width: 130px;
+    text-align: right;
+}
+
+.cart-item {
+    height: 160px;
+    border-style: solid;
+    border-width: 2px 1px 1px;
+    border-color: #aaa #f1f1f1 #f1f1f1;
+    background: #fff;
+    padding-top: 14px;
+    margin: 15px 0;
+}
+
+.check-cart-item {
+    background: #fff4e8;
+}
+
+.p-checkbox {
+    width: 50px;
+}
+
+.p-goods {
+    margin-top: 8px;
+    width: 565px;
+}
+
+.p-img {
+    float: left;
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+
+.p-msg {
+    float: left;
+    width: 210px;
+    margin: 0 10px;
+}
+
+.p-price {
+    width: 110px;
+}
+
+.quantity-form {
+    width: 80px;
+    height: 22px;
+}
+
+.p-num {
+    width: 170px;
+}
+
+.decrement,
+.increment {
+    float: left;
+    border: 1px solid #cacbcb;
+    height: 18px;
+    line-height: 18px;
+    padding: 1px 0;
+    width: 16px;
+    text-align: center;
+    color: #666;
+    margin: 0;
+    background: #fff;
+    margin-left: -1px;
+}
+
+.itxt {
+    float: left;
+    border: 1px solid #cacbcb;
+    width: 42px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    padding: 1px;
+    margin: 0;
+    margin-left: -1px;
+    font-size: 12px;
+    font-family: verdana;
+    color: #333;
+    /* -webkit-appearance: none; */
+}
+
+.p-sum {
+    font-weight: 700;
+    width: 145px;
+}
 
 
+/* 结算模块 */
+
+.cart-floatbar {
+    height: 50px;
+    border: 1px solid #f0f0f0;
+    background: #fff;
+    position: relative;
+    margin-bottom: 50px;
+    line-height: 50px;
+}
+
+.select-all {
+    float: left;
+    height: 18px;
+    line-height: 18px;
+    padding: 16px 0 16px 9px;
+    white-space: nowrap;
+}
+
+.select-all input {
+    vertical-align: middle;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.operation {
+    float: left;
+    width: 200px;
+    margin-left: 40px;
+}
+
+.clear-all {
+    font-weight: 700;
+    margin: 0 20px;
+}
+
+.toolbar-right {
+    float: right;
+}
+
+.amount-sum {
+    float: left;
+}
+
+.amount-sum em {
+    font-weight: 700;
+    color: #E2231A;
+    padding: 0 3px;
+}
+
+.price-sum {
+    float: left;
+    margin: 0 15px;
+}
+
+.price-sum em {
+    font-size: 16px;
+    color: #E2231A;
+    font-weight: 700;
+}
+
+.btn-area {
+    font-weight: 700;
+    width: 94px;
+    height: 52px;
+    line-height: 52px;
+    color: #fff;
+    text-align: center;
+    font-size: 18px;
+    font-family: "Microsoft YaHei";
+    background: #e54346;
+    overflow: hidden;
+}
+```
+
+**购物车.js**
+
+```js
+$(function () {
+  //1.全选全不选功能模块,事件使用change事件,有两个checkall全选
+  $(".checkall").change(function () {
+    //获取全选状态
+    var checked = $(this).prop("checked");
+    //并集选择器，小的box与另外一个全选都要改变
+    $(".j-checkbox,.checkall").prop("checked", checked);
+
+    //6 选中商品添加背景，通过添加类,删除类来增减CSS样式
+    //先判断是否为选中状态，如果是就全部添加check-cart-item类名
+    if ($(this).prop("checked")) {
+      $(".cart-item").addClass("check-cart-item");
+    } else {
+      //没有就移除样式
+      $(".cart-item").removeClass("check-cart-item");
+    }
+  });
+  //小复选框box改变时，全选按钮也会跟随变化
+  $(".j-checkbox").change(function () {
+    //选中复选框的数量 :checked可获取选中复选框的数量
+    var num = $(".j-checkbox:checked").length;
+    //当一个都没有选中，全选变为全不选
+    if (num == $(".j-checkbox").length) {
+      $(".checkall").prop("checked", true);
+    } else {
+      $(".checkall").prop("checked", false);
+    }
+
+    if ($(this).prop("checked")) {
+      //让当前商品添加样式
+      $(this).parents(".cart-item").addClass("check-cart-item");
+    } else {
+      //没有就移除当前商品样式
+      $(this).parents(".cart-item").removeClass("check-cart-item");
+    }
+  });
+
+  //2.增减商品数量模块
+  //增加按钮点击事件
+  $(".increment").click(function () {
+    //获取当前文本框的值
+    var n = $(this).siblings(".itxt").val();
+    n++;
+    $(this).siblings(".itxt").val(n);
+    priceChange($(this), n);
+    getSum();
+  });
+  //减少按钮点击事件
+  $(".decrement").click(function () {
+    //获取当前文本框的值
+    var n = $(this).siblings(".itxt").val();
+    //减少到1就不能再减
+    if (n == 1) {
+      this.disabled = true; //按钮禁用
+      return false;
+    }
+    n--;
+    $(this).siblings(".itxt").val(n);
+    priceChange($(this), n);
+    getSum();
+  });
+
+  //直接修改数量文本框值
+  // 获取焦点时保存旧值
+  var oldValue = 0;
+  $(".itxt").on("focus", function () {
+    oldValue = $(this).val();
+  });
+  $(".itxt").change(function () {
+    //先得到当前文本框的值
+    var n = $(this).val();
+    //n值不能为小数或者负数
+    if (n < 0 || n % 1 !== 0) {
+      //直接修改会旧值
+      $(this).val(oldValue);
+      return false;
+    }
+    priceChange($(this), n);
+    getSum();
+  });
+
+  //3.计算小计模块 根据文本框值*商品价格得到，提取为公共函数，去除重复代码
+  function priceChange(currentObj, n) {
+    //获得当前商品价格
+    var price = currentObj.parent().parent().siblings(".p-price").html();
+    //移除单位
+    price = price.substr(1);
+    //计算结果保留2位小数
+    price = "￥" + (price * n).toFixed(2);
+    currentObj.parents(".p-num").siblings(".p-sum").html(price);
+  }
+
+  //4. 购物车总件数与总额模块,也封装为一个公共函数，去除重复代码
+  //当页面第一次打开或刷新就先计算一下总额
+  getSum();
+  function getSum() {
+    //计算总件数
+    var count = 0;
+    //计算总金额
+    var money = 0;
+    $(".itxt").each(function (index, domEle) {
+      //累积数量值
+      count += parseInt($(domEle).val());
+    });
+    //修改总件数
+    $(".amount-sum em").text(count);
+    //计算总金额
+    $(".p-sum").each(function (index, domEle) {
+      money += parseFloat($(domEle).text().substr(1));
+    });
+    $(".price-sum em").text("￥" + money.toFixed(2));
+  }
+
+  //5. 删除商品模块
+  //通过删除按钮点击删除商品
+  $(".p-action a").click(function () {
+    //删除包括自身
+    $(this).parents(".cart-item").remove();
+    //删除后都要重新计算总额
+    getSum();
+  });
+  //删除选中的商品
+  $(".remove-batch").click(function () {
+    //删除复选框选中的商品 有隐式迭代
+    $(".j-checkbox:checked").parents(".cart-item").remove();
+    getSum();
+  });
+  //清理购物车，删除所有
+  $(".clear-all").click(function () {
+    $(".cart-item").remove();
+    getSum();
+  });
+});
+```
+
+#### 4.5.11 获取元素尺寸
+
+获取元素的尺寸,类似与之前**clientWidth**与**clientHeight**获取元素宽高。
+
+| 语法                                   | 用法                                                         |
+| -------------------------------------- | ------------------------------------------------------------ |
+| **width()/height()**                   | 获得与设置匹配元素的宽度与高度值，只有width/height           |
+| **innerWidth()/innerHeight()**         | 获得与设置匹配元素的宽度与高度值，包括**padding值**          |
+| **outerWidth()/outerHeight()**         | 获得与设置匹配元素的宽度与高度值，包括**padding值**、**border值** |
+| **outerWidth(true)/outerHeight(true)** | 参数为true,获得与设置匹配元素的宽度与高度值，包括**padding值**、**border值**和**margin值** |
+
+以上参数为空时就表示**获取相应的值**，返回的是数字型。如果参数有数字，则是修改相应的值。参数没有单位。
+
+> 隐藏公式规则：
+>
+> padding值=（innerWidth()-width()）/2
+>
+> border值=（outerWidth()-innerWidth()）/2
+>
+> margin值=（outerWidth(true)-outerWidth()）/2
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+    <style>
+      div {
+        width: 200px;
+        height: 200px;
+        background-color: red;
+        padding: 10px;
+        border: 15px solid blue;
+        margin: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div></div>
+    <script>
+      $(function () {
+        //1. 获取与设置元素width与height大小
+        console.log($("div").width()); //获取宽度值 200无单位
+        console.log($("div").width(300)[0]); //设置宽度为300,返回修改后的元素对象
+        //宽高写法基本一致
+        console.log($("div").height()); //获取高度值 200无单位
+        console.log($("div").height(300)[0]); //设置高度为300,返回修改后的元素对象
+
+        //2.包含padding
+        console.log($("div").innerWidth()); //320,就是300+10+10
+        console.log($("div").innerWidth(400)[0]); //修改宽度为380,也就是减去padding值400-10-10=380
+
+        //3. 包含padding与border
+        console.log($("div").outerWidth()); //430,就是400+15+15,如果有偏差是浏览器精度问题
+        console.log($("div").outerWidth(500)[0]); //修改宽度为450,也就是减去padding与border值500-10-10-15-15=450
+
+        //4. 包含padding、border以及margin值
+        console.log($("div").outerWidth(true)); //540,就是500+20+20,如果有偏差是浏览器精度问题
+        //注意数字在true参数之前写才有效
+        console.log($("div").outerWidth(600, true)[0]); //修改宽度为450,也就是减去padding与border值600-10-10-15-15-20-20=510
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.5.12 获取元素位置
+
+`offset()`方法是**获取被选元素**相对于**文档的偏移坐标**，跟父级没有关系，返回值的是一个对象，包含top与left两个偏移量。
+
+```js
+element.offset(); //位置对象
+element.offset().top; //距离顶部位置
+element.offset().left; //距离左侧位置
+```
+
+它跟之前offsetTop是有区别的，之前offsetTop是距离**有定位的父元素偏移量**，offset是即使父元素有定位也只会获取距离文档的偏移量。
+
+**设置元素坐标**,参数为对象。
+
+```js
+element.offset({
+     top: 200,
+     left: 200
+});
+```
+
+`position()`方法是获取被选元素相对于**带有定位的父级元素偏移坐标**，如果父级没有定位，则继续向上找，直到文档为止。该方法只能获取值，不能设置值。和之前的offsetTop效果一致。
+
+```js
+element.position();
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      .father {
+        width: 400px;
+        height: 400px;
+        background-color: pink;
+        margin: 100px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .son {
+        width: 150px;
+        height: 150px;
+        background-color: purple;
+        position: absolute;
+        left: 10px;
+        top: 10px;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div class="father">
+      <div class="son"></div>
+    </div>
+
+    <script>
+      $(function () {
+        // 1. 获取设置距离文档的位置（偏移） offset
+        console.log($(".son").offset()); //返回对象{top: 110, left: 110}
+        console.log($(".son").offset().top);
+        //设置偏移量
+        $(".son").offset({
+          top: 200,
+          left: 200
+        });
+        $(".son").offset({ top: 100 });
+        // $(".son").offset.top = 300; 该方式错误,不能设置偏移量
+
+        // 2. 获取距离带有定位父级位置（偏移） position   如果没有带有定位的父级，则以文档为准
+        // 这个方法只能获取不能设置偏移
+        console.log($(".son").position()); //返回对象{top: 0, left: 100}
+        //设置无效
+        // $(".son").position({
+        //   top: 200,
+        //   left: 200
+        // });
+      });
+    </script>
+  </body>
+</html>
+```
+
+`scrollTop()/scrollLeft()`方法设置或返回被选元素被卷去的头部/左侧。
+
+```js
+element.scrollTop(); //被卷去头部距离
+element.scrollLeft(); //被卷去左部距离
+
+//有参数就是直接设置值，直接跳转到该位置
+element.scrollTop(距离)
+```
+
+案例：返回顶部按钮，按钮先隐藏，滚动到某个距离才显示，**点击返回时有动画**，不使用`$(document).scrollTop(0)`返回,这样没动画。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      body {
+        height: 2000px;
+      }
+
+      .back {
+        position: fixed;
+        width: 50px;
+        height: 50px;
+        background-color: pink;
+        right: 30px;
+        bottom: 100px;
+        display: none;
+      }
+
+      .container {
+        width: 900px;
+        height: 500px;
+        background-color: skyblue;
+        margin: 400px auto;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div class="back">返回顶部</div>
+
+    <div class="container"></div>
+    <script>
+      $(function () {
+        //页面打开或刷新直接跳转到滚动距离100px的位置
+        $(document).scrollTop(100);
+
+        //被卷去的头部
+        //1. 页面滚动事件监听滚动
+        var boxTop = $(".container").offset().top; //获取容器距离顶部的距离
+        $(window).scroll(function () {
+          console.log($(document).scrollTop());
+          //滚动到容器位置，让back显示,这里的$(document).scrollTop()相当于之前的window.pageYoffset值
+          if ($(document).scrollTop() >= boxTop) {
+            $(".back").fadeIn();
+          } else {
+            $(".back").fadeOut();
+          }
+        });
+
+        //2.返回顶部
+        $(".back").click(function () {
+          // $(document).scrollTop(0);
+          //不能使用$(document),因为animate是元素做动画而不是文档对象，因此要修改为$("body,html")
+          $("body,html").stop().animate({
+            scrollTop: 0
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.5.13 品优购电梯导航案例
+
+所谓电梯导航效果，点击左侧导航栏不同模块，就跳转到对于模块的位置。看着像竖向的轮播图。
+
+案例功能：
+
+1. 当滚动到今日模块时，才显示电梯导航栏；该方法不仅在滚动时要调用，页面刷新也要调用，因此封装为函数更好；
+2. **点击电梯导航，页面就滚动到相应的区域**。其核心算法为：因为电梯导航模块与内容区模块是一一对应的，根据**导航索引**找到**内容索引**。当点击了电梯导航的某个模块，就可拿到当前模块的索引号，就可通过animate+要**移动的距离(当前模块的offset().top值)**实现。
+3. 点击当前li添加current类，其他的兄弟移除current类；
+4. 滚动页面，到达内容区域的某个模块，电梯导航栏也会选中相应的导航模块。也就是添加current类与移除current类。需要使用each，遍历内容区域大模块。each中能拿到内容区域每个模块元素与索引号。判断**被卷去的头部是否大于内容区域每个模块的offset().top**。大于就表示到达该模块，**这时的索引号就是导航的索引号**。
+5. 解决bug3与4功能冲突,点击导航会导致页面滚动，页面滚动就会根据距离切换导航，这样就出现导航来回切换的问题。这时就需要使用**互斥锁又叫节流阀**来解决，解决方法就是**点击切换时就锁住页面滚动事件中添加current的功能**。为了防止动画结束时启动节流阀太快，导致回弹问题，使用定时器延时30ms解锁，这样动画必然执行完成，消除回弹问题。
+
+电梯导航.html
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>品优购-综合网购首选-正品低价、品质保障、配送及时、轻松购物！</title>
+    <meta
+      name="description"
+      content="品优购JD.COM-专业的综合网上购物商城,销售家电、数码通讯、电脑、家居百货、服装服饰、母婴、图书、食品等数万个品牌优质商品.便捷、诚信的服务，为您提供愉悦的网上购物体验!"
+    />
+    <meta
+      name="Keywords"
+      content="网上购物,网上商城,手机,笔记本,电脑,MP3,CD,VCD,DV,相机,数码,配件,手表,存储卡,品优购"
+    />
+    <!-- 引入facicon.ico网页图标 -->
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <style>
+      /* base样式 */
+      /*清除元素默认的内外边距  */
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      /*让所有斜体 不倾斜*/
+      em,
+      i {
+        font-style: normal;
+      }
+      /*去掉列表前面的小点*/
+      li {
+        list-style: none;
+      }
+      /*图片没有边框   去掉图片底侧的空白缝隙*/
+      img {
+        border: 0; /*ie6*/
+        vertical-align: middle;
+      }
+      /*让button 按钮 变成小手*/
+      button {
+        cursor: pointer;
+      }
+      /*取消链接的下划线*/
+      a {
+        color: #666;
+        text-decoration: none;
+      }
+
+      a:hover {
+        color: #e33333;
+      }
+
+      button,
+      input {
+        font-family: "Microsoft YaHei", "Heiti SC", tahoma, arial,
+          "Hiragino Sans GB", \\5B8B\4F53, sans-serif;
+        /*取消轮廓线 蓝色的*/
+        outline: none;
+      }
+
+      body {
+        background-color: #fff;
+        font: 12px/1.5 "Microsoft YaHei", "Heiti SC", tahoma, arial,
+          "Hiragino Sans GB", \\5B8B\4F53, sans-serif;
+        color: #666;
+      }
+
+      .hide,
+      .none {
+        display: none;
+      }
+      /*清除浮动*/
+      .clearfix:after {
+        visibility: hidden;
+        clear: both;
+        display: block;
+        content: ".";
+        height: 0;
+      }
+
+      /* common */
+      /*公共样式*/
+      .fl {
+        float: left;
+      }
+      .fr {
+        float: right;
+      }
+      @font-face {
+        font-family: "icomoon";
+        src: url("../fonts/icomoon.eot?7kkyc2");
+        src: url("../fonts/icomoon.eot?7kkyc2#iefix")
+            format("embedded-opentype"),
+          url("../fonts/icomoon.ttf?7kkyc2") format("truetype"),
+          url("../fonts/icomoon.woff?7kkyc2") format("woff"),
+          url("../fonts/icomoon.svg?7kkyc2#icomoon") format("svg");
+        font-weight: normal;
+        font-style: normal;
+      }
+      .fr .icomoon {
+        font-family: "icomoon";
+        font-size: 16px;
+        line-height: 26px;
+      }
+      /*版心*/
+      .w {
+        width: 1200px;
+        margin: 0 auto;
+      }
+      .style-red {
+        color: #c81623;
+      }
+      .spacer {
+        width: 1px;
+        height: 12px;
+        background-color: #666;
+        margin: 9px 12px 0;
+      }
+      /*顶部快捷导航*/
+      .shortcut {
+        height: 31px;
+        background-color: #f1f1f1;
+        line-height: 31px;
+      }
+      .shortcut li {
+        float: left;
+      }
+      /*header区域*/
+      .header {
+        position: relative;
+        height: 105px;
+      }
+      .logo {
+        position: absolute;
+        top: 25px;
+        left: 0;
+        width: 175px;
+        height: 56px;
+      }
+      .logo a {
+        display: block;
+        /*overflow: hidden;*/
+        width: 175px;
+        height: 56px;
+        background: url(../images/logo.png) no-repeat;
+        /*text-indent: -999px;*/
+        font-size: 0;
+      }
+      .search {
+        position: absolute;
+        top: 25px;
+        left: 348px;
+      }
+      .text {
+        float: left;
+        width: 445px;
+        height: 32px;
+        border: 2px solid #b1191a;
+        padding-left: 10px;
+        color: #ccc;
+      }
+      .btn {
+        float: left;
+        width: 82px;
+        height: 36px;
+        background-color: #b1191a;
+        border: 0;
+        font-size: 16px;
+        color: #fff;
+      }
+      .hotwrods {
+        position: absolute;
+        top: 65px;
+        left: 348px;
+      }
+      .hotwrods a {
+        margin: 0 10px;
+      }
+      .shopcar {
+        position: absolute;
+        top: 25px;
+        right: 64px;
+        width: 138px;
+        height: 34px;
+        border: 1px solid #dfdfdf;
+        background-color: #f7f7f7;
+        line-height: 34px;
+        text-align: center;
+      }
+      .car {
+        font-family: "icomoon";
+        color: #da5555;
+      }
+      .arrow {
+        font-family: "icomoon";
+        margin-left: 5px;
+      }
+      .count {
+        position: absolute;
+        top: -5px;
+        /*应该是左侧对齐 文字才能往右走显示*/
+        left: 100px;
+        background-color: #e60012;
+        height: 14px;
+        padding: 0 3px;
+        line-height: 14px;
+        color: #fff;
+        /*border-radius: 左上角 右上角  右下角  左下角;*/
+        border-radius: 7px 7px 7px 0;
+      }
+      /*nav start*/
+      .nav {
+        height: 45px;
+        border-bottom: 2px solid #b1191a;
+      }
+      .dropdown {
+        width: 209px;
+        height: 45px;
+      }
+      .dropdown .dt {
+        height: 100%;
+        background-color: #b1191a;
+        font-size: 16px;
+        color: #fff;
+        text-align: center;
+        line-height: 45px;
+      }
+      .dropdown .dd {
+        height: 465px;
+        background-color: #c81623;
+        margin-top: 2px;
+      }
+
+      .menu_item:hover {
+        background-color: #fff;
+      }
+      /*鼠标经过li 里面的 a变颜色*/
+      .menu_item:hover a {
+        color: #c81623;
+      }
+
+      .menu_item {
+        height: 31px;
+        line-height: 31px;
+        margin-left: 1px;
+        padding: 0 10px;
+        transition: all 0.5s;
+      }
+      .menu_item:hover {
+        padding-left: 20px;
+      }
+      .menu_item a {
+        font-size: 14px;
+        color: #fff;
+      }
+      .menu_item i {
+        float: right;
+        font-family: "icomoon";
+        font-size: 18px;
+        color: #fff;
+      }
+      .navitems {
+        margin-left: 10px;
+      }
+      .navitems li {
+        float: left;
+      }
+      .navitems li a {
+        display: block;
+        height: 45px;
+        padding: 0 25px;
+        line-height: 45px;
+        font-size: 16px;
+      }
+      /*footer 部分*/
+      .footer {
+        height: 386px;
+        background-color: #f5f5f5;
+        padding-top: 30px;
+      }
+      .mod_service {
+        height: 79px;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .mod_service li {
+        float: left;
+        width: 240px;
+        height: 79px;
+      }
+      .mod-service-icon {
+        /*浮动的盒子 可以直接给大小的 不需要转换*/
+        float: left;
+        width: 50px;
+        height: 50px;
+        margin-left: 35px;
+        background: url(../images/icons.png) no-repeat;
+      }
+      .mod_service_zheng {
+        background-position: -253px -3px;
+      }
+      .mod_service_tit {
+        float: left;
+        margin-left: 5px;
+      }
+      .mod_service_tit h5 {
+        margin: 5px 0;
+      }
+      .mod_service_kuai {
+        background-position: -255px -54px;
+      }
+      .mod_service_bao {
+        background-position: -257px -105px;
+      }
+      .mod_help {
+        height: 187px;
+        border-bottom: 1px solid #ccc;
+      }
+      .mod_help_item {
+        float: left;
+        width: 150px;
+        padding: 20px 0 0 50px;
+      }
+      .mod_help_item dt {
+        height: 25px;
+        font-size: 16px;
+      }
+      .mod_help_item dd {
+        height: 22px;
+      }
+      .mod_help_app dt,
+      .mod_help_app p {
+        padding-left: 15px;
+      }
+      .mod_help_app img {
+        margin: 7px 0;
+      }
+      .mod_copyright {
+        text-align: center;
+      }
+      .mod_copyright_links {
+        margin: 20px 0 15px 0;
+      }
+      .mod_copyright_info {
+        line-height: 18px;
+      }
+    </style>
+
+    <!-- 引入 首页的css文件 -->
+    <link rel="stylesheet" href="电梯导航.css" />
+    <script src="jquery.min.js"></script>
+    <script src="电梯导航.js"></script>
+  </head>
+
+  <body>
+    <!-- 顶部快捷导航start -->
+    <div class="shortcut">
+      <div class="w">
+        <div class="fl">
+          <ul>
+            <li>品优购欢迎您！</li>
+            <li>
+              <a href="#">请登录</a>
+              <a href="#" class="style-red">免费注册</a>
+            </li>
+          </ul>
+        </div>
+        <div class="fr">
+          <ul>
+            <li><a href="#">我的订单</a></li>
+            <li class="spacer"></li>
+            <li>
+              <a href="#">我的品优购</a>
+              <i class="icomoon"></i>
+            </li>
+            <li class="spacer"></li>
+            <li><a href="#">品优购会员</a></li>
+            <li class="spacer"></li>
+            <li><a href="#">企业采购</a></li>
+            <li class="spacer"></li>
+            <li><a href="#">关注品优购</a> <i class="icomoon"></i></li>
+            <li class="spacer"></li>
+            <li><a href="#">客户服务</a> <i class="icomoon"></i></li>
+            <li class="spacer"></li>
+            <li><a href="#">网站导航</a> <i class="icomoon"></i></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- 顶部快捷导航end  -->
+    <!-- header制作 -->
+    <div class="header w">
+      <!-- logo -->
+      <div class="logo">
+        <h1>
+          <a href="index.html" title="品优购">品优购</a>
+        </h1>
+      </div>
+      <!-- search -->
+      <div class="search">
+        <input type="text" class="text" value="请搜索内容..." />
+        <button class="btn">搜索</button>
+      </div>
+      <!-- hotwrods -->
+      <div class="hotwrods">
+        <a href="#" class="style-red">优惠购首发</a>
+        <a href="#">亿元优惠</a>
+        <a href="#">9.9元团购</a>
+        <a href="#">美满99减30</a>
+        <a href="#">办公用品</a>
+        <a href="#">电脑</a>
+        <a href="#">通信</a>
+      </div>
+      <div class="shopcar">
+        <i class="car"> </i>我的购物车 <i class="arrow">  </i>
+        <i class="count">80</i>
+      </div>
+    </div>
+    <!-- header 结束 -->
+    <!-- nav start -->
+    <div class="nav">
+      <div class="w">
+        <div class="dropdown fl">
+          <div class="dt">全部商品分类</div>
+          <div class="dd">
+            <ul>
+              <li class="menu_item"><a href="#">家用电器</a> <i>  </i></li>
+              <li class="menu_item">
+                <a href="list.html">手机</a> 、 <a href="#">数码</a> 、
+                <a href="#">通信</a>
+                <i>  </i>
+              </li>
+              <li class="menu_item"><a href="#">电脑、办公</a> <i>  </i></li>
+              <li class="menu_item">
+                <a href="#">家居、家具、家装、厨具</a> <i>  </i>
+              </li>
+              <li class="menu_item">
+                <a href="#">男装、女装、童装、内衣</a> <i>  </i>
+              </li>
+              <li class="menu_item">
+                <a href="#">个户化妆、清洁用品、宠物</a> <i>  </i>
+              </li>
+              <li class="menu_item">
+                <a href="#">鞋靴、箱包、珠宝、奢侈品</a> <i>  </i>
+              </li>
+              <li class="menu_item">
+                <a href="#">运动户外、钟表</a> <i>  </i>
+              </li>
+              <li class="menu_item">
+                <a href="#">汽车、汽车用品</a> <i>  </i>
+              </li>
+              <li class="menu_item">
+                <a href="#">母婴、玩具乐器</a> <i>  </i>
+              </li>
+              <li class="menu_item">
+                <a href="#">食品、酒类、生鲜、特产</a> <i>  </i>
+              </li>
+              <li class="menu_item"><a href="#">医药保健</a> <i>  </i></li>
+              <li class="menu_item">
+                <a href="#">图书、音像、电子书</a> <i> </i>
+              </li>
+              <li class="menu_item">
+                <a href="#">彩票、旅行、充值、票务</a> <i> </i>
+              </li>
+              <li class="menu_item">
+                <a href="#">理财、众筹、白条、保险</a> <i>  </i>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- 右侧导航 -->
+        <div class="navitems fl">
+          <ul>
+            <li><a href="#">服装城</a></li>
+            <li><a href="#">美妆馆</a></li>
+            <li><a href="#">传智超市</a></li>
+            <li><a href="#">全球购</a></li>
+            <li><a href="#">闪购</a></li>
+            <li><a href="#">团购</a></li>
+            <li><a href="#">拍卖</a></li>
+            <li><a href="#">有趣</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- nav end  -->
+    <!-- main 模块 -->
+    <div class="w">
+      <div class="main">
+        <div class="focus fl">
+          <!-- 左侧按钮 -->
+          <a href="javascript:;" class="arrow-l"> &lt; </a>
+          <!-- 右侧按钮 -->
+          <a href="javascript:;" class="arrow-r">  </a>
+          <!-- 核心的滚动区域 -->
+          <ul>
+            <li>
+              <a href="#"><img src="images/focus.jpg" alt="" /></a>
+            </li>
+            <li>
+              <a href="#"><img src="images/focus1.jpg" alt="" /></a>
+            </li>
+            <li>
+              <a href="#"><img src="images/focus2.jpg" alt="" /></a>
+            </li>
+            <li>
+              <a href="#"><img src="images/focus3.jpg" alt="" /></a>
+            </li>
+          </ul>
+          <!-- 小圆圈 -->
+          <ol class="circle"></ol>
+        </div>
+        <div class="newsflash fr">
+          <div class="news">
+            <div class="news-hd">
+              品优购快报
+              <a href="#">更多</a>
+            </div>
+            <div class="news-bd">
+              <ul>
+                <li><a href="#">【特惠】爆款耳机5折秒！</a></li>
+                <li><a href="#">【特惠】母亲节，健康好礼低至5折！</a></li>
+                <li><a href="#">【特惠】爆款耳机5折秒！</a></li>
+                <li><a href="#">【特惠】9.9元洗100张照片！</a></li>
+                <li><a href="#">【特惠】长虹智能空调立省1000</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="lifeservice">
+            <ul>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_huafei"></i>
+                  <p>话费</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+                <span class="hot"></span>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <i class="service_ico service_ico_feiji"></i>
+                  <p>机票</p>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="bargain">
+            <img src="images/bargain.jpg" alt="" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 推荐服务模块 start -->
+    <div class="recommend w">
+      <div class="recom-hd fl">
+        <img src="images/clock.png" alt="" />
+        <h3>今日推荐</h3>
+      </div>
+      <div class="recom-bd fl">
+        <ul>
+          <li>
+            <a href="#">
+              <img src="images/pic.jpg" alt="" />
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <img src="images/pic.jpg" alt="" />
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <img src="images/pic.jpg" alt="" />
+            </a>
+          </li>
+          <li class="last">
+            <a href="#">
+              <img src="images/pic.jpg" alt="" />
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- 推荐服务模块 end -->
+
+    <!-- 楼层区 start -->
+    <div class="floor">
+      <div class="jiadian w">
+        <div class="box-hd">
+          <h3>家用电器</h3>
+          <div class="tab-list">
+            <ul>
+              <li><a href="#" class="style-red">热门</a>|</li>
+              <li><a href="#">大家电</a>|</li>
+              <li><a href="#">生活电器</a>|</li>
+              <li><a href="#">厨房电器</a>|</li>
+              <li><a href="#">个护健康</a>|</li>
+              <li><a href="#">应季电器</a>|</li>
+              <li><a href="#">空气/净水</a>|</li>
+              <li><a href="#">新奇特</a>|</li>
+              <li><a href="#">高端电器</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="box-bd">
+          <ul class="tab-con">
+            <li class="w209">
+              <ul class="tab-con-list">
+                <li>
+                  <a href="#">节能补贴</a>
+                </li>
+                <li>
+                  <a href="#">4K电视</a>
+                </li>
+                <li>
+                  <a href="#">空气净化器</a>
+                </li>
+                <li>
+                  <a href="#">IH电饭煲</a>
+                </li>
+                <li>
+                  <a href="#">滚筒洗衣机</a>
+                </li>
+                <li>
+                  <a href="#">电热水器</a>
+                </li>
+              </ul>
+              <img src="images/floor-1-1.png" alt="" />
+            </li>
+            <li class="w329">
+              <img src="images/pic1.jpg" alt="" />
+            </li>
+            <li class="w219">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-2.png" alt="" />
+                </a>
+              </div>
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-3.png" alt="" />
+                </a>
+              </div>
+            </li>
+            <li class="w220">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-4.png" alt="" />
+                </a>
+              </div>
+            </li>
+            <li class="w220">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-5.png" alt="" />
+                </a>
+              </div>
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-6.png" alt="" />
+                </a>
+              </div>
+            </li>
+          </ul>
+          <!-- <ul class="tab-con">
+					<li>1</li>
+					<li>2</li>
+					<li>3</li>
+					<li>4</li>
+					<li>5</li>
+				</ul> -->
+        </div>
+      </div>
+      <div class="shouji w">
+        <div class="box-hd">
+          <h3>手机通讯</h3>
+          <div class="tab-list">
+            <ul>
+              <li><a href="#" class="style-red">热门</a>|</li>
+              <li><a href="#">大家电</a>|</li>
+              <li><a href="#">生活电器</a>|</li>
+              <li><a href="#">厨房电器</a>|</li>
+              <li><a href="#">个护健康</a>|</li>
+              <li><a href="#">应季电器</a>|</li>
+              <li><a href="#">空气/净水</a>|</li>
+              <li><a href="#">新奇特</a>|</li>
+              <li><a href="#">高端电器</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="box-bd">
+          <ul class="tab-con">
+            <li class="w209">
+              <ul class="tab-con-list">
+                <li>
+                  <a href="#">节能补贴</a>
+                </li>
+                <li>
+                  <a href="#">4K电视</a>
+                </li>
+                <li>
+                  <a href="#">空气净化器</a>
+                </li>
+                <li>
+                  <a href="#">IH电饭煲</a>
+                </li>
+                <li>
+                  <a href="#">滚筒洗衣机</a>
+                </li>
+                <li>
+                  <a href="#">电热水器</a>
+                </li>
+              </ul>
+              <img src="images/floor-1-1.png" alt="" />
+            </li>
+            <li class="w329">
+              <img src="images/pic1.jpg" alt="" />
+            </li>
+            <li class="w219">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-2.png" alt="" />
+                </a>
+              </div>
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-3.png" alt="" />
+                </a>
+              </div>
+            </li>
+            <li class="w220">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-4.png" alt="" />
+                </a>
+              </div>
+            </li>
+            <li class="w220">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-5.png" alt="" />
+                </a>
+              </div>
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-6.png" alt="" />
+                </a>
+              </div>
+            </li>
+          </ul>
+          <!-- <ul class="tab-con">
+					<li>1</li>
+					<li>2</li>
+					<li>3</li>
+					<li>4</li>
+					<li>5</li>
+				</ul> -->
+        </div>
+      </div>
+      <div class="diannao w">
+        <div class="box-hd">
+          <h3>电脑办公</h3>
+          <div class="tab-list">
+            <ul>
+              <li><a href="#" class="style-red">热门</a>|</li>
+              <li><a href="#">大家电</a>|</li>
+              <li><a href="#">生活电器</a>|</li>
+              <li><a href="#">厨房电器</a>|</li>
+              <li><a href="#">个护健康</a>|</li>
+              <li><a href="#">应季电器</a>|</li>
+              <li><a href="#">空气/净水</a>|</li>
+              <li><a href="#">新奇特</a>|</li>
+              <li><a href="#">高端电器</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="box-bd">
+          <ul class="tab-con">
+            <li class="w209">
+              <ul class="tab-con-list">
+                <li>
+                  <a href="#">节能补贴</a>
+                </li>
+                <li>
+                  <a href="#">4K电视</a>
+                </li>
+                <li>
+                  <a href="#">空气净化器</a>
+                </li>
+                <li>
+                  <a href="#">IH电饭煲</a>
+                </li>
+                <li>
+                  <a href="#">滚筒洗衣机</a>
+                </li>
+                <li>
+                  <a href="#">电热水器</a>
+                </li>
+              </ul>
+              <img src="images/floor-1-1.png" alt="" />
+            </li>
+            <li class="w329">
+              <img src="images/pic1.jpg" alt="" />
+            </li>
+            <li class="w219">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-2.png" alt="" />
+                </a>
+              </div>
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-3.png" alt="" />
+                </a>
+              </div>
+            </li>
+            <li class="w220">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-4.png" alt="" />
+                </a>
+              </div>
+            </li>
+            <li class="w220">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-5.png" alt="" />
+                </a>
+              </div>
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-6.png" alt="" />
+                </a>
+              </div>
+            </li>
+          </ul>
+          <!-- <ul class="tab-con">
+                        <li>1</li>
+                        <li>2</li>
+                        <li>3</li>
+                        <li>4</li>
+                        <li>5</li>
+                    </ul> -->
+        </div>
+      </div>
+      <div class="jiaju w">
+        <div class="box-hd">
+          <h3>精品家具</h3>
+          <div class="tab-list">
+            <ul>
+              <li><a href="#" class="style-red">热门</a>|</li>
+              <li><a href="#">大家电</a>|</li>
+              <li><a href="#">生活电器</a>|</li>
+              <li><a href="#">厨房电器</a>|</li>
+              <li><a href="#">个护健康</a>|</li>
+              <li><a href="#">应季电器</a>|</li>
+              <li><a href="#">空气/净水</a>|</li>
+              <li><a href="#">新奇特</a>|</li>
+              <li><a href="#">高端电器</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="box-bd">
+          <ul class="tab-con">
+            <li class="w209">
+              <ul class="tab-con-list">
+                <li>
+                  <a href="#">节能补贴</a>
+                </li>
+                <li>
+                  <a href="#">4K电视</a>
+                </li>
+                <li>
+                  <a href="#">空气净化器</a>
+                </li>
+                <li>
+                  <a href="#">IH电饭煲</a>
+                </li>
+                <li>
+                  <a href="#">滚筒洗衣机</a>
+                </li>
+                <li>
+                  <a href="#">电热水器</a>
+                </li>
+              </ul>
+              <img src="images/floor-1-1.png" alt="" />
+            </li>
+            <li class="w329">
+              <img src="images/pic1.jpg" alt="" />
+            </li>
+            <li class="w219">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-2.png" alt="" />
+                </a>
+              </div>
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-3.png" alt="" />
+                </a>
+              </div>
+            </li>
+            <li class="w220">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-4.png" alt="" />
+                </a>
+              </div>
+            </li>
+            <li class="w220">
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-5.png" alt="" />
+                </a>
+              </div>
+              <div class="tab-con-item">
+                <a href="#">
+                  <img src="images/floor-1-6.png" alt="" />
+                </a>
+              </div>
+            </li>
+          </ul>
+          <!-- <ul class="tab-con">
+                            <li>1</li>
+                            <li>2</li>
+                            <li>3</li>
+                            <li>4</li>
+                            <li>5</li>
+                        </ul> -->
+        </div>
+      </div>
+    </div>
+    <!-- 楼层区 end -->
+    <!-- 固定电梯导航 -->
+    <div class="fixedtool">
+      <ul>
+        <li class="current">家用电器</li>
+        <li>手机通讯</li>
+        <li>电脑办公</li>
+        <li>精品家具</li>
+      </ul>
+    </div>
+    <!-- footer start -->
+    <div class="footer">
+      <div class="w">
+        <!-- mod_service -->
+        <div class="mod_service">
+          <ul>
+            <li>
+              <i class="mod-service-icon mod_service_zheng"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+            <li>
+              <i class="mod-service-icon mod_service_kuai"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+            <li>
+              <i class="mod-service-icon mod_service_bao"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+            <li>
+              <i class="mod-service-icon mod_service_bao"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+            <li>
+              <i class="mod-service-icon mod_service_bao"></i>
+              <div class="mod_service_tit">
+                <h5>正品保障</h5>
+                <p>正品保障，提供发票</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- mod_help -->
+        <div class="mod_help">
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item">
+            <dt>购物指南</dt>
+            <dd><a href="#">购物流程 </a></dd>
+            <dd><a href="#">会员介绍 </a></dd>
+            <dd><a href="#">生活旅行/团购 </a></dd>
+            <dd><a href="#">常见问题 </a></dd>
+            <dd><a href="#">大家电 </a></dd>
+            <dd><a href="#">联系客服 </a></dd>
+          </dl>
+          <dl class="mod_help_item mod_help_app">
+            <dt>帮助中心</dt>
+            <dd>
+              <img src="images/erweima.png" alt="" />
+              <p>品优购客户端</p>
+            </dd>
+          </dl>
+        </div>
+
+        <!-- mod_copyright  -->
+        <div class="mod_copyright">
+          <p class="mod_copyright_links">
+            关于我们 | 联系我们 | 联系客服 | 商家入驻 | 营销中心 | 手机品优购 |
+            友情链接 | 销售联盟 | 品优购社区 | 品优购公益 | English Site |
+            Contact U
+          </p>
+          <p class="mod_copyright_info">
+            地址：北京市昌平区建材城西路金燕龙办公楼一层 邮编：100096
+            电话：400-618-4000 传真：010-82935100 邮箱: zhanghj+itcast.cn <br />
+            京ICP备08001421号京公网安备110108007702
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- footer end -->
+  </body>
+</html>      
+```
+
+电梯导航.css
+
+```css
+/*这个文件里面放的是 首页的样式*/
+
+.main {
+    width: 980px;
+    height: 455px;
+    margin-left: 219px;
+    margin-top: 10px;
+}
+
+.focus {
+    position: relative;
+    width: 721px;
+    height: 455px;
+    background-color: purple;
+    overflow: hidden;
+}
+
+.focus ul {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 600%;
+}
+
+.focus ul li {
+    float: left;
+}
+
+.arrow-l,
+.arrow-r {
+    display: none;
+    position: absolute;
+    top: 50%;
+    margin-top: -20px;
+    width: 24px;
+    height: 40px;
+    background: rgba(0, 0, 0, .3);
+    text-align: center;
+    line-height: 40px;
+    color: #fff;
+    font-family: 'icomoon';
+    font-size: 18px;
+    z-index: 2;
+}
+
+.arrow-r {
+    right: 0;
+}
+
+.circle {
+    position: absolute;
+    bottom: 10px;
+    left: 50px;
+}
+
+.circle li {
+    float: left;
+    width: 8px;
+    height: 8px;
+    /*background-color: #fff;*/
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    margin: 0 3px;
+    border-radius: 50%;
+    /*鼠标经过显示小手*/
+    cursor: pointer;
+}
+
+.current {
+    background-color: #fff;
+}
+
+.newsflash {
+    width: 250px;
+    height: 455px;
+}
+
+.news {
+    height: 163px;
+    border: 1px solid #ccc;
+}
+
+.news-hd {
+    height: 32px;
+    /*dotted 点线  dashed  虚线*/
+    border-bottom: 1px dotted #ccc;
+    padding: 0 15px;
+    font-size: 14px;
+    line-height: 32px;
+}
+
+.news-hd a {
+    float: right;
+    font-size: 12px;
+    font-family: 'icomoon';
+}
+
+.news-bd {
+    padding: 10px 0 0 15px;
+}
+
+.news-bd li {
+    height: 23px;
+}
+
+.lifeservice {
+    overflow: hidden;
+    height: 208px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
+.lifeservice ul {
+    width: 252px;
+}
+
+.lifeservice li {
+    position: relative;
+    float: left;
+    width: 62px;
+    height: 70px;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.lifeservice li a {
+    display: block;
+    /* overflow: hidden; 解决i 引起的 外边距塌陷合并的问题*/
+    overflow: hidden;
+    height: 100%;
+}
+
+.lifeservice li p {
+    text-align: center;
+}
+
+.hot {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 12px;
+    height: 15px;
+    background: url(../images/jian.jpg) no-repeat;
+}
+
+.service_ico {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background: url(../images/icons.png) no-repeat;
+    margin: 10px auto;
+}
+
+.service_ico_huafei {
+    background-position: -17px -16px;
+}
+
+.service_ico_feiji {
+    width: 26px;
+    background-position: -78px -16px;
+}
+
+.bargain {
+    height: 75px;
+    margin-top: 5px;
+}
+
+
+/*推荐模块*/
+
+.recommend {
+    height: 163px;
+    margin-top: 10px;
+}
+
+.recom-hd {
+    width: 200px;
+    height: 163px;
+    background-color: #5c5251;
+    text-align: center;
+}
+
+.recom-hd img {
+    margin: 30px 0 10px 0;
+}
+
+.recom-hd h3 {
+    font-size: 18px;
+    color: #fff;
+    font-weight: normal;
+}
+
+.recom-bd {
+    width: 1000px;
+    height: 163px;
+    background-color: #ebebeb;
+}
+
+.recom-bd li {
+    float: left;
+    width: 249px;
+    height: 145px;
+    border-right: 1px solid #ccc;
+    margin-top: 10px;
+}
+
+.recom-bd .last {
+    border-right: 0;
+}
+
+
+/*floor 楼层区*/
+
+.box-hd {
+    height: 30px;
+    border-bottom: 2px solid #c81623;
+    margin-top: 25px;
+}
+
+.box-hd h3 {
+    float: left;
+    font-size: 18px;
+    color: #c81623;
+}
+
+.tab-list {
+    float: right;
+    line-height: 30px;
+}
+
+.tab-list li {
+    float: left;
+}
+
+.tab-list li a {
+    margin: 0 15px;
+}
+
+.box-bd {
+    height: 360px;
+}
+
+.w209 {
+    width: 209px;
+    background-color: #f9f9f9;
+}
+
+.w329 {
+    width: 329px;
+}
+
+.w219 {
+    width: 219px;
+    border-right: 1px solid #ccc;
+}
+
+.w220 {
+    width: 220px;
+    border-right: 1px solid #ccc;
+}
+
+.tab-con li {
+    float: left;
+    height: 360px;
+}
+
+.tab-con-item {
+    border-bottom: 1px solid #ccc;
+}
+
+.tab-con-list {
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.tab-con-list li {
+    width: 86px;
+    height: 32px;
+    line-height: 32px;
+    border-bottom: 1px solid #ccc;
+    margin-left: 10px;
+    text-align: center;
+}
+
+.box-bd li {
+    overflow: hidden;
+}
+
+.box-bd img {
+    /*过渡写到本身上， 谁做动画，给谁加*/
+    transition: all .2s;
+}
+
+
+/*我们鼠标经过图片 往右走 8px*/
+
+.box-bd img:hover {
+    margin-left: 8px;
+}
+
+
+/*电梯导航*/
+
+.fixedtool {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    margin-left: -676px;
+    width: 66px;
+    background-color: #fff;
+    display: none;
+}
+
+.fixedtool li {
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    font-size: 12px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.fixedtool .current {
+    background-color: #c81623;
+    color: #fff;
+}
+```
+
+电梯导航.js
+
+```js
+$(function () {
+  //1. 滚动到今日推荐显示电梯导航栏
+  var toolTop = $(".recommend").offset().top; //今日推荐距离顶部的距离
+
+  //2. 互斥锁
+  var flag = true;
+  toggleTool(); //刷新页面也要调用显示与隐藏的函数
+  //电梯显示与隐藏的函数
+  function toggleTool() {
+    if ($(document).scrollTop() >= toolTop) {
+      $(".fixedtool").fadeIn();
+    } else {
+      $(".fixedtool").fadeOut();
+    }
+  }
+
+  $(window).scroll(function () {
+    toggleTool();
+    if (flag) {
+      //4.滚动页面,左侧电梯导航相应的模块也会添加current类兄弟移除。
+      $(".floor .w").each(function (i, ele) {
+        //被卷去的头部是否大于内容区域每个模块的offset().top获取对应索引
+        if ($(document).scrollTop() >= $(ele).offset().top) {
+          $(".fixedtool li").eq(i).addClass("current").siblings().removeClass();
+        }
+      });
+    }
+  });
+
+  //2.点击电梯导航，页面就滚动到相应的区域
+  $(".fixedtool li").click(function () {
+    //点击时，就锁住
+    flag = false;
+    var index = $(this).index(); //获取当前点击模块的索引号
+    // console.log(index);
+    //根据索引获取内容区域，再获取它距离顶部的位置,.floor是父元素类名，.w是四个元素共同的类名
+    var current = $(".floor .w").eq(index).offset().top;
+
+    //动画移动到位置
+    $("body,html")
+      .stop()
+      .animate(
+        {
+          scrollTop: current
+        },
+        function () {
+          //动画执行完，打开锁,防止回弹，使用定时器延时执行
+          setTimeout(function () {
+            flag = true;
+          }, 30);
+        }
+      );
+
+    //3.点击之后，让当前li添加current类，其他移除该类，removeClass()移除时可以不写current类名，因为都只有一个类，不写也能移除
+    $(this).addClass("current").siblings().removeClass();
+  });
+});
+```
+
+###  4.6 jQuery事件
+
+#### 4.6.1 事件注册
+
+之前写的事件注册都是**单事件注册**。所谓单事件注册，就是一次事件只能注册一件。
+
+```js
+element.事件名(function(){});
+//案例
+$('div').click(function(){//事件处理程序})；
+```
+
+除了点击事件外，其他事件名也跟js原生事件名差不多。例如：`mouseover、mouseout、blur(失去焦点)、focus、change、keydown、keyup、resize、scroll`等。
+
+如果想要一次绑定多个事件，可使用`on()`方法在匹配元素上绑定一个或多个事件的事件处理函数。参数说明：
+
+1. **events**:一个或多个**用空格分隔**的事件类型，例如："click keydown";
+2. selector:元素的子元素选择器；
+3. fn：回调函数。
+
+```js
+element.on(events,[selector],fn);
+```
+
+`on()`方法有三大优势：
+
+1. **同时绑定多个事件**,写法有两种：
+   1. 如果多个不同事件处理程序,绑定多个事件写法，使用对象**事件类型：fn**的结构；
+   2. 如果事件处理程序相同，使用第二种写法，事件类型使用空格分隔。
+2. **事件委托**，绑定父元素让子元素触发；
+3. **动态绑定事件**，也就是给动态创建的元素绑定事件。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: pink;
+      }
+      .current {
+        background-color: purple;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div class="div1"></div>
+    <div class="div2"></div>
+    <div class="div3"></div>
+    <script>
+      $(function () {
+        //1. 单事件注册,点击颜色变为紫色
+        $(".div1").click(function () {
+          $(this).css("background", "purple");
+        });
+        //鼠标进入变成蓝色
+        $(".div1").mouseenter(function () {
+          $(this).css("background", "blue");
+        });
+
+        //鼠标离开变成红色
+        $(".div1").mouseleave(function () {
+          $(this).css("background", "red");
+        });
+
+        //2. 多事件注册，使用on()方法绑定事件，效果跟上边一样
+        $(".div2").on({
+          //鼠标进入事件
+          mouseenter: function () {
+            $(this).css("background", "blue");
+          },
+          //鼠标点击事件
+          click: function () {
+            $(this).css("background", "purple");
+          },
+          //鼠标离开事件
+          mouseleave: function () {
+            $(this).css("background", "red");
+          }
+        });
+
+        //3.多事件注册，注册事件一致时，有简单写法,开关的效果
+        $(".div3").on("mouseenter mouseleave", function () {
+          $(this).toggleClass("current");
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.6.2 事件委托
+
+`on()`方法可以完成事件委托。事件委托就是把原本定义在子元素上的事件绑定到父元素上，利用**冒泡原理**点击子元素时触发父元素上的事件。
+
+在之前的jQuery版本，还有`live()`、`bind()`、`delegate()`等方法来处理事件绑定或者事件委托，最新版都使用on替代。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      .current {
+        background-color: purple;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <ul>
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+      <li>4</li>
+      <li>5</li>
+    </ul>
+
+    <script>
+      $(function () {
+        //原本的写法，利用隐式迭代，会给每个li都绑定一个click事件,效率不高
+        // $("ul li").click(function () {});
+          
+        //事件委托的写法,事件是绑定在ul上的，子选择器选择li元素，这样触发对象就是li
+        $("ul").on("click", "li", function () {
+          alert(11);
+          console.log(this); //this对象是点击的小li <li>2</li>
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.6.3 动态事件绑定(重要)
+
+动态创建的元素，直接使用click()老方法是无法绑定事件的，**因为不能保障创建元素的代码在绑定之前执行**。这时就可使用`on()`方法给动态生成的元素绑定事件。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      .current {
+        background-color: purple;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <ol></ol>
+    <script>
+      $(function () {
+        //老版写法，绑定代码写在创建后面是有效的，但写在元素创建之前，是无效的
+        // $("ol li").click(function () {
+        //   alert(11);
+        // });
+          
+        //on写法，不管是在前面还是后面绑定都有效,并且还有委托效果
+        $("ol").on("click", "li", function () {
+          alert(11);
+        });
+        //动态创建li
+        var li = $("<li>后面创建的li</li>");
+        $("ol").append(li);
+      });
+    </script>
+  </body>
+</html>
+```
+
+案例：**发布微博**,点击发布按钮，动态创建li放入文本框中内容和删除按钮，添加到ul中。点击删除按钮删除当前li。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      .current {
+        background-color: purple;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      ul {
+        list-style: none;
+      }
+
+      .box {
+        width: 600px;
+        margin: 100px auto;
+        border: 1px solid #000;
+        padding: 20px;
+      }
+
+      textarea {
+        width: 450px;
+        height: 160px;
+        outline: none;
+        resize: none;
+      }
+
+      ul {
+        width: 450px;
+        padding-left: 80px;
+      }
+
+      ul li {
+        line-height: 25px;
+        border-bottom: 1px dashed #cccccc;
+        display: none;
+      }
+
+      input {
+        float: right;
+      }
+
+      ul li a {
+        float: right;
+      }
+    </style>
+    <script>
+      $(function () {
+        //1.点击发布按钮，动态创建li
+        $(".btn").on("click", function () {
+          //获取文本值
+          var text = $(".txt").val();
+          //文本不为空
+          if (text.trim()) {
+            var li = $("<li></li>");
+            //给li添加新内容，使用html,添加内容为文本框中的内容+删除按钮a标签
+            li.html(text + "<a href='javascript:;'>删除</a>");
+            //ul追加
+            $("ul").prepend(li);
+            //ul的li默认是隐藏的，为了有滑动出来的动画效果
+            li.slideDown();
+            //清除文本框
+            $(".txt").val("");
+          }
+        });
+
+        //2.点击删除按钮，可以删除当前留言 动态绑定
+        $("ul").on("click", "a", function () {
+          //先隐藏后删除,删除放在动画执行完成后
+          $(this).parent().slideUp(function () {
+              $(this).remove();
+            });
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div class="box" id="weibo">
+      <span>微博发布</span>
+      <textarea name="" id="" class="txt" cols="30" rows="10"></textarea>
+      <button class="btn">发布</button>
+      <!-- 发布信息显示在ul中 -->
+      <ul></ul>
+    </div>
+  </body>
+</html>
+```
+
+#### 4.6.4 事件解绑 off
+
+`off()`方法可以移除**通过on()方法**添加的事件处理程序。
+
+```js
+//事件解绑 off
+element.off("click"); //只解除点击事件
+element.off(); //参数为空时，就会把元素上的所有事件都解除绑定
+element.off("click", "li"); //解除事件委托的绑定
+```
+
+如果事件只触发一次，可以使用`one()`注册绑定事件，该事件只执行一次并且不需要使用off解绑。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        $("div").on({
+          click: function () {
+            console.log("点击事件");
+          },
+          mouseover: function () {
+            console.log("鼠标经过");
+          }
+        });
+
+        //事件委托
+        $("ul").on("click", "li", function () {
+          alert(11);
+        });
+
+        //事件解绑 off
+        $("div").off("click"); //只解除点击事件
+        $("div").off(); //参数为空时，就会把元素上的所有事件都解除绑定
+        $("ul").off("click", "li"); //解除事件委托的绑定
+
+        //one绑定事件，只触发一次事件
+        $("p").one("click", function () {
+          alert(11);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div></div>
+    <ul>
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+    </ul>
+    <p>我是p</p>
+  </body>
+</html>
+```
+
+#### 4.6.5 自动触发事件 trigger
+
+有些事件是不需要手动操作，自动就能触发的，例如：轮播图自动播放就是自动触发点击右侧按钮的事件。自动触发三种写法：
+
+```js
+element.click();//这是一种简写
+element.trigger("click");//效果跟第一种类似
+element.triggerHandler("click");//它不会触发元素的默认行为
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        $("div").on("click", function () {
+          alert(11);
+        });
+
+        //自动触发事件
+        //1. 元素.事件，这时一种简写的形式
+        $("div").click();
+        //2. 元素.trigger触发
+        $("div").trigger("click");
+        //3. 元素.triggerHandler触发,与上边两个区别就是不会触发元素的默认行为
+        $("div").triggerHandler("click");
+
+        $("input").on("focus", function () {
+          $(this).val("你好");
+        });
+
+        $("input").triggerHandler("focus"); //没有光标闪烁，也就是没有触发元素默认行为
+        $("input").trigger("focus"); //有光标闪烁
+        $("input").focus(); //有光标闪烁
+      });
+    </script>
+  </head>
+  <body>
+    <div></div>
+    <input type="text" />
+  </body>
+</html>
+```
+
+#### 4.6.6 事件对象
+
+只要事件被触发，就会有事件对象的产生。它的使用跟js原生的事件对象基本一样。例如：target、PageX等属性都是一样的。
+
+利用事件对象，可以阻止元素默认行为 `event.preventDefault()`或者直接`return false`;阻止冒泡`event.stopPropagation()`;
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        $(document).on("click", function () {
+          console.log("点击了文档");
+        });
+        $("div").on("click", function (e) {
+          console.log(e);
+          //阻止冒泡
+          e.stopPropagation();
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div></div>
+  </body>
+</html>
+```
+
+#### 4.6.7 对象复制
+
+对象复制又叫**对象拷贝**。如果需要把某个对象复制(合并)给另外一个对象使用，此时可以使用`$.extend()`方法来复制。
+
+1. deep参数为布尔值，默认为**false表示浅层拷贝**，设置为**true就是深层拷贝**；
+2. target表示内容要复制到的对象；
+3. 其他的object对象表示待复制对象，可以有多个。
+
+```js
+$.extend([deep],target,object1,[objectN])
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        //情况1 目标对象为空时
+        var targetObject = {};
+        var obj = {
+          id: 1,
+          name: "andy"
+        };
+
+        //把obj复制给targetObject
+        $.extend(targetObject, obj); //最简单的复制，类似于直接对象赋值
+        console.log(targetObject); //{id: 1, name: 'andy'}
+
+        //情况2 目标对象中有属性，既有同名也有不同名
+        var targetObject2 = { id: 2, age: 30 };
+        //把obj复制给targetObject
+        $.extend(targetObject2, obj);
+        console.log(targetObject2); //{id: 1, age: 30, name: 'andy'} 相同的会被覆盖，不同的会添加，原来的保持不变
+
+        //情况3 同时复制多个对象
+        var obj2 = { id: 3, sex: "男" };
+        var obj3 = { id: 4, sex: "女", msg: { name: "aa" } }; //复合对象
+        //其效果就类似于多次拷贝，先把obj复制给target，在把obj2复制该上一次结果，最后把obj3复制给上一次结果
+        $.extend(targetObject2, obj, obj2, obj3);
+        console.log(targetObject2); //id: 4, age: 30, name: 'andy', sex: '女', msg: {…}}
+      });
+    </script>
+  </head>
+  <body></body>
+</html>
+```
+
+浅拷贝与深拷贝区别：(它们的区别主要针对复杂数据类型，比如对象中包含数组、对象等数据。简单数据两者是一样的)
+
++ **浅拷贝**是把对象的**复杂数据类型的地址**拷贝给目标对象，修改目标对象会直接影响被拷贝的对象；
++ **深拷贝**是把对象的**复杂数据类型的内容**完全复制一份给目标对象，目标对象会**单独开辟空间保存数据**，里面有不冲突的属性会合并到一起。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        //浅拷贝与深拷贝区分
+        var targetObject = {
+          id: 0,
+          msg: { sex: "男" }
+        };
+        var targetObject1 = {
+          id: 0,
+          msg: { sex: "男" }
+        };
+
+        var obj = {
+          id: 1,
+          name: "andy",
+          //msg就是复杂数据类型
+          msg: {
+            age: 10
+          }
+        };
+
+        //1.使用浅层拷贝,把obj复制给targetObject，注意两者有相同的复杂数据类型msg，复制的是地址
+        $.extend(targetObject, obj);
+        console.log(targetObject); //{id: 1, name: 'andy',msg:{age:10}}
+        //修改target会影响obj
+        targetObject.msg.age = 35;
+        console.log(targetObject); //{id: 1, name: 'andy', msg: {age:35}}
+        console.log(obj); //{id: 1, name: 'andy', msg: {age:35}}
+
+        //2.使用深层拷贝true,把obj复制给targetObject1，复制是数据
+        $.extend(true, targetObject1, obj);
+        console.log(targetObject1); //{id: 1, msg: {sex: '男', age: 35}}, name: 'andy'} 注意数据位置顺序变化了
+        //修改target不会影响obj
+        targetObject1.msg.age = 60;
+        console.log(targetObject1); //{id: 1, msg: {sex: '男', age: 60}}, name: 'andy'}
+        console.log(obj); //{id: 1, name: 'andy', msg: {age:35}}
+      });
+    </script>
+  </head>
+  <body></body>
+</html>
+```
+
+#### 4.6.8 多库共存
+
+jQuery中使用了`$`作为了标识符，但随着jQuery的流行，其他的js库中也可能会出现`$`作为标识符的情况，这样两者一起使用就会发送冲突。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        //模拟冲突，自己封装函数，函数名为$
+        function $(ele) {
+          return document.querySelector(ele);
+        }
+
+        console.log($("div")); //<div>111</div> 执行会成功，但使用的是我们自定义的$而没使用jQuery，因为被覆盖了
+        // $.each(); //会报错，也就是跟jQuery发生了冲突
+      });
+    </script>
+  </head>
+  <body>
+    <div>111</div>
+  </body>
+</html>
+```
+
+能要让jQuery与其他js库不存在冲突，可以同时存在的方法，就叫做**多库共存**。
+
+jQuery的解决方案有两种：
+
+1. 把里面的$符号统一修改为jQuery。例如：`$('div')`变为`jQuery('div')`；
+2. jQuery变量规定新的名称：也就是自定义别名,使用`noConflict()`方法。例如`var xxx=$.noConflict()`。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+    <script>
+      $(function () {
+        //模拟冲突，自己封装函数，函数名为$
+        function $(ele) {
+          return document.querySelector(ele);
+        }
+
+        console.log($("div")); //<div>111</div> 执行会成功，但使用的是我们自定义的$而没使用jQuery，因为被覆盖了
+        // $.each(); //会报错，也就是跟jQuery发生了冲突
+        //1. 解决办法1使用jQuery
+        jQuery.each(); //不会报错
+
+        //2. 解决办法2使用jQuery
+        var xxx = jQuery.noConflict(); //不要使用$,因为它已经被覆盖了，会报错
+        xxx.each(); //不会报错
+        console.log(xxx("div")[0]); //<div>111</div> xxx("div")相当于$("div")
+      });
+    </script>
+  </head>
+  <body>
+    <div>111</div>
+  </body>
+</html>
+```
+
+#### 4.6.9 综合案例 toDoList
+
+案例需求：
+
+1. 文本框里面输入内容，按下回车，就可以生成待办事项；
+2. 点击待办事项的复选框，就可以把当前数据添加到已完成的事项里；
+3. 点击已完成事项的复选框，就可以把当前数据添加到待办事项里；
+4. 页面刷新或浏览器关闭都不会丢失数据，这里保存数据就需要保存到本地存储`localStorage`。由于localStorage中只能保存字符串不能保存对象，因此需要使用`JSON.stringify(todolist)`将**数组对象**数据转化为**字符串**, 之后读取数据需使用`JSON.parse(data)`将字符串数据还原为数组对象数据；
+5. 案例的核心是每次刷新、改变页面或者点击复选框，都**不是直接修改页面内容，而是修改localStorage中保存的数据**，修改后再用新数据重新生成页面内容，这样才能保证关闭页面不会丢失数据；
+6. 存储的数据格式：var todolist=[{title:'xxx,done:false}]，done就标识是否为待办事项；
+7. todolist的删除操作，不是删除的li，而是删除本地存档对应的数据,数组删除使用`splice()`，保存给本地存储，然后重新渲染页面。为了方便获取对应数据的索引，就给a标签设置自定义属性myIndex，记录其对应数据的索引号，不能使用`$(this).index()`获取，因为元素不相邻；
+8. 点击复选框，修改本地数据，再重新渲染页面。先获取本地存储，修改done属性为当前checked状态。保存本地，重新渲染。done为true就渲染到ul列表中。
+9. todolist统计正在进行的个数和已经完成的个数。再load函数中设置两个变量保存个数。
+
+todoList.html
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>ToDoList—最简单的待办事项列表</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-size: 16px;
+        background: #cdcdcd;
+      }
+
+      header {
+        height: 50px;
+        background: #333;
+        background: rgba(47, 47, 47, 0.98);
+      }
+
+      section {
+        margin: 0 auto;
+      }
+
+      label {
+        float: left;
+        width: 100px;
+        line-height: 50px;
+        color: #ddd;
+        font-size: 24px;
+        cursor: pointer;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+
+      header input {
+        float: right;
+        width: 60%;
+        height: 24px;
+        margin-top: 12px;
+        text-indent: 10px;
+        border-radius: 5px;
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.24),
+          0 1px 6px rgba(0, 0, 0, 0.45) inset;
+        border: none;
+      }
+
+      input:focus {
+        outline-width: 0;
+      }
+
+      h2 {
+        position: relative;
+      }
+
+      span {
+        position: absolute;
+        top: 2px;
+        right: 5px;
+        display: inline-block;
+        padding: 0 5px;
+        height: 20px;
+        border-radius: 20px;
+        background: #e6e6fa;
+        line-height: 22px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+      }
+
+      ol,
+      ul {
+        padding: 0;
+        list-style: none;
+      }
+
+      li input {
+        position: absolute;
+        top: 2px;
+        left: 10px;
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      li p input {
+        top: 3px;
+        left: 40px;
+        width: 70%;
+        height: 20px;
+        line-height: 14px;
+        text-indent: 5px;
+        font-size: 14px;
+      }
+
+      li {
+        height: 32px;
+        line-height: 32px;
+        background: #fff;
+        position: relative;
+        margin-bottom: 10px;
+        padding: 0 45px;
+        border-radius: 3px;
+        border-left: 5px solid #629a9c;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
+      }
+
+      ol li {
+        cursor: move;
+      }
+
+      ul li {
+        border-left: 5px solid #999;
+        opacity: 0.5;
+      }
+
+      li a {
+        position: absolute;
+        top: 2px;
+        right: 5px;
+        display: inline-block;
+        width: 14px;
+        height: 12px;
+        border-radius: 14px;
+        border: 6px double #fff;
+        background: #ccc;
+        line-height: 14px;
+        text-align: center;
+        color: #fff;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      footer {
+        color: #666;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      footer a {
+        color: #666;
+        text-decoration: none;
+        color: #999;
+      }
+
+      @media screen and (max-device-width: 620px) {
+        section {
+          width: 96%;
+          padding: 0 2%;
+        }
+      }
+
+      @media screen and (min-width: 620px) {
+        section {
+          width: 600px;
+          padding: 0 10px;
+        }
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script src="todoList.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <section>
+        <label for="title">ToDoList</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          placeholder="添加ToDo"
+          required="required"
+          autocomplete="off"
+        />
+      </section>
+    </header>
+    <section>
+      <h2>正在进行 <span id="todocount"></span></h2>
+      <!-- ol保存待办事项的li -->
+      <ol id="todolist" class="demo-box"></ol>
+      <h2>已经完成 <span id="donecount"></span></h2>
+      <!-- ul保存已办事项的li -->
+      <ul id="donelist"></ul>
+    </section>
+    <footer>Copyright &copy; 2014 todolist.cn</footer>
+  </body>
+</html>
+```
+
+todoList.js
+
+```js
+$(function () {
+  //每次页面刷新加载都调用一次加载函数
+  load();
+  //1. 按下回车，把完整的数据存储到本地存储中 回车AscII是13
+  $("#title").on("keydown", function (event) {
+    if (event.keyCode === 13) {
+      if ($(this).val().trim() === "") {
+        alert("数据不能为空");
+      } else {
+        //先读取本地存储原来的数据
+        var local = getDate();
+        //把最新的数据追加到local数组中,数据来自文本，done默认为false
+        local.push({ title: $(this).val(), done: false });
+        saveDate(local);
+        load();
+        //清空文本数据
+        $(this).val("");
+      }
+    }
+  });
+
+  //5.toDoList删除操作,用on因为是动态元素绑定
+  $("ol,ul").on("click", "a", function () {
+    //先获取本地数据
+    var data = getDate();
+    //修改数据，先获取自定义属性数据，再利用索引进行数组删除
+    var index = $(this).attr("myIndex");
+    //从索引号开始删，删除1个
+    data.splice(index, 1);
+    //保存到本地存储
+    saveDate(data);
+    //重新渲染页面
+    load();
+  });
+
+  //6. 正在进行与已完成选项操作,同时选择ol与ul
+  $("ol,ul").on("click", "input", function () {
+    //先获取本地数据
+    var data = getDate();
+    //修改数据，可利用a中的自定义属性myIndex作为复选框的index
+    var index = $(this).siblings("a").attr("myIndex");
+    //prop获取固有属性
+    data[index].done = $(this).prop("checked");
+    //保存到本地存储
+    saveDate(data);
+    //重新渲染页面
+    load();
+  });
+  //2. 读取本地存储数据，声明为一个函数，方便多次调用
+  function getDate() {
+    var data = localStorage.getItem("todolist");
+    if (data !== null && data !== "undefined") {
+      //本地存储里的数据为字符串，需转化为数组对象格式
+      return JSON.parse(data);
+    } else {
+      return []; //返回空数组
+    }
+  }
+
+  //3. 保存本地存储数据，声明为一个函数，方便多次调用
+  function saveDate(data) {
+    //保存到本地数组中,注意要先转化为字符串
+    localStorage.setItem("todolist", JSON.stringify(data));
+  }
+
+  //4. 把本地存储的数据渲染加载到页面中，也为一个函数，方便多次调用
+  function load() {
+    //先读取本地存储数据
+    var data = getDate();
+    //追加数据前先清空ol与ul的内容
+    $("ol,ul").empty();
+    //8.记录个数
+    var todoCount = 0; //正在进行的个数
+    var doneCount = 0; //已经完成的个数
+    //遍历数据
+    $.each(data, function (i, n) {
+      //7. 根据done属性决定li是添加到ul还是ol中，为true就是ul中注意ul是checked状态
+      if (n.done) {
+          $("ul").prepend("<li><input type='checkbox' checked='checked'> <p>" + n.title
+              + "</p> <a href='javascript:;' myIndex=" + i +"></a></li>"
+        );
+        doneCount++;
+      } else {
+        //创建元素追加，直接在li中编写各种元素,内容通过data获取，索引号也保存到自定义属性myIndex中
+        $("ol").prepend(
+            "<li><input type='checkbox'> <p>" + n.title
+            + "</p> <a href='javascript:;' myIndex=" + i +"></a></li>"
+        );
+        todoCount++;
+      }
+    });
+
+    //修改正在进行的个数
+    $("#todocount").text(todoCount);
+    //修改正在进行的个数
+    $("#donecount").text(doneCount);
+  }
+});
+```
+
+### 4.7 jQuery插件
+
+jQuery功能主要还是**聚焦于DOM操作**，如果想要更复杂的特效效果，可以借助于jQuery插件完成。
+
+**jQuery插件**是依赖于jQuery来开发完成的，所以要先引入jQuery文件后再引入插件，这样插件才能正常运行。
+
+jQuery插件常用网址：
+
++ jQuery插件库(非免费)：https://www.jq22.com/
++ jQuery之家(免费)：https://www.htmleaf.com/
+
+jQuery插件的使用步骤跟之前使用js插件差不多：
+
+1. 下载插件包，查看官网代码演示或在插件包中打开demo的index.html代码，查看案例的使用代码；
+2. 复制需要的js与css文件到相应目录；
+3. 编写自己的网页文件，引入需要的css与js外部文件。如果有内嵌css样式或js，也要引入；
+4. 复制html结构，选择必须的结构就可，多于的案例结构根据自己需求引入；
+5. 修改html、css或者js内容，根据自己需求修改即可。
+
+简化流程可概括为引入相关文件(js,css)，复制demo代码，修改。
+
+#### 4.7.1 瀑布流插件
+
+用于呈现瀑布状网格显示的插件。其核心代码是`pinterest_grid.js`文件，css文件有两个`normalize.css`与`default.css`。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="css/default.css" />
+    <style type="text/css">
+      #gallery-wrapper {
+        position: relative;
+        max-width: 75%;
+        width: 75%;
+        margin: 50px auto;
+      }
+
+      img.thumb {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .white-panel {
+        position: absolute;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+        padding: 10px;
+      }
+
+      .white-panel h1 {
+        font-size: 1em;
+      }
+
+      .white-panel h1 a {
+        color: #a92733;
+      }
+
+      .white-panel:hover {
+        box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+        margin-top: -5px;
+        -webkit-transition: all 0.3s ease-in-out;
+        -moz-transition: all 0.3s ease-in-out;
+        -o-transition: all 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
+      }
+    </style>
+  </head>
+  <body>
+    <section id="gallery-wrapper">
+      <article class="white-panel">
+        <img src="images/P_000(1).jpg" class="thumb" />
+        <h1><a href="#">我是轮播图片1</a></h1>
+        <p>里面很精彩哦</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/P_001.jpg" class="thumb" />
+        <h1><a href="#">Title 1</a></h1>
+        <p>Description 1</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/P_002.jpg" class="thumb" />
+        <h1><a href="#">Title 1</a></h1>
+        <p>Description 1</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/P_003.jpg" class="thumb" />
+        <h1><a href="#">Title 1</a></h1>
+        <p>Description 1</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/P_004.jpg" class="thumb" />
+        <h1><a href="#">Title 1</a></h1>
+        <p>Description 1</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/P_005.jpg" class="thumb" />
+        <h1><a href="#">我是轮播图片1</a></h1>
+        <p>里面很精彩哦</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/P_006.jpg" class="thumb" />
+        <h1><a href="#">我是轮播图片1</a></h1>
+        <p>里面很精彩哦</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/P_007.jpg" class="thumb" />
+        <h1><a href="#">我是轮播图片1</a></h1>
+        <p>里面很精彩哦</p>
+      </article>
+    </section>
+
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="js/pinterest_grid.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        $("#gallery-wrapper").pinterest_grid({
+          no_columns: 5, //网格布局一行的列数 一行5个
+          padding_x: 15, //网格在x轴方向的padding内边距值 也就是图与图左右距离
+          padding_y: 10, //网格在y轴方向的padding内边距值 也就是图与图上下距离
+          margin_bottom: 50, //网格底部margin值
+          single_column_breakpoint: 700 //指定视口到达多大时一行只显示一个网格
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+运行效果
+
+![image-20260820175929906](./assets/image-20260820175929906.png)
+
+#### 4.7.2 图片懒加载技术插件
+
+所谓**图片懒加载**，先只加载当前可视区的图片，只有当我们页面滑动到其他可视区域时，再加载显示对应图片。
+
+图片懒加载技术使图片延迟加载，这样不仅可以提高网页的下载速度，减少服务器负载压力。还可以防止用户只看当前内容图片，不看其他内容导致如果加载其他内容就形成资源浪费。
+
+该技术核心文件就一个`EasyLazyload.min.js`,没有css样式文件。使用特别简单，就2步，引入文件，修改img的src。
+
+注意：该插件引入js的文件和js调用代码**必须写在DOM元素(图片)的后面**，否则会无效。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      img {
+        display: block;
+        margin: 0 auto;
+        margin-top: 100px;
+        width: 400px;
+        height: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 修改img标签，src属性变为data-lazy-src，这样图片就有懒加载的效果 -->
+    <img data-lazy-src="images/001.jpg" />
+    <img data-lazy-src="images/002.jpg" />
+    <img data-lazy-src="images/003.jpg" />
+    <img data-lazy-src="images/001.jpg" />
+
+    <script src="jquery.min.js"></script>
+    <!-- 引入懒加载的核心js，必须写在img元素之后 -->
+    <script src="EasyLazyload.min.js"></script>
+    <script>
+      lazyLoadInit({
+        coverColor: "white", //图片即将显示时覆盖层的颜色
+        coverDiv: "<h1>test</h1>", //图片即将显示时覆盖层可显示的自定义组件
+        offsetBottom: 0, //图片距离底部出现时间点的距离差值。也就是距离底部多少距离时图片提前出现
+        offsetTopm: 0, //同上，只是变为距离顶部
+        showTime: 1100, //图片显示动画时间
+        onLoadBackEnd: function (i, e) {
+          //图片完全显示后的回调函数，参数为index 图片的下标和event 图片DOM对象
+          console.log("onLoadBackEnd:" + i);
+        },
+        onLoadBackStart: function (i, e) {
+          //图片已经下载完，即将开始显示时的回调函数
+          console.log("onLoadBackStart:" + i);
+        }
+      });
+    </script>
+  </body>
+</html>
+```
+
+#### 4.7.3 全屏滚动插件
+
+全屏滚动插件 fullpage.js。下载地址：https://github.com/alvarotrigo/fullPage.js/
+
+案例演示中文翻译网址：https://www.dowebok.com/demo/2014/77/
+
+全屏滚动功能就是实现网页没有滚动条的情况下，实现一页一页的切换的效果。
+
+插件的核心文件是`fullpage.min.js`与`fullpage.min.css`。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="fullpage.min.css" />
+    <style>
+      /* 设置导航样式 */
+      #fp-nav ul li a.active span,
+      #fp-nav ul li a span {
+        background-color: red !important;
+      }
+      /* 设置背景图 */
+      .section1 {
+        background: url(http://idowebok.u.qiniudn.com/77/1.jpg) 50%;
+      }
+
+      .section2 {
+        background: url(http://idowebok.u.qiniudn.com/77/2.jpg) 50%;
+      }
+
+      .section4 {
+        background: url(http://idowebok.u.qiniudn.com/77/4.jpg) 50%;
+      }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script src="fullpage.min.js"></script>
+    <script>
+      $(function () {
+        $("#dowebok").fullpage({
+          // 设置背景颜色
+          sectionsColor: ["pink", "#4BBFC3", "#7BAABE", "#f90"],
+          //navigation就是显示项目右侧导航
+          navigation: true
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="dowebok">
+      <div class="section section1">
+        <h3>第一屏里面的内容</h3>
+      </div>
+      <div class="section section2">
+        <h3>第二屏</h3>
+      </div>
+      <div class="section section3">
+        <!-- 可嵌套 -->
+        <div class="slide">第三屏的第一页</div>
+        <div class="slide">第三屏的第二页</div>
+        <div class="slide">第三屏的第三页</div>
+        <div class="slide">第三屏的第四页</div>
+      </div>
+      <div class="section section4">
+        <h3>第四屏</h3>
+      </div>
+    </div>
+  </body>
+</html>
+```
+
+## 五、bootstrap
+
+**bootstrap**是专门用于**开发响应式布局、移动设备优先的WEB项目**的框架。早期bootstrap框架是依赖于jQuery开发的，因此里面的js插件使用也必须先引入jQuery文件。不同版本的bootstrap需要不同版本的jQuery搭配，例如经典搭配：
+
+- **Bootstrap 3.3.5 + jQuery 3.x** ➡ 存在兼容风险，不建议生产使用
+- **Bootstrap 3.4.1 + jQuery 3.x** ➡ 可用，但仍需测试第三方插件兼容性
+- **Bootstrap 4**以上，原生支持jQuery 3.x但需要适配 HTML/CSS 结构变化）。
+- **Bootstrap 5**不再依赖jQuery,它有自己的插件。
+
+bootstrap官网：https://getbootstrap.com/
+
+bootstrap3官网：https://v3.bootcss.com/getting-started/#download
+
+bootstrap3的核心文件`bootstrap.min.css`，`bootstrap.min.js`，有时需要主题`bootstrap-theme.min.css`。
+
+bootstrap3核心的内容主要有三块，看官方网页就可知，其中三者中最重要的就是**组件**，它相当于css样式+js插件的组合。
+
+![image-20260820191047736](./assets/image-20260820191047736.png)
+
+bootstrap中不管是组件，插件还是css样式，使用方式跟之前js插件一样，基本都是**先引入文件，复制demo，自定义修改**。
+
+### 5.1 bootstrap CSS样式
+
+css样式就是可以应用到按钮、工具条中的按钮组、导航或输入框等地方。让基本的样式bootstrap化更好看。
+
+它主要针对简单控件，如果复制功能的控件就需要在组件中寻找。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <!-- bootstrap基本引入 -->
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <script src="jquery.min.js"></script>
+    <!-- 有了js,bootstrap的样式就有交互效果 -->
+    <script src="bootstrap.min.js"></script>
+  </head>
+
+  <body>
+    <!-- 代码都放入container盒子中 -->
+    <div class="container">
+      <!-- 1. 按钮样式修改 -->
+      <button type="button" class="btn btn-default" aria-label="Left Align">
+        <span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>
+      </button>
+
+      <button type="button" class="btn btn-default btn-lg">
+        <span class="glyphicon glyphicon-star" aria-hidden="true"></span> Star
+      </button>
+
+      <!-- 2. 输入框样式修改 -->
+      <div class="input-group">
+        <span class="input-group-addon" id="basic-addon1">@</span>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Username"
+          aria-describedby="basic-addon1"
+        />
+      </div>
+
+      <!-- 3.下拉菜单 -->
+
+      <div class="dropdown">
+        <button
+          class="btn btn-default dropdown-toggle"
+          type="button"
+          id="dropdownMenu1"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="true"
+        >
+          Dropdown
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+          <li><a href="#">Action</a></li>
+          <li><a href="#">Another action</a></li>
+          <li><a href="#">Something else here</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#">Separated link</a></li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
+```
+
+### 5.2 bootstrap 组件
+
+所谓组件，它就是把网页中常用的功能组合在一起。例如：**按钮式下拉菜单**，**导航条**等功能。有了组件，可以让我们非常迅速的开发网页。
+
+案例：组件的简单使用
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <!-- bootstrap基本引入 -->
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <script src="jquery.min.js"></script>
+    <!-- 有了js,bootstrap的样式就有交互效果 -->
+    <script src="bootstrap.min.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Single button -->
+      <div class="btn-group">
+        <button
+          type="button"
+          class="btn btn-default dropdown-toggle"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          Action <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a href="#">Action</a></li>
+          <li><a href="#">Another action</a></li>
+          <li><a href="#">Something else here</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#">Separated link</a></li>
+        </ul>
+      </div>
+
+      <!-- 导航条组件 -->
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <!-- Brand and toggle get grouped for better mobile display -->
+          <div class="navbar-header">
+            <button
+              type="button"
+              class="navbar-toggle collapsed"
+              data-toggle="collapse"
+              data-target="#bs-example-navbar-collapse-1"
+              aria-expanded="false"
+            >
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Brand</a>
+          </div>
+
+          <!-- Collect the nav links, forms, and other content for toggling -->
+          <div
+            class="collapse navbar-collapse"
+            id="bs-example-navbar-collapse-1"
+          >
+            <ul class="nav navbar-nav">
+              <li class="active">
+                <a href="#">首页 <span class="sr-only">(current)</span></a>
+              </li>
+              <li><a href="#">公司简介</a></li>
+              <li class="dropdown">
+                <a
+                  href="#"
+                  class="dropdown-toggle"
+                  data-toggle="dropdown"
+                  role="button"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  >Dropdown <span class="caret"></span
+                ></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">Action</a></li>
+                  <li><a href="#">Another action</a></li>
+                  <li><a href="#">Something else here</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="#">Separated link</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="#">One more separated link</a></li>
+                </ul>
+              </li>
+            </ul>
+            <form class="navbar-form navbar-left">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" />
+              </div>
+              <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="#">Link</a></li>
+              <li class="dropdown">
+                <a
+                  href="#"
+                  class="dropdown-toggle"
+                  data-toggle="dropdown"
+                  role="button"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  >Dropdown <span class="caret"></span
+                ></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">Action</a></li>
+                  <li><a href="#">Another action</a></li>
+                  <li><a href="#">Something else here</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="#">Separated link</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </body>
+</html>
+```
+
+### 5.3 bootstrap js插件
+
+`bootstrap.js`和`bootstrap.min.js`都包含了所有插件，你在使用时，只需选择一个引入页面就可以了。
+
+bootstrap插件的使用方式主要分为两种：
+
++ **data属性**API就能使用所有的Bootstrap插件；
++ **js代码调用**。
+
+某些时候可能需要将 Bootstrap 插件与其他UI框架共同使用。在这种情况下，**命名空间冲突随时可能发生**。如果不幸发生了这种情况，你可以通过调用插件的 `.noConflict` 方法恢复其原始值。
+
+模态框案例：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <!-- bootstrap基本引入 -->
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <script src="jquery.min.js"></script>
+    <!-- 有了js,bootstrap的样式就有交互效果 -->
+    <script src="bootstrap.min.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- 模态框 -->
+      <!-- 1.按钮绑定模态框，使用data属性绑定 核心是data-toggle是切换方式，data-target绑定的模态框类名-->
+      <button
+        type="button"
+        class="btn btn-primary"
+        data-toggle="modal"
+        data-target=".bs-example-modal-lg"
+      >
+        Large modal
+      </button>
+
+      <div
+        class="modal fade bs-example-modal-lg"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="myLargeModalLabel"
+      >
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">里面就是模态框</div>
+        </div>
+      </div>
+
+      <!-- 自己定义模态框 -->
+      <!-- <button data-toggle="modal" data-target="#btn">点击显示模态框</button> -->
+      <button class="myBtn">点击显示模态框</button>
+
+      <div class="modal fade" tabindex="-1" role="dialog" id="btn">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body">
+              <p>One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-default"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="button" class="btn btn-primary">
+                Save changes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.tab栏切换  -->
+      <div>
+        <!-- 导航栏 -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active">
+            <a href="#home" aria-controls="home" role="tab" data-toggle="tab">手机</a>
+          </li>
+          <li role="presentation">
+            <a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">电视</a>
+          </li>
+        </ul>
+
+        <!-- 内容栏 -->
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active" id="home">
+            手机相关的内容
+          </div>
+          <div role="tabpanel" class="tab-pane" id="profile">
+            电视相关的内容
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // 2.js代码绑定模态框
+      // 当我们点击了自己定义的按钮，就弹出模态框
+      $(".myBtn").on("click", function () {
+        $("#btn").modal();
+      });
+    </script>
+  </body>
+</html>
+```
+
+## 六、数据可视化
+
+所谓数据可视化，就是把**数据从冰冷的数字转换成图形**，更清晰的展示数据。其主要目的就是借助图形化手段，清晰有效地传达与沟通信息。
+
+互联网公司中通常有下面几大类可视化需求：**通用报表**（柱状图等）、移动端图表分析、大屏可视化、图编辑&图分析、地理可视化等。
+
+常见的数据可视化库：
+
++ D3.js,目前web端评价最高的js可视化工具库(入手难)；
++ **ECharts.js**,百度出品的一个开源js数据可视化库；
++ Highcharts.js,国外的前端数据可视化库，非商用免费，被许多大公司使用；
++ AntV,蚂蚁金服全新一代数据可视化解决方案等；
+
+> Highcharts和Echarts就类似Office和WPS的关系。
+
+### 6.1 ECharts简介
+
+ECharts是一个使用JS开发的开源可视化库，也就是js插件。它可以流畅的运行在PC和移动设备上，兼容大部分浏览器，底层依赖**矢量图形库ZRender**，提供直观，交互丰富，可高度个性化定制的数据可视化图表。
+
+ECharts的优点有开源免费，遵循Apache-2.0开源协议；功能丰富，涵盖各行业图表；社团活跃高，代码更新迭代很快。
+
+ECharts官网有2个：https://www.echartsjs.com/ 和https://echarts.apache.org/zh/index.html
+
+ECharts官方文档也有2个：https://www.echartsjs.com/en/coding-standard.html和 https://echarts.apache.org/examples/zh/index.html
+
+推荐使用后面那个，apache ECharts已经替代老网址了。
+
+下载网址：https://github.com/apache/echarts/tree/6.0.0
+
+其核心文件就是`echarts.js`文件，压缩版是`echarts.min.js`。下面的案例使用的是4.5.0版本的。文件在下载包的**dist文件夹**中。
+
+### 6.2 ECharts基本使用
+
+ECharts使用非常简单，跟直接使用js插件很像。
+
+1. 先下载好`echarts.min.js`文件，创建一个index.html文件，在其中引入该文件；
+2. 创建一个**具备大小**的DOM元素容器，生成的图表会放入该容器中；
+3. 初始化echarts实例对象，也就是实例化echarts对象，让每个对象都对应唯一一个图表；
+4. 指定配置项和数据(option),不同的option会导致图表展示不同，根据自己需求修改即可；
+5. 将配置项设置给echarts实例对象，让echarts对象根据配置生成对应图表，该步类似绑定。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!--1.引入echarts -->
+    <script src="js/echarts.min.js"></script>
+    <style>
+      .box {
+        width: 400px;
+        height: 400px;
+        background-color: aquamarine;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 2.准备具备大小的容器 -->
+    <div class="box">sdfsss</div>
+    <script>
+      //3. 实例化echarts对象
+      var myChart = echarts.init(document.querySelector(".box"));
+      //4.指定图表的配置项和数据，直接复制官网的配置案例即可
+      var option = {
+        title: {
+          text: "ECharts 入门示例"
+        },
+        tooltip: {},
+        legend: {
+          data: ["销量"]
+        },
+        xAxis: {
+          data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+        },
+        yAxis: {},
+        series: [
+          {
+            name: "销量",
+            type: "bar",
+            data: [5, 20, 36, 10, 10, 20]
+          }
+        ]
+      };
+
+      // 5. echarts对象绑定刚指定的配置项和数据显示图表
+      myChart.setOption(option);
+    </script>
+  </body>
+</html>
+```
+
+运行结果
+
+![image-20260821221523982](./assets/image-20260821221523982.png)
+
+**创建不同类型图表**，可以在**官网——示例**中寻找，选择需要的图表，比如饼图。
+
+找到option配置内容，替换上边的option就可直接看到效果。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!--1.引入echarts -->
+    <script src="js/echarts.min.js"></script>
+    <style>
+      .box {
+        width: 450px;
+        height: 450px;
+        background-color: aquamarine;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 2.准备具备大小的容器 -->
+    <div class="box">sdfsss</div>
+    <script>
+      //3. 实例化echarts对象
+      var myChart = echarts.init(document.querySelector(".box"));
+      //4.指定图表的配置项和数据，直接复制官网的配置案例即可
+      option = {
+        title: {
+          text: "Referer of a Website",
+          subtext: "Fake Data",
+          left: "center"
+        },
+        tooltip: {
+          trigger: "item"
+        },
+        legend: {
+          orient: "vertical",
+          left: "left"
+        },
+        series: [
+          {
+            name: "Access From",
+            type: "pie",
+            radius: "50%",
+            data: [
+              { value: 1048, name: "Search Engine" },
+              { value: 735, name: "Direct" },
+              { value: 580, name: "Email" },
+              { value: 484, name: "Union Ads" },
+              { value: 300, name: "Video Ads" }
+            ],
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: "rgba(0, 0, 0, 0.5)"
+              }
+            }
+          }
+        ]
+      };
+
+      // 5. echarts对象绑定刚指定的配置项和数据显示图表
+      myChart.setOption(option);
+    </script>
+  </body>
+</html>
+```
+
+运行效果
+
+![image-20260821222450837](./assets/image-20260821222450837.png)
+
+### 6.3 ECharts相关配置 Option
+
+#### 6.3.1 折线图
+
+Options中的配置相当多，其都可在官网中查阅**文档菜单-配置项手册**中查看，其中常用的有(以折线图为例)：
+
++ title:标题组件，包含主标题和副标题；
+
++ tooltip:提示框组件，满足某种条件就会有内容提示；`trigger: "axis"`表示触发类型**鼠标经过坐标轴**就触发提示,提示内容数据由series中name和data决定；
+
++ legend:图例组件，其数据设置在data中，data是数组，其内容与series中name属性一一对应；
+
++ toolbox:工具栏组件，saveAsImage就是保存图片功能；
+
++ **grid**：直角坐标系内绘制网格,网格的区域大小由left、rigit、bottom、top设置，它设置的是距离**外部容器盒子**的距离。例如：`left：3%`就是距离左边3%的盒子宽度的距离，`containLabel：true`就是显示刻度的设置。
+
++ **xAxis**:直角坐标系grid中的x轴,`type:'catagroy'`表示x坐标轴类型为类目轴，它的数据必须通过**data中设置类目的数据**来决定。`boundaryGap: false`设置坐标轴的留白策略，对应类名轴，false表示刻度与类目数据对齐，true表示刻度只作为分割线，会在两个类目数据中间位置；
+
++ **yAxis**:直角坐标系grid中的y轴，`type：value`表示y坐标轴类型为值类型，它的显示由具体的数据决定；
+
++ color:调色盘颜色列表，它是一个数组，折线图中更改折线颜色，有几条线就设置数组几个数据；
+
++ **series**:系列列表。它是一个数组，数据有几个数据对象，就表示有几条线。
+
+  + **type来决定图表类型**。line就是线性图，bar是柱状图，pie就是饼状图；
+  + name是系列的名称。用于tooltip的显示，legend的图例筛选变化，其中legend的data数组内容与name是一一对应的；
+  + **stack**：数据堆叠，同个类目轴上系列配置**相同的stack值，就是名称相同**，第二个数据=第一个数据+第二个数据，第三个据=第s三个数据+第二个数据+第一个数据。如果不用数据堆叠，可以通过设置**不同stack值**或者**删除stack属性**即可。
+  + data代表每条线上的具体的数据值。一个数据就是一个节点；
+
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!--1.引入echarts -->
+    <script src="js/echarts.min.js"></script>
+    <style>
+      .box {
+        width: 800px;
+        height: 600px;
+        background-color: aquamarine;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 2.准备具备大小的容器 -->
+    <div class="box">sdfsss</div>
+    <script>
+      //3. 实例化echarts对象
+      var myChart = echarts.init(document.querySelector(".box"));
+      //4.指定图表的配置项和数据，直接复制官网的配置案例即可
+      option = {
+        title: {
+          text: "我的折线图"
+        },
+        color: ["red", "pink", "blue", "green"],
+        tooltip: {
+          trigger: "axis"
+        },
+        legend: {
+          data: ["Email", "Union Ads", "Video Ads", "Direct"]
+        },
+        grid: {
+          left: "3%",
+          right: "4%",
+          bottom: "3%",
+          containLabel: true
+        },
+        toolbox: {
+          feature: {
+            saveAsImage: {}
+          }
+        },
+        xAxis: {
+          type: "category",
+          boundaryGap: false,
+          data: ["星期一", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        },
+        yAxis: {
+          type: "value"
+        },
+        series: [
+          {
+            name: "Email",
+            type: "line",
+            stack: "Total",
+            data: [120, 132, 101, 134, 90, 230, 210]
+          },
+          {
+            name: "Union Ads",
+            type: "line",
+            stack: "Total",
+            data: [220, 182, 191, 234, 290, 330, 310]
+          },
+          {
+            name: "Video Ads",
+            type: "line",
+            stack: "Total",
+            data: [150, 232, 201, 154, 190, 330, 410]
+          },
+          {
+            name: "Direct",
+            type: "line",
+            stack: "Total",
+            data: [320, 332, 301, 334, 390, 330, 320]
+          }
+        ]
+      };
+      // 5. echarts对象绑定刚指定的配置项和数据显示图表
+      myChart.setOption(option);
+    </script>
+  </body>
+</html>
+```
+
+具体组件对应效果展示
+
+![image-20260821232009846](./assets/image-20260821232009846.png)
+
+#### 6.3.2 饼型图
+
+其options的值大部分与折线图相似,案例中省略了title、legend内容,添加了color内容。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>边框图片</title>
+    <script src="js/echarts.min.js"></script>
+    <style>
+      .div1 {
+        width: 400px;
+        height: 400px;
+        background-color: pink;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="div1">div内容1</div>
+    <script>
+      // 实例化echarts对象
+      var myChart = echarts.init(document.querySelector(".div1"));
+      //指定图表的配置项和数据，直接复制官网的饼形图-南丁格尔玫瑰图配置案例即可
+      //把不用的title、legend、xAxis、yAxis都删除，添加color属性
+      var option = {
+        //提示框组件，
+        //trigger触发方式:非轴型图，使用item表示放到对应数据图形上触发显示
+        //formatter格式化提示内容：
+        //a.代表series系列图表名称 series的name属性
+        //b.代表series系列数据名称data里的name
+        //c.代表series系列数据名称data里的value
+        //d.代表当前数据/总数据的比例
+        tooltip: {
+          trigger: "item",
+          formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        // 自定义颜色,注意颜色与series同级
+        color: [
+          "#006cff",
+          "#60cda0",
+          "#ed8884",
+          "#ff9f7f",
+          "#0096ff",
+          "#9fe6b8",
+          "#32c5e9",
+          "#1d9dff"
+        ],
+        series: [
+          {
+            //图表名称
+            name: "点位统计",
+            //图表类型 pie就是饼状图
+            type: "pie",
+            //南丁格尔玫瑰图有两个圆，内圆半径10% 外缘半径70%，控制饼形图大小
+            //半径既可以是像素也可以是百分比(基于DOM容器大小)，百分比要加引号，第一项是内半径，第二项是外半径
+            radius: ["10%", "70%"],
+            //图表中心位置，left 50% top 50%,也就是居中 距离图表DOM容器，控制饼形图位置
+            center: ["50%", "50%"],
+            //radius 半径模式，另一种是area 面积模式 就是展示以半径值还是面积值为依据
+            roseType: "radius",
+            //数据集，value是数据值，name是数据名
+            data: [
+              { value: 20, name: "云南" },
+              { value: 26, name: "北京" },
+              { value: 24, name: "山东" },
+              { value: 25, name: "河北" },
+              { value: 20, name: "江苏" },
+              { value: 25, name: "浙江" },
+              { value: 30, name: "四川" },
+              { value: 42, name: "湖北" }
+            ],
+            //定制配置，
+            //只有是修饰饼型图文字样式，都是在label对象中设置
+            label: {
+              fontSize: 10
+            },
+            //为了防止缩放时引导线过长，让引导线短一些(series对象里的labelLine对象进行设置)
+            labelLine: {
+              //两条线
+              //连接扇形图线长，是第一条线长度
+              length: 6,
+              //连接文字线长，是第二条线长度
+              length2: 8
+            }
+          }
+        ]
+      };
+      // echarts对象绑定刚指定的配置项和数据显示图表
+      myChart.setOption(option);
+    </script>
+  </body>
+</html>
+```
+
+效果
+
+![image-20260823230742319](./assets/image-20260823230742319.png)
+
+
+
+### 6.4 综合案例 智能看板
+
+项目最终效果展示
+
+![123](./assets/123.png)
+
+#### 6.4.1 项目准备
+
+项目需求：页面是1920px,只需要在PC端适配就行，宽度在**1024~1920**之间页面**元素宽高自适应**（就是动态变化）。
+
+适配方案(flexible.js+rem+flex布局)：
+
+1. 使用`flexible.js`检测浏览器宽度，并且修改html文字大小；
+2. 页面元素根据`rem`适配大小，配合vscode的**插件cssrem**可自动将px转换为rem；
+3. 使用`flex布局`，页面可以快速布局。跟之前的移动端的苏宁案例类似。
+
+因为1920px比较大，flexible.js就把屏幕分为**24等份**，cssrem插件的基准值就是1920/24=80px，也就是**1rem=80px**。
+
+flexible.js代码修改24等份就行
+
+```js
+(function flexible(window, document) {
+  //获取html元素对象
+  var docEl = document.documentElement;
+  //dpr是物理像素比，pc端一般为1，移动端为2
+  var dpr = window.devicePixelRatio || 1;
+
+  // adjust body font size，设置页面body的字体大小
+  function setBodyFontSize() {
+    //先查看是否有body对象
+    if (document.body) {
+      //有设置字体大小12px，移动端是24px
+      document.body.style.fontSize = 12 * dpr + "px";
+    } else {
+      //没有body对象，就等页面DOM元素加载完DOMContentLoaded再调用该函数
+      document.addEventListener("DOMContentLoaded", setBodyFontSize);
+    }
+  }
+  setBodyFontSize();
+
+  // set 1rem = viewWidth / 10 ,设置html元素的文字大小，rem是该文件最核心的设置
+  function setRemUnit() {
+    //html的宽度/24,也就是将屏幕设置24等分，使用clienWidth获取宽度
+    var rem = docEl.clientWidth / 24;
+    docEl.style.fontSize = rem + "px";
+  }
+
+  setRemUnit();
+
+  // reset rem unit on page resize
+  //当页面尺寸大小发生变化时，要重新设置rem
+  window.addEventListener("resize", setRemUnit);
+  //pageShow事件是页面重新加载时触发的事件，它与load事件不同在于即使有缓存也会调用。
+  window.addEventListener("pageshow", function (e) {
+    //e.persisted是true时，页面来自缓存也会调用setRemUnit重新设置rem
+    if (e.persisted) {
+      setRemUnit();
+    }
+  });
+
+  // detect 0.5px supports 有些移动端浏览器不支持0.5像素的写法，该函数就是让其支持
+  if (dpr >= 2) {
+    var fakeBody = document.createElement("body");
+    var testElement = document.createElement("div");
+    testElement.style.border = ".5px solid transparent";
+    fakeBody.appendChild(testElement);
+    docEl.appendChild(fakeBody);
+    if (testElement.offsetHeight === 1) {
+      docEl.classList.add("hairlines");
+    }
+    docEl.removeChild(fakeBody);
+  }
+})(window, document);
+```
+
+设置cssrem插件值，设置完成后记得重启vsCode
+
+![image-20260822213547603](./assets/image-20260822213547603.png)
+
+要把屏幕约束在1024~1920之间有适配，可使用媒体查询解决
+
+```css
+<style>
+   @media screen and(max-width:1024px) {
+     html {
+       font-size: 42.66px !important;
+     }
+   
+   @media screen and(min-width:1920px) {
+     html {
+       font-size: 80px !important;
+     }
+   }
+ </style>
+```
+
+vscode热更新插件`Preview on Web Server`，html文件修改保存浏览器页面就自动刷新内容。启动使用`右键+vscode-preview-server:launch on browser`即可。
+
+项目结构：
+
+![image-20260822220231084](./assets/image-20260822220231084.png)
+
+#### 6.4.2 布局搭建
+
+项目核心：就是先确定布局，之后利用ECharts填充图表即可。
+
+先复制**页面初始化的样式**到index.css文件中,该样式是统一的。
+
+```css
+/*清除元素默认的内外边距  */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/*让所有斜体 不倾斜*/
+em,
+i {
+    font-style: normal;
+}
+
+/*去掉列表前面的小点*/
+li {
+    list-style: none;
+}
+
+/*图片没有边框   去掉图片底侧的空白缝隙*/
+img {
+    border: 0;
+    /*ie6*/
+    vertical-align: middle;
+}
+
+/*让button 按钮 变成小手*/
+button {
+    cursor: pointer;
+}
+
+/*取消链接的下划线*/
+a {
+    color: #666;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #e33333;
+}
+/*h4不加粗*/
+h4 {
+    font-weight: 400;
+}
+```
+
+页面基础布局，用大盒子`viewport`（用flex布局）包含三列小盒子`cloumn`,三列小盒子,左右占3份，中间占4份。
+
+![image-20260822222951176](./assets/image-20260822222951176.png)
+
+在做模块前，先提取相同的部分内容，比如模块**边框样式**都一样，但**大小不一样**，不能直接使用背景图，但可使用`css3的边框图片`制作，`border-image`属性，这个属性允许指定一张图作为元素的边框。
+
+<strong style="color:red;font-size:20px">边框图片 border-image</strong>
+
+边框图片切图原理：使用代码切四角，也就是九宫格的由来。四个角不变，中间部分可以**铺排**，**拉伸**或者**环绕**。切的顺序是**上右下左**。
+
+![image-20260822224016161](./assets/image-20260822224016161.png)
+
+边框图片语法：
+
+| 属性                   | 描述                                                         |
+| ---------------------- | ------------------------------------------------------------ |
+| border-image-source    | 用在边框图片的路径，也就是设置图片路径                       |
+| **border-image-slice** | 边框图片内向偏移。也就是切图，按照上右下左顺序设置距离即可，不加单位 |
+| border-image-width     | 边框图片宽度，要加单位，这个不是边框宽度，是图片的宽度，因此设置后不会占空间 |
+| border-image-repeat    | 边框图片是否为平铺(repeat)、铺满(round)或拉伸(stretch)，默认拉伸 |
+
+案例代码
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>边框图片</title>
+    <style>
+      .div1 {
+        width: 300px;
+        height: 200px;
+        border: 15px solid red;
+        border-image-source: url(/images/border.png);
+        /* 正方形上下左右都一样 */
+        border-image-slice: 33 33 33 33;
+      }
+
+      .div2 {
+        width: 300px;
+        height: 200px;
+        border: 15px solid red;
+        border-image-source: url(/images/border.png);
+        /* 正方形上下左右都一样 */
+        border-image-slice: 33;
+        /* 该属性默认值是border的宽度，如果怕border太宽导致无法写内容，可以设置该属性让内容范围变大 */
+        /* 边框图片宽度不会挤压文字 */
+        border-image-width: 30px;
+        border-image-repeat: round;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="div1">div内容1</div>
+    <div class="div2">div内容2</div>
+  </body>
+</html>
+```
+
+效果
+
+![image-20260822230729956](./assets/image-20260822230729956.png)
+
+会使用边框图片后，就可以编写公共面板样式`panel`，边框图片也是公共内容。
+
+后面要使用字体图标，这里通过**类名**调用**字体图标**，就是利用`icomoon.css`文件即可。这里我们将该文件放入字体文件中，只需要引入在index.css之前，就可在index.css中使用。
+
+自己创建的index.js文件中，可能会有**大量的变量命名**。特别是Echarts使用中，需要大量初始化Echarts对象。为了防止变量名冲突(变量污染)，可以采用**立即执行函数**策略。每个**模块内容都包含在其自己的立即执行函数**中，这样变量重名也不会出现问题。
+
+> 注意：立即执行函数之间要用分号隔开。将自己的index.js放到body最后，这样就不需要写入口函数等待元素加载完成。
