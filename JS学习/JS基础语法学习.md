@@ -1,5 +1,9 @@
 # JS学习
 
+[TOC]
+
+
+
 ## 一、JavaScript简介
 
 JS就是JavaScript的简称，它是一种**轻量级的脚本语言**。
@@ -12462,6 +12466,36 @@ jQuery的**排它思想**很简单，利用隐式迭代+兄弟选择器只需要
 </html>
 ```
 
+index索引数字的问题,并**不是按获取的元素开始的**。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div>
+      <h1>1</h1>
+      <h1>2</h1>
+      <p>3</p>
+      <p>4</p>
+      <p>5</p>
+    </div>
+    <script>
+      $("div p").on("click", function () {
+        console.log($(this).index()); //结果为2，3，4而不是0，1，2
+      });
+    </script>
+  </body>
+</html>
+```
+
 #### 4.5.3 链式编程
 
 链式编程是为了节约代码量，让代码看起来更优雅。
@@ -18628,9 +18662,139 @@ Options中的配置相当多，其都可在官网中查阅**文档菜单-配置�
 
 ![image-20260821232009846](./assets/image-20260821232009846.png)
 
-#### 6.3.2 饼型图
+案例：折线图定制
 
-其options的值大部分与折线图相似,案例中省略了title、legend内容,添加了color内容。
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>边框图片</title>
+    <script src="js/echarts.min.js"></script>
+    <style>
+      .div1 {
+        width: 600px;
+        height: 400px;
+        background-color: pink;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="div1">div内容1</div>
+    <script>
+      (function () {
+        // 实例化对象
+        var myChart = echarts.init(document.querySelector(".div1"));
+        // 指定配置和数据
+        var option = {
+          tooltip: {
+            //通过坐标轴触发
+            trigger: "axis"
+          },
+          legend: {
+            // 设置位置，距离容器右侧10%
+            right: "10%",
+            // 修饰图例文字颜色
+            textStyle: {
+              color: "#4c9bfd"
+            },
+            data: ["预期销售额", "实际销售额"]
+          },
+          grid: {
+            top: "20%",
+            left: "3%",
+            right: "4%",
+            bottom: "3%",
+            show: true,
+            borderColor: "#012f4a",
+            containLabel: true
+          },
+
+          xAxis: {
+            type: "category",
+            // 移除内边距
+            boundaryGap: false,
+            data: [
+              "1月",
+              "2月",
+              "3月",
+              "4月",
+              "5月",
+              "6月",
+              "7月",
+              "8月",
+              "9月",
+              "10月",
+              "11月",
+              "12月"
+            ],
+            // 剔除刻度
+            axisTick: {
+              show: false
+            },
+            // 设置文字颜色
+            axisLabel: {
+              color: "#4c9bfd"
+            },
+            // 移除坐标颜色
+            axisLine: {
+              show: false
+            }
+          },
+          yAxis: {
+            type: "value",
+            // 剔除刻度
+            axisTick: {
+              show: false
+            },
+            // 设置文字颜色
+            axisLabel: {
+              color: "#4c9bfd"
+            },
+            //修改y轴分割线颜色
+            splitLine: {
+              lineStyle: {
+                color: "#012f4a"
+              }
+            }
+          },
+          // 设置线颜色
+          color: ["#00f2f1", "#ed3f35"],
+          series: [
+            {
+              name: "预期销售额",
+              data: [24, 40, 101, 134, 90, 230, 210, 230, 120, 230, 210, 120],
+              type: "line",
+              smooth: true
+            },
+            {
+              name: "实际销售额",
+              data: [40, 64, 191, 324, 290, 330, 310, 213, 180, 200, 180, 79],
+              type: "line",
+              smooth: true
+            }
+          ]
+        };
+        // 把配置和数据给实例对象
+        myChart.setOption(option);
+        //浏览器缩放时图表也跟着一起等比例缩放,使用图表对象的resize方法即可
+        window.addEventListener("resize", function () {
+          myChart.resize();
+        });
+      })();
+    </script>
+  </body>
+</html>
+```
+
+运行效果
+
+![image-20260824164310064](./assets/image-20260824164310064.png)
+
+#### 6.3.2 饼状图
+
+其options的值大部分与折线图相似,案例中省略了title、legend，grid内容,添加了color内容。
 
 ```html
 <!DOCTYPE html>
@@ -18728,6 +18892,493 @@ Options中的配置相当多，其都可在官网中查阅**文档菜单-配置�
 效果
 
 ![image-20260823230742319](./assets/image-20260823230742319.png)
+
+制作半圆形饼状图，可以把**一个饼状图分为三段，下面一段颜色设为透明即可**。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>边框图片</title>
+    <script src="js/echarts.min.js"></script>
+    <style>
+      .div1 {
+        width: 600px;
+        height: 400px;
+        /* background-color: red; */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="div1">div内容1</div>
+    <script>
+      (function () {
+        // 1. 实例化对象
+        var myChart = echarts.init(document.querySelector(".div1"));
+        // 2. 指定数据和配置
+        var option = {
+          series: [
+            {
+              name: "销售进度",
+              type: "pie",
+              //放大图形
+              radius: ["120%", "140%"],
+              //移动位置
+              center: ["48%", "80%"],
+              //是否启用防止标签重叠策略
+              // avoidLabelOverlap: false,
+              labelLine: {
+                normal: {
+                  // 隐藏线
+                  show: false
+                }
+              },
+              //起始角度是90°,范围是[0,360],这里变为180°即可
+              startAngle: 180,
+              //鼠标经过不变大
+              hoverOffset: 0,
+              data: [
+                {
+                  value: 100,
+                  itemStyle: {
+                    // 颜色渐变#00c9e0->#005fc1
+                    color: new echarts.graphic.LinearGradient(
+                      // (x1,y2) 点到点 (x2,y2) 之间进行渐变
+                      0,
+                      0,
+                      0,
+                      1,
+                      [
+                        { offset: 0, color: "#00c9e0" }, // 0 起始颜色
+                        { offset: 1, color: "#005fc1" } // 1 结束颜色
+                      ]
+                    )
+                  }
+                },
+                { value: 100, itemStyle: { color: "#12274d" } }, // 颜色#12274d
+                {
+                  value: 200,
+                  // 修改数据样式，颜色改为透明
+                  itemStyle: {
+                    color: "transparent"
+                  }
+                }
+              ]
+            }
+          ]
+        };
+        // 3. 把数据和配置给实例对象
+        myChart.setOption(option);
+      })();
+    </script>
+  </body>
+</html>
+```
+
+运行效果
+
+![image-20260824183856172](./assets/image-20260824183856172.png)
+
+#### 6.3.3 柱状图
+
+其options的值大部分与折线图相似,其中如果要设置柱子颜色为渐变颜色，有两种书写方式。大多数情况采用第一种方式。
+
+```js
+// 修改线性渐变色方式 1
+color: new echarts.graphic.LinearGradient(
+     // (x1,y2) 点到点 (x2,y2) 之间进行渐变
+     0, 0, 0, 1,
+     [
+          { offset: 0, color: '#00fffb' }, // 0 起始颜色
+          { offset: 1, color: '#0061ce' }  // 1 结束颜色
+    ]
+ ),
+// 修改线性渐变色方式 2
+color: {
+    type: 'linear',
+    x: 0,
+    y: 0,
+    x2: 0,
+    y2: 1,
+    colorStops: [{
+        offset: 0, color: 'red' // 0% 处的颜色
+    }, {
+        offset: 1, color: 'blue' // 100% 处的颜色
+    }],
+    globalCoord: false // 缺省为 false
+},
+```
+
+柱状图线条样式总结：
+
+![image-20260824154123910](./assets/image-20260824154123910.png)
+
+series配置data选项**可以使用对象**，通过设置对象属性，从而完成每个柱形图样式单独化。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>边框图片</title>
+    <script src="js/echarts.min.js"></script>
+    <style>
+      .div1 {
+        width: 600px;
+        height: 400px;
+        background-color: pink;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="div1">div内容1</div>
+    <script>
+      //使用柱型图
+      //对象数据
+      var item = {
+        name: "",
+        value: 1200,
+        // 修改当前柱子的样式
+        itemStyle: {
+          color: "#254065"
+        },
+        // 设置鼠标放到柱状图上的高亮样式
+        emphasis: {
+          itemStyle: {
+            // 设置高亮颜色，如果该颜色与原本颜色一样就没有高亮效果
+            color: "#254065"
+          }
+        },
+        // 设置提示框组件
+        tooltip: {
+          // 设置透明度为0就是隐藏提示框
+          extraCssText: "opacity:0"
+        }
+      };
+      // 实例化对象
+      var myChart = echarts.init(document.querySelector(".div1"));
+      // 指定配置和数据
+      var option = {
+        //柱子渐变颜色配置
+        // 修改线性渐变色方式 1
+        color: new echarts.graphic.LinearGradient(
+          // (x1,y2) 点到点 (x2,y2) 之间进行渐变
+          0,
+          0,
+          0,
+          1,
+          [
+            { offset: 0, color: "#00fffb" }, // 0 起始颜色
+            { offset: 1, color: "#0061ce" } // 1 结束颜色
+          ]
+        ),
+        // 工具提示
+        tooltip: {
+          // 触发类型  经过轴触发axis 放到x,y轴才会触发  经过轴触发item,item就是放到柱状图上触发
+          // 放到xy坐标轴上促发，离开就消失
+          trigger: "item"
+          // 触发背景特效,轴触发提示才有效，
+          // axisPointer: {
+          //   // 默认为直线，可选为：'line' 线效果 | 'shadow' 阴影效果
+          //   type: "shadow"
+          // }
+        },
+        // 图表边界控制(重要)，也就是图表大小控制
+        grid: {
+          // 距离 上右下左 的距离
+          left: "0%",
+          right: "3%",
+          bottom: "3%",
+          top: "3%",
+          // 是否包含文本刻度
+          containLabel: true,
+          //显示坐标系网格
+          show: true,
+          //grid 四条边框的颜色
+          borderColor: "rgba(0,240,255,0.3)"
+        },
+        // 控制x轴
+        xAxis: [
+          {
+            // 使用类目，必须有data属性
+            type: "category",
+            // 使用 data 中的数据设为刻度文字
+            data: [
+              "上海",
+              "广州",
+              "北京",
+              "深圳",
+              "合肥",
+              "",
+              "......",
+              "",
+              "杭州",
+              "厦门",
+              "济南",
+              "成都",
+              "重庆"
+            ],
+            // 刻度设置
+            axisTick: {
+              // true意思：图形在刻度中间
+              // false意思：图形在刻度之间
+              alignWithLabel: false,
+              // 不显示刻度
+              show: false
+            },
+            //设置文字样式
+            axisLabel: {
+              // 修改文字颜色
+              color: "#4c9bfd"
+            },
+            // 设置x轴的样式
+            axisLine: {
+              //线的样式，修改颜色
+              lineStyle: {
+                color: "rgba(0,240,255,0.3)"
+                // width:3
+              }
+            }
+          }
+        ],
+        // 控制y轴
+        yAxis: [
+          {
+            // 使用数据的值设为刻度文字
+            type: "value",
+            // 刻度设置
+            axisTick: {
+              // true意思：图形在刻度中间
+              // false意思：图形在刻度之间
+              alignWithLabel: false,
+              // 不显示刻度
+              show: false
+            },
+            //设置文字样式
+            axisLabel: {
+              // 修改文字颜色
+              color: "#4c9bfd"
+            },
+            // 设置y轴的样式
+            axisLine: {
+              //线的样式，修改颜色
+              lineStyle: {
+                color: "rgba(0,240,255,0.3)"
+                // width:3
+              }
+            },
+            //设置分割线样式
+            splitLine: {
+              lineStyle: {
+                color: "rgba(0,240,255,0.3)"
+              }
+            }
+          }
+        ],
+        // 修改数据
+        series: [
+          {
+            // 图表数据名称
+            name: "用户统计",
+            // 图表类型
+            type: "bar",
+            // 柱子宽度
+            barWidth: "60%",
+            // 数据
+            data: [
+              2100,
+              1900,
+              1700,
+              1560,
+              1400,
+              {
+                name: "",
+                value: 1200,
+                // 修改当前柱子的样式
+                itemStyle: {
+                  color: "red"
+                },
+                // 设置鼠标放到柱状图上的高亮样式
+                emphasis: {
+                  itemStyle: {
+                    // 设置高亮颜色，如果该颜色与原本颜色一样就没有高亮效果
+                    color: "#254065"
+                  }
+                },
+                // 设置提示框组件
+                tooltip: {
+                  // 设置透明度为0就是隐藏提示框,该方式只对item方式有效，axis方式无效
+                  extraCssText: "opacity:0"
+                }
+              },
+              // 可直接使用对象变量
+              item,
+              item,
+              900,
+              750,
+              600,
+              480,
+              240
+            ]
+          }
+        ]
+      };
+
+      //把配置给实例对象
+      myChart.setOption(option);
+    </script>
+  </body>
+</html>
+```
+
+运行效果
+
+![image-20260824154013648](./assets/image-20260824154013648.png)
+
+#### 6.3.4 雷达图
+
+结构与之前一样就不多说了，直接定制样式。相关样式说明如下：
+
+![image-20260824175016645](./assets/image-20260824175016645.png)
+
+![image-20260824175926099](./assets/image-20260824175926099.png)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>边框图片</title>
+    <script src="js/echarts.min.js"></script>
+    <style>
+      .div1 {
+        width: 600px;
+        height: 400px;
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="div1">div内容1</div>
+    <script>
+      (function () {
+        // 实例化对象
+        var myChart = echarts.init(document.querySelector(".div1"));
+        // 雷达图 定制配置
+        //数据可以使用对象，少就不用
+        // var dataBJ = [[155, 39, 56, 0.46, 18, 6, 100]];
+        var option = {
+          //提示框组件
+          tooltip: {
+            show: true,
+            //控制提示框组件显示位置
+            position: ["60%", "10%"]
+          },
+          //背景图颜色
+          // backgroundColor: "#161627",
+          radar: {
+            // 雷达图数据
+            indicator: [
+              { name: "机场", max: 100 },
+              { name: "商场", max: 100 },
+              { name: "火车站", max: 100 },
+              { name: "汽车站", max: 100 },
+              { name: "地铁", max: 100 }
+            ],
+            //修改雷达图大小 指的是雷达外圆半径是容器的65%大小
+            radius: "65%",
+            //雷达图居中
+            center: ["50%", "50%"],
+            shape: "circle",
+            // 指分割的圆圈个数
+            splitNumber: 4,
+            name: {
+              // 修改雷达图文字颜色
+              textStyle: {
+                color: "#4c9bfd"
+              }
+            },
+            // 分割圆圈线条样式
+            splitLine: {
+              lineStyle: {
+                // color: [
+                //   "rgba(238, 197, 102, 0.1)",
+                //   "rgba(238, 197, 102, 0.2)",
+                //   "rgba(238, 197, 102, 0.4)",
+                //   "rgba(238, 197, 102, 0.6)",
+                //   "rgba(238, 197, 102, 0.8)",
+                //   "rgba(238, 197, 102, 1)"
+                // ].reverse()
+                // 圆圈颜色白色半透明
+                color: "rgba(255,255,255,0.5)"
+              }
+            },
+            splitArea: {
+              show: false
+            },
+            // 坐标轴的线样式，也就是分割圆的斜线
+            axisLine: {
+              lineStyle: {
+                // 颜色白色半透明
+                color: "rgba(255, 255, 255, 0.5)"
+                // width: 1,
+                // type: 'solid'
+              }
+            }
+          },
+          series: [
+            {
+              name: "北京",
+              type: "radar",
+              // 修改填充区域线样式
+              lineStyle: {
+                normal: {
+                  color: "#fff",
+                  width: 1,
+                  opacity: 0.5
+                }
+              },
+              data: [[90, 19, 56, 11, 34]],
+              // 标记图形样式(拐点)
+              symbol: "circle",
+              // 拐点大小
+              symbolSize: 5,
+              // 拐点颜色
+              itemStyle: {
+                color: "#fff"
+              },
+              //拐点上设置相关数据
+              label: {
+                // 显示数据
+                show: true,
+                color: "#fff",
+                // 文字大小
+                fontSize: 10
+              },
+              // 修改区域样式
+              areaStyle: {
+                // 修改颜色
+                color: "rgba(238,197,102,0.6)"
+                // opacity: 0.1
+              }
+            }
+          ]
+        };
+        //把配置和数据给对象
+        myChart.setOption(option);
+      })();
+    </script>
+  </body>
+</html>
+```
+
+运行效果
+
+![image-20260824181143944](./assets/image-20260824181143944.png)
 
 
 
@@ -18832,6 +19483,10 @@ vscode热更新插件`Preview on Web Server`，html文件修改保存浏览器�
 项目结构：
 
 ![image-20260822220231084](./assets/image-20260822220231084.png)
+
+`china.js`是提供**中国地图的js文件**，它是利用经纬度数据来绘制中国地图的js，是社区飞行模块需要使用的。
+
+`myMap.js`是我们自己创建的专门用来做社区飞行模块的js文件。
 
 #### 6.4.2 布局搭建
 
@@ -18957,3 +19612,2226 @@ h4 {
 自己创建的index.js文件中，可能会有**大量的变量命名**。特别是Echarts使用中，需要大量初始化Echarts对象。为了防止变量名冲突(变量污染)，可以采用**立即执行函数**策略。每个**模块内容都包含在其自己的立即执行函数**中，这样变量重名也不会出现问题。
 
 > 注意：立即执行函数之间要用分号隔开。将自己的index.js放到body最后，这样就不需要写入口函数等待元素加载完成。
+
+销售统计模块tab切换原理：
+
+1. series里面的data数据决定着折线的显示；
+2. 当点击不同tab标签，就让series里面的data调用不同的数据即可；
+3. 只需要准备年、季度、月、周的数据即可。
+
+[Echars社区](https://gallery.echartsjs.com/explore.html#sort=rank~timeframe=all~author=all)就是一些，活跃的echart使用者，交流和贡献定制好的图表的地方。在这里可以找到一些基于echart的高度定制好的图表，相当于基于jquery开发的插件，这里是基于echarts开发的第三方的图表。
+
+更多资源的网址：https://github.com/ecomfe/awesome-echarts
+
+参考社区的例子：https://gallery.echartsjs.com/editor.html?c=x0-ExSkZDM  (模拟飞机航线)
+
+#### 6.4.3 案例代码
+
+index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>可视化案例</title>
+    <link rel="stylesheet" href="fonts/icomoon.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <script src="js/echarts.min.js"></script>
+    <script src="js/flexible.js"></script>
+    <script src="js/jquery.min.js"></script>
+
+    <style></style>
+  </head>
+  <body>
+    <!-- viewport大盒子 -->
+    <div class="viewport">
+      <div class="column">
+        <!-- 1.概览区域模块 -->
+        <div class="panel overview">
+          <div class="inner">
+            <ul>
+              <li>
+                <h4>2190</h4>
+                <span>
+                  <!-- 使用字体图标 注意设置图标颜色-->
+                  <i class="icon-dot" style="color: #006cff"></i>
+                  设备总数
+                </span>
+              </li>
+              <li class="item">
+                <h4>190</h4>
+                <span>
+                  <i class="icon-dot" style="color: #6acca3"></i>
+                  季度新增
+                </span>
+              </li>
+              <li>
+                <h4>3001</h4>
+                <span>
+                  <i class="icon-dot" style="color: #6acca3"></i>
+                  运营设备
+                </span>
+              </li>
+              <li>
+                <h4>108</h4>
+                <span>
+                  <!-- 使用字体图标 注意设置图标颜色-->
+                  <i class="icon-dot" style="color: #ed3f35"></i>
+                  异常设备
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- 2.监控区域模块 -->
+        <div class="panel monitor">
+          <div class="inner">
+            <div class="tabs">
+              <a href="javascript:;" class="active">故障设备监控</a>
+              <a href="javascript:;">异常设备监控</a>
+            </div>
+            <!-- 先显示一个content -->
+            <div class="content" style="display: block">
+              <div class="head">
+                <span class="col">故障时间</span>
+                <span class="col">设备地址</span>
+                <span class="col">异常代码</span>
+              </div>
+              <div class="marquee-view">
+                <div class="marquee">
+                  <div class="row">
+                    <span class="col">20180701</span>
+                    <span class="col">11北京市昌平西路金燕龙写字楼</span>
+                    <span class="col">1000001</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190601</span>
+                    <span class="col">北京市昌平区城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190704</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000003</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20180701</span>
+                    <span class="col">北京市昌平区建路金燕龙写字楼</span>
+                    <span class="col">1000004</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190701</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000005</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190701</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000006</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190701</span>
+                    <span class="col">北京市昌平区建西路金燕龙写字楼</span>
+                    <span class="col">1000007</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190701</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000008</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190701</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000009</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190710</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000010</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="content">
+              <div class="head">
+                <span class="col">异常时间</span>
+                <span class="col">设备地址</span>
+                <span class="col">异常代码</span>
+              </div>
+              <div class="marquee-view">
+                <div class="marquee">
+                  <div class="row">
+                    <span class="col">20190701</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000001</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190701</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190703</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190704</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190705</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190706</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190707</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190708</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190709</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                  <div class="row">
+                    <span class="col">20190710</span>
+                    <span class="col">北京市昌平区建材城西路金燕龙写字楼</span>
+                    <span class="col">1000002</span>
+                    <span class="icon-dot"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 3.点位分布统计模块 -->
+        <div class="point panel">
+          <div class="inner">
+            <h3>点位分布统计</h3>
+            <div class="chart">
+              <div class="pie"></div>
+              <div class="data">
+                <div class="item">
+                  <h4>320,11</h4>
+                  <span>
+                    <i class="icon-dot" style="color: #ed3f35"></i>
+                    点位总数
+                  </span>
+                </div>
+                <div class="item">
+                  <h4>418</h4>
+                  <span>
+                    <i class="icon-dot" style="color: #eacf19"></i>
+                    本月新增
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <!-- 4.地图模块 -->
+        <div class="map">
+          <h3>
+            <span class="icon-cube"></span>
+            设备数据统计
+          </h3>
+          <div class="chart">
+            <div class="geo"></div>
+          </div>
+        </div>
+        <!-- 5.全国用户量统计模块 -->
+        <div class="users panel">
+          <div class="inner">
+            <h3>全国用户总量统计</h3>
+            <div class="chart">
+              <div class="bar"></div>
+              <div class="data">
+                <div class="item">
+                  <h4>120,899</h4>
+                  <span>
+                    <i class="icon-dot" style="color: #ed3f35"></i>
+                    用户总量
+                  </span>
+                </div>
+                <div class="item">
+                  <h4>248</h4>
+                  <span>
+                    <i class="icon-dot" style="color: #eacf19"></i>
+                    本月新增
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <!-- 6.订单模块 -->
+        <div class="order panel">
+          <div class="inner">
+            <!-- 筛选 -->
+            <div class="filter">
+              <a href="javascript:;" class="active" data-key="day365">365天</a>
+              <a href="javascript:;" data-key="day90">90天</a>
+              <a href="javascript:;" data-key="day30">30天</a>
+              <a href="javascript:;" data-key="day1">24小时</a>
+            </div>
+            <!-- 数据 -->
+            <div class="data">
+              <div class="item">
+                <h4>20,301,987</h4>
+                <span>
+                  <i class="icon-dot" style="color: #ed3f35"></i>
+                  订单量
+                </span>
+              </div>
+              <div class="item">
+                <h4>99834</h4>
+                <span>
+                  <i class="icon-dot" style="color: #eacf19"></i>
+                  销售额(万元)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 7.销售统计模块 -->
+        <div class="sales panel">
+          <div class="inner">
+            <div class="caption">
+              <h3>销售额统计</h3>
+              <a href="javascript:;" class="active" data-type="year">年</a>
+              <a href="javascript:;" data-type="quarter">季</a>
+              <a href="javascript:;" data-type="month">月</a>
+              <a href="javascript:;" data-type="week">周</a>
+            </div>
+            <div class="chart">
+              <div class="label">单位:万</div>
+              <div class="line"></div>
+            </div>
+          </div>
+        </div>
+        <!-- 8.渠道分布与季度销售模块 -->
+        <div class="wrap">
+          <div class="channel panel">
+            <div class="inner">
+              <h3>渠道分布</h3>
+              <div class="data">
+                <div class="radar"></div>
+              </div>
+            </div>
+          </div>
+          <div class="quarter panel">
+            <div class="inner">
+              <h3>一季度销售进度</h3>
+              <div class="chart">
+                <div class="box">
+                  <div class="gauge"></div>
+                  <div class="label">75<small> %</small></div>
+                </div>
+                <div class="data">
+                  <div class="item">
+                    <h4>1,321</h4>
+                    <span>
+                      <i class="icon-dot" style="color: #6acca3"></i>
+                      销售额(万元)
+                    </span>
+                  </div>
+                  <div class="item">
+                    <h4>150%</h4>
+                    <span>
+                      <i class="icon-dot" style="color: #ed3f35"></i>
+                      同比增长
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 9.全国热榜模块 -->
+        <div class="top panel">
+          <div class="inner">
+            <div class="all">
+              <h3>全国热榜</h3>
+              <ul>
+                <li>
+                  <i class="icon-cup1" style="color: #d93f36"></i>
+                  可爱多
+                </li>
+                <li>
+                  <i class="icon-cup2" style="color: #68d8fe"></i>
+                  娃哈啥
+                </li>
+                <li>
+                  <i class="icon-cup3" style="color: #4c9bfd"></i>
+                  喜之郎
+                </li>
+              </ul>
+            </div>
+            <div class="province">
+              <h3>各省热销 <i class="date">近30日</i></h3>
+              <div class="data">
+                <ul class="sup"></ul>
+
+                <ul class="sub">
+                  <!-- <li><span></span><span> <s class="icon-up"></s></span></li> -->
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 写在最后就不需要写入口函数 -->
+    <script src="js/myindex.js"></script>
+    <script src="js/china.js"></script>
+    <script src="js/myMap.js"></script>
+  </body>
+</html>
+```
+
+index.css
+
+```css
+/*清除元素默认的内外边距  */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/*让所有斜体 不倾斜*/
+em,
+i {
+    font-style: normal;
+}
+
+/*去掉列表前面的小点*/
+li {
+    list-style: none;
+}
+
+/*图片没有边框   去掉图片底侧的空白缝隙*/
+img {
+    border: 0;
+    /*ie6*/
+    vertical-align: middle;
+}
+
+/*让button 按钮 变成小手*/
+button {
+    cursor: pointer;
+}
+
+/*取消链接的下划线*/
+a {
+    color: #666;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #e33333;
+}
+
+h4 {
+    font-weight: 400;
+}
+
+body {
+    /* 指定body背景图片 */
+    background: url(../images/bg.jpg) no-repeat;
+    /* 让背景跟随页面缩放 */
+    background-size: cover;
+    /* 简单写法 */
+    /* background: url(../images/bg.jpg) no-repeat 0 0 / cover; */
+}
+
+/* 实现rem适配 */
+@media screen and (max-width: 1024px) {
+    html {
+        font-size: 42.66px !important;
+    }
+}
+
+@media screen and (min-width: 1920px) {
+    html {
+        font-size: 80px !important;
+    }
+}
+
+/* 大盒子铺满整个body */
+.viewport {
+    display: flex;
+    min-width: 1024px;
+    max-width: 1920px;
+    margin: 0 auto;
+    /* 指定padding让内部盒子离边框有点边距，顶部要显示头部 */
+    padding: 1.1rem 0.25rem 0;
+    /* 指定背景图片 头部图片 contain显示完全logo */
+    background: url(../images/logo.png) no-repeat 0 0 / contain;
+    min-height: 780px;
+}
+
+/* 左右占3份 */
+.viewport .column {
+    flex: 3;
+}
+
+/* 中间占4份 */
+.viewport .column:nth-child(2) {
+    /* flex布局不会因为margin掉下来 */
+    flex: 4;
+    /* 第二列有上下margin 32px与左右margin 20px */
+    margin: 0.4rem 0.25rem 0;
+}
+
+/* 公共面板样式 panel */
+.panel {
+    position: relative;
+    border: 15px solid transparent;
+    /* 边框设置跟边框图片分割一样 */
+    border-width: 0.6375rem 0.475rem 0.25rem 1.65rem;
+    border-image-source: url(../images/border.png);
+    border-image-slice: 51 38 20 132;
+    /* 设置每个盒子下边距 */
+    margin-bottom: 0.25rem;
+}
+
+/* h3公共样式 */
+.panel h3 {
+    font-size: .25rem;
+    color: #fff;
+    font-weight: 400;
+}
+
+/* 因为边框占的位置太多，我们将定位子盒子进行拉伸,拉伸切割距离,这样可以完全覆盖带边框的父盒子 */
+/* 子盒子 inner*/
+.inner {
+    position: absolute;
+    top: -.6375rem;
+    left: -1.65rem;
+    right: -.475rem;
+    bottom: -.25rem;
+    /* 内边距 */
+    padding: .3rem .45rem;
+}
+
+/* 模块1 概览区域模块制作 overview*/
+.overview {
+    height: 1.375rem;
+}
+
+.overview ul {
+    display: flex;
+    /* 平均分配 */
+    justify-content: space-between;
+}
+
+.overview ul li h4 {
+    font-size: .35rem;
+    color: #fff;
+    margin: 0 0 .1rem .06rem;
+}
+
+.overview ul li span {
+    font-size: .2rem;
+    color: #4c9bfd;
+}
+
+/* 模块2 监控区域模块 monitor*/
+/* 监控区域 */
+.monitor {
+    height: 6rem;
+}
+
+.monitor .inner {
+    padding: .3rem 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.monitor .tabs {
+    padding: 0 .45rem;
+    margin-bottom: 0.225rem;
+    display: flex;
+}
+
+.monitor .tabs a {
+    color: #1950c4;
+    font-size: 0.225rem;
+    padding: 0 .3375rem;
+}
+
+.monitor .tabs a:first-child {
+    padding-left: 0;
+    border-right: 0.025rem solid #00f2f1;
+}
+
+.monitor .tabs a.active {
+    color: #fff;
+}
+
+.monitor .content {
+    flex: 1;
+    position: relative;
+    display: none;
+}
+
+.monitor .head {
+    display: flex;
+    justify-content: space-between;
+    line-height: 1.05;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.15rem 0.45rem;
+    color: #68d8fe;
+    font-size: 0.175rem;
+}
+
+.monitor .marquee-view {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.monitor .row {
+    display: flex;
+    justify-content: space-between;
+    line-height: 1.05;
+    font-size: 0.15rem;
+    color: #61a8ff;
+    padding: 0.15rem 0.45rem;
+}
+
+.monitor .row .icon-dot {
+    position: absolute;
+    left: 0.2rem;
+    opacity: 0;
+}
+
+.monitor .row:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #68d8fe;
+}
+
+.monitor .row:hover .icon-dot {
+    opacity: 1;
+}
+
+.monitor .col:first-child {
+    width: 1rem;
+}
+
+.monitor .col:nth-child(2) {
+    width: 2.5rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.monitor .col:nth-child(3) {
+    width: 1rem;
+}
+
+/* 通过css3 动画实现滚动效果，移动到高度的一半时就返回初始位置 */
+.marquee-view .marquee {
+    /* 匀速无限滚动 */
+    animation: move 15s linear infinite
+}
+
+@keyframes move {
+    0% {}
+
+    /* 移动到一半的距离就返回0%的位置 */
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+/* 通过:hover检测鼠标经过暂停滚动动画，鼠标离开开始滚动动画 */
+.marquee-view .marquee:hover {
+    animation-play-state: paused;
+}
+
+/* 3.模块:点位分布统计 point */
+/* 点位 */
+.point {
+    height: 4.25rem;
+}
+
+.point .chart {
+    display: flex;
+    margin-top: 0.3rem;
+    justify-content: space-between;
+}
+
+.point .pie {
+    width: 3.9rem;
+    height: 3rem;
+    margin-left: -0.125rem;
+}
+
+.point .data {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 2.1rem;
+    padding: .45rem .375rem;
+    box-sizing: border-box;
+    background-image: url(../images/rect.png);
+    background-size: cover;
+}
+
+.point h4 {
+    margin-bottom: 0.15rem;
+    font-size: .35rem;
+    color: #fff;
+}
+
+.point span {
+    display: block;
+    color: #4c9bfd;
+    font-size: .2rem;
+}
+
+/* 4.模块：地图 map */
+.map {
+    height: 7.225rem;
+    margin-bottom: 0.25rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.map h3 {
+    line-height: 1;
+    padding: 0.2rem 0;
+    margin: 0;
+    font-size: 0.25rem;
+    color: #fff;
+    font-weight: 400;
+}
+
+.map .icon-cube {
+    color: #68d8fe;
+}
+
+.map .chart {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.map .geo {
+    width: 100%;
+    height: 100%;
+}
+
+/* 5.模块 全国用户量统计 users */
+.users {
+    height: 4.25rem;
+    display: flex;
+}
+
+.users .chart {
+    display: flex;
+    margin-top: .3rem;
+}
+
+.users .bar {
+    width: 7.35rem;
+    height: 3rem;
+}
+
+.users .data {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 2.1rem;
+    padding: .45rem .375rem;
+    box-sizing: border-box;
+    background-image: url(../images/rect.png);
+    background-size: cover;
+}
+
+.users h4 {
+    margin-bottom: .15rem;
+    font-size: .35rem;
+    color: #fff;
+}
+
+.users span {
+    display: block;
+    color: #4c9bfd;
+    font-size: 0.2rem;
+}
+
+/* 6.模块 订单 order*/
+/* 订单 */
+.order {
+    height: 1.875rem;
+}
+
+.order .filter {
+    display: flex;
+}
+
+.order .filter a {
+    display: block;
+    height: 0.225rem;
+    line-height: 1;
+    padding: 0 0.225rem;
+    color: #1950c4;
+    font-size: 0.225rem;
+    border-right: 0.025rem solid #00f2f1;
+}
+
+.order .filter a:first-child {
+    padding-left: 0;
+}
+
+.order .filter a:last-child {
+    border-right: none;
+}
+
+.order .filter a.active {
+    color: #fff;
+    font-size: 0.25rem;
+}
+
+.order .data {
+    display: flex;
+    margin-top: 0.25rem;
+}
+
+.order .item {
+    width: 50%;
+}
+
+.order h4 {
+    font-size: 0.35rem;
+    color: #fff;
+    margin-bottom: 0.125rem;
+}
+
+.order span {
+    display: block;
+    color: #4c9bfd;
+    font-size: 0.2rem;
+}
+
+/* 7. 模块 销售统计模块 sales  */
+.sales {
+    height: 3.1rem;
+}
+
+.sales .caption {
+    display: flex;
+    line-height: 1;
+}
+
+.sales h3 {
+    height: 0.225rem;
+    padding-right: 0.225rem;
+    border-right: 0.025rem solid #00f2f1;
+}
+
+.sales a {
+    padding: 0.05rem;
+    font-size: 0.2rem;
+    margin: -0.0375rem 0 0 0.2625rem;
+    border-radius: 0.0375rem;
+    color: #0bace6;
+}
+
+.sales a.active {
+    background-color: #4c9bfd;
+    color: #fff;
+}
+
+.sales .inner {
+    display: flex;
+    flex-direction: column;
+}
+
+.sales .chart {
+    flex: 1;
+    padding-top: 0.1875rem;
+    position: relative;
+}
+
+.sales .label {
+    position: absolute;
+    left: 0.525rem;
+    top: 0.225rem;
+    color: #4996f5;
+    font-size: 0.175rem;
+}
+
+.sales .line {
+    width: 100%;
+    height: 100%;
+}
+
+/*8 模块  渠道分布与季度销售 wrap*/
+/* 有两个子模块 channel quarter */
+/* 渠道区块 */
+.wrap {
+    display: flex;
+}
+
+.channel,
+.quarter {
+    flex: 1;
+    height: 2.9rem;
+}
+
+.channel {
+    margin-right: 0.25rem;
+}
+
+.channel .data {
+    overflow: hidden;
+}
+
+.channel .data .radar {
+    height: 2.1rem;
+    width: 100%;
+    /* background-color: pink; */
+}
+
+.channel h4 {
+    color: #fff;
+    font-size: 0.4rem;
+    margin-bottom: 0.0625rem;
+}
+
+.channel small {
+    font-size: 50%;
+}
+
+.channel span {
+    display: block;
+    color: #4c9bfd;
+    font-size: 0.175rem;
+}
+
+/* 季度区块 */
+.quarter .inner {
+    display: flex;
+    flex-direction: column;
+    margin: 0 -0.075rem;
+}
+
+.quarter .chart {
+    flex: 1;
+    padding-top: 0.225rem;
+}
+
+.quarter .box {
+    position: relative;
+}
+
+.quarter .label {
+    transform: translate(-50%, -30%);
+    color: #fff;
+    font-size: 0.375rem;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.quarter .label small {
+    font-size: 50%;
+}
+
+.quarter .gauge {
+    height: 1.05rem;
+}
+
+.quarter .data {
+    display: flex;
+    justify-content: space-between;
+}
+
+.quarter .item {
+    width: 50%;
+}
+
+.quarter h4 {
+    color: #fff;
+    font-size: 0.3rem;
+    margin-bottom: 0.125rem;
+}
+
+.quarter span {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: #4c9bfd;
+    font-size: 0.175rem;
+}
+
+/* 9.模块 全国热榜 top */
+.top {
+    height: 3.5rem;
+}
+
+.top .inner {
+    display: flex;
+}
+
+.top .all {
+    display: flex;
+    flex-direction: column;
+    width: 2.1rem;
+    color: #4c9bfd;
+    font-size: 0.175rem;
+    vertical-align: middle;
+}
+
+.top .all ul {
+    padding-left: 0.15rem;
+    margin-top: 0.15rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.top .all li {
+    overflow: hidden;
+}
+
+.top .all [class^="icon-"] {
+    font-size: 0.45rem;
+    vertical-align: middle;
+    margin-right: 0.15rem;
+}
+
+.top .province {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+}
+
+.top .province i {
+    padding: 0 0.15rem;
+    margin-top: 0.0625rem;
+    float: right;
+    font-style: normal;
+    font-size: 0.175rem;
+    color: #0bace6;
+}
+
+.top .province s {
+    display: inline-block;
+    transform: scale(0.8);
+    text-decoration: none;
+}
+
+.top .province .icon-up {
+    color: #dc3c33;
+}
+
+.top .province .icon-down {
+    color: #36be90;
+}
+
+.top .province .data {
+    flex: 1;
+    display: flex;
+    margin-top: 0.175rem;
+}
+
+.top .province ul {
+    flex: 1;
+    line-height: 1;
+    margin-bottom: 0.175rem;
+}
+
+.top .province ul li {
+    display: flex;
+    justify-content: space-between;
+}
+
+.top .province ul span {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.top .province ul.sup {
+    font-size: 0.175rem;
+}
+
+.top .province ul.sup li {
+    color: #4995f4;
+    padding: 0.15rem;
+}
+
+.top .province ul.sup li.active {
+    color: #a3c6f2;
+    background-color: rgba(10, 67, 188, 0.2);
+}
+
+.top .province ul.sub {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    font-size: 0.15rem;
+    background-color: rgba(10, 67, 188, 0.2);
+}
+
+.top .province ul.sub li {
+    color: #52ffff;
+    padding: 0.125rem 0.175rem;
+}
+
+.clock {
+    position: absolute;
+    top: -0.45rem;
+    right: 0.5rem;
+    font-size: 0.25rem;
+    color: #0bace6;
+}
+
+.clock i {
+    margin-right: 5px;
+    font-size: 0.25rem;
+}
+
+@media screen and (max-width: 1600px) {
+    .top span {
+        transform: scale(0.9);
+    }
+
+    .top .province ul.sup li {
+        padding: 0.125rem 0.15rem;
+    }
+
+    .top .province ul.sub li {
+        padding: 0.0625rem 0.15rem;
+    }
+
+    .quarter span {
+        transform: scale(0.9);
+    }
+}
+```
+
+index.js
+
+```js
+// 监控区域模块制作
+(function () {
+  $(".monitor .tabs").on("click", "a", function () {
+    $(this).addClass("active").siblings("a").removeClass("active");
+
+    // console.log($(this).index());
+    //   选取对应索引号的content
+    $(".monitor .content")
+      .eq($(this).index())
+      .show()
+      .siblings(".content")
+      .hide();
+  });
+  // 1. 先克隆marquee里面所有的行（row）
+  $(".marquee-view .marquee").each(function () {
+    // console.log($(this));
+    var rows = $(this).children().clone();
+    $(this).append(rows);
+  });
+})();
+
+// 点位分布统计模块
+(function () {
+  // 1. 实例化对象
+  var myChart = echarts.init(document.querySelector(".pie"));
+  // 2. 指定配置项和数据
+  var option = {
+    tooltip: {
+      trigger: "item",
+      formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
+    // 注意颜色写的位置
+    color: [
+      "#006cff",
+      "#60cda0",
+      "#ed8884",
+      "#ff9f7f",
+      "#0096ff",
+      "#9fe6b8",
+      "#32c5e9",
+      "#1d9dff"
+    ],
+    series: [
+      {
+        name: "点位统计",
+        type: "pie",
+        // 如果radius是百分比则必须加引号
+        radius: ["10%", "70%"],
+        center: ["50%", "50%"],
+        roseType: "radius",
+        data: [
+          { value: 20, name: "云南" },
+          { value: 26, name: "北京" },
+          { value: 24, name: "山东" },
+          { value: 25, name: "河北" },
+          { value: 20, name: "江苏" },
+          { value: 25, name: "浙江" },
+          { value: 30, name: "四川" },
+          { value: 42, name: "湖北" }
+        ],
+        // 修饰饼形图文字相关的样式 label对象
+        label: {
+          fontSize: 10
+        },
+        // 修饰引导线样式
+        labelLine: {
+          // 连接到图形的线长度
+          length: 6,
+          // 连接到文字的线长度
+          length2: 8
+        }
+      }
+    ]
+  };
+
+  // 3. 配置项和数据给我们的实例化对象
+  myChart.setOption(option);
+  // 4. 当我们浏览器缩放的时候，图表也等比例缩放
+  window.addEventListener("resize", function () {
+    // 让我们的图表调用 resize这个方法
+    myChart.resize();
+  });
+})();
+// 柱形图模块
+(function () {
+  var item = {
+    name: "",
+    value: 1200,
+    // 1. 修改当前柱形的样式
+    itemStyle: {
+      color: "#254065"
+    },
+    // 2. 鼠标放到柱子上不想高亮显示
+    emphasis: {
+      itemStyle: {
+        color: "#254065"
+      }
+    },
+    // 3. 鼠标经过柱子不显示提示框组件
+    tooltip: {
+      extraCssText: "opacity: 0"
+    }
+  };
+  // 1. 实例化对象
+  var myChart = echarts.init(document.querySelector(".bar"));
+  // 2. 指定配置和数据
+  var option = {
+    color: new echarts.graphic.LinearGradient(
+      // (x1,y2) 点到点 (x2,y2) 之间进行渐变
+      0,
+      0,
+      0,
+      1,
+      [
+        { offset: 0, color: "#00fffb" }, // 0 起始颜色
+        { offset: 1, color: "#0061ce" } // 1 结束颜色
+      ]
+    ),
+    tooltip: {
+      trigger: "item"
+    },
+    grid: {
+      left: "0%",
+      right: "3%",
+      bottom: "3%",
+      top: "3%",
+      //  图表位置紧贴画布边缘是否显示刻度以及label文字 防止坐标轴标签溢出跟grid 区域有关系
+      containLabel: true,
+      // 是否显示直角坐标系网格
+      show: true,
+      //grid 四条边框的颜色
+      borderColor: "rgba(0, 240, 255, 0.3)"
+    },
+    xAxis: [
+      {
+        type: "category",
+        data: [
+          "上海",
+          "广州",
+          "北京",
+          "深圳",
+          "合肥",
+          "",
+          "......",
+          "",
+          "杭州",
+          "厦门",
+          "济南",
+          "成都",
+          "重庆"
+        ],
+        axisTick: {
+          alignWithLabel: false,
+          // 把x轴的刻度隐藏起来
+          show: false
+        },
+        axisLabel: {
+          color: "#4c9bfd"
+        },
+        // x轴这条线的颜色样式
+        axisLine: {
+          lineStyle: {
+            color: "rgba(0, 240, 255, 0.3)"
+            // width: 3
+          }
+        }
+      }
+    ],
+    yAxis: [
+      {
+        type: "value",
+        axisTick: {
+          alignWithLabel: false,
+          // 把y轴的刻度隐藏起来
+          show: false
+        },
+        axisLabel: {
+          color: "#4c9bfd"
+        },
+        // y轴这条线的颜色样式
+        axisLine: {
+          lineStyle: {
+            color: "rgba(0, 240, 255, 0.3)"
+            // width: 3
+          }
+        },
+        // y轴分割线的颜色样式
+        splitLine: {
+          lineStyle: {
+            color: "rgba(0, 240, 255, 0.3)"
+          }
+        }
+      }
+    ],
+    series: [
+      {
+        name: "直接访问",
+        type: "bar",
+        barWidth: "60%",
+        data: [
+          2100,
+          1900,
+          1700,
+          1560,
+          1400,
+          item,
+          item,
+          item,
+          900,
+          750,
+          600,
+          480,
+          240
+        ]
+      }
+    ]
+  };
+  // 3. 把配置给实例对象
+  myChart.setOption(option);
+  // 4. 当我们浏览器缩放的时候，图表也等比例缩放
+  window.addEventListener("resize", function () {
+    // 让我们的图表调用 resize这个方法
+    myChart.resize();
+  });
+})();
+// 销售统计模块
+(function () {
+  // (1)准备数据
+  var data = {
+    year: [
+      [24, 40, 101, 134, 90, 230, 210, 230, 120, 230, 210, 120],
+      [40, 64, 191, 324, 290, 330, 310, 213, 180, 200, 180, 79]
+    ],
+    quarter: [
+      [23, 75, 12, 97, 21, 67, 98, 21, 43, 64, 76, 38],
+      [43, 31, 65, 23, 78, 21, 82, 64, 43, 60, 19, 34]
+    ],
+    month: [
+      [34, 87, 32, 76, 98, 12, 32, 87, 39, 36, 29, 36],
+      [56, 43, 98, 21, 56, 87, 43, 12, 43, 54, 12, 98]
+    ],
+    week: [
+      [43, 73, 62, 54, 91, 54, 84, 43, 86, 43, 54, 53],
+      [32, 54, 34, 87, 32, 45, 62, 68, 93, 54, 54, 24]
+    ]
+  };
+  // 1. 实例化对象
+  var myChart = echarts.init(document.querySelector(".line"));
+  // 2. 指定配置和数据
+  var option = {
+    color: ["#00f2f1", "#ed3f35"],
+    tooltip: {
+      // 通过坐标轴来触发
+      trigger: "axis"
+    },
+    legend: {
+      // 距离容器10%
+      right: "10%",
+      // 修饰图例文字的颜色
+      textStyle: {
+        color: "#4c9bfd"
+      }
+      // 如果series 里面设置了name，此时图例组件的data可以省略
+      // data: ["邮件营销", "联盟广告"]
+    },
+    grid: {
+      top: "20%",
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
+      show: true,
+      borderColor: "#012f4a",
+      containLabel: true
+    },
+
+    xAxis: {
+      type: "category",
+      boundaryGap: false,
+      data: [
+        "1月",
+        "2月",
+        "3月",
+        "4月",
+        "5月",
+        "6月",
+        "7月",
+        "8月",
+        "9月",
+        "10月",
+        "11月",
+        "12月"
+      ],
+      // 去除刻度
+      axisTick: {
+        show: false
+      },
+      // 修饰刻度标签的颜色
+      axisLabel: {
+        color: "#4c9bfd"
+      },
+      // 去除x坐标轴的颜色
+      axisLine: {
+        show: false
+      }
+    },
+    yAxis: {
+      type: "value",
+      // 去除刻度
+      axisTick: {
+        show: false
+      },
+      // 修饰刻度标签的颜色
+      axisLabel: {
+        color: "#4c9bfd"
+      },
+      // 修改y轴分割线的颜色
+      splitLine: {
+        lineStyle: {
+          color: "#012f4a"
+        }
+      }
+    },
+    series: [
+      {
+        name: "预期销售额",
+        type: "line",
+        stack: "总量",
+        // 是否让线条圆滑显示
+        smooth: true,
+        data: data.year[0]
+      },
+      {
+        name: "实际销售额",
+        type: "line",
+        stack: "总量",
+        smooth: true,
+        data: data.year[1]
+      }
+    ]
+  };
+  // 3. 把配置和数据给实例对象
+  myChart.setOption(option);
+  // 4. tab切换效果制作
+  // (2) 点击切换效果
+  $(".sales .caption").on("click", "a", function () {
+    // 此时要注意这个索引号的问题
+    index = $(this).index() - 1;
+    // 点击当前a 高亮显示 调用active
+    $(this).addClass("active").siblings("a").removeClass("active");
+    // 拿到当前a 的自定义属性值
+    // console.log(this.dataset.type);
+    // 根据拿到的值 去找数据
+    // console.log(data.year);
+    // console.log(data["year"]);
+    // console.log(data[this.dataset.type]);
+    var arr = data[this.dataset.type];
+    // console.log(arr);
+    // 根据拿到的数据重新渲染 series里面的data值
+    option.series[0].data = arr[0];
+    option.series[1].data = arr[1];
+    // 重新把配置好的新数据给实例对象
+    myChart.setOption(option);
+  });
+  // 5. tab栏自动切换效果
+  //  开启定时器每隔3s，自动让a触发点击事件即可
+  var as = $(".sales .caption a");
+  var index = 0;
+  var timer = setInterval(function () {
+    index++;
+    if (index >= 4) index = 0;
+    as.eq(index).click();
+  }, 1000);
+  // 鼠标经过sales，关闭定时器，离开开启定时器
+  $(".sales").hover(
+    function () {
+      clearInterval(timer);
+    },
+    function () {
+      clearInterval(timer);
+      timer = setInterval(function () {
+        index++;
+        if (index >= 4) index = 0;
+        as.eq(index).click();
+      }, 1000);
+    }
+  );
+  // 当我们浏览器缩放的时候，图表也等比例缩放
+  window.addEventListener("resize", function () {
+    // 让我们的图表调用 resize这个方法
+    myChart.resize();
+  });
+})();
+// 销售渠道模块 雷达图
+(function () {
+  // 1. 实例化对象
+  var myChart = echarts.init(document.querySelector(".radar"));
+  // 2.指定配置
+
+  var option = {
+    tooltip: {
+      show: true,
+      // 控制提示框组件的显示位置
+      position: ["60%", "10%"]
+    },
+    radar: {
+      indicator: [
+        { name: "机场", max: 100 },
+        { name: "商场", max: 100 },
+        { name: "火车站", max: 100 },
+        { name: "汽车站", max: 100 },
+        { name: "地铁", max: 100 }
+      ],
+      // 修改雷达图的大小
+      radius: "65%",
+      shape: "circle",
+      // 分割的圆圈个数
+      splitNumber: 4,
+      name: {
+        // 修饰雷达图文字的颜色
+        textStyle: {
+          color: "#4c9bfd"
+        }
+      },
+      // 分割的圆圈线条的样式
+      splitLine: {
+        lineStyle: {
+          color: "rgba(255,255,255, 0.5)"
+        }
+      },
+      splitArea: {
+        show: false
+      },
+      // 坐标轴的线修改为白色半透明
+      axisLine: {
+        lineStyle: {
+          color: "rgba(255, 255, 255, 0.5)"
+        }
+      }
+    },
+    series: [
+      {
+        name: "北京",
+        type: "radar",
+        // 填充区域的线条颜色
+        lineStyle: {
+          normal: {
+            color: "#fff",
+            width: 1,
+            opacity: 0.5
+          }
+        },
+        data: [[90, 19, 56, 11, 34]],
+        // 设置图形标记 （拐点）
+        symbol: "circle",
+        // 这个是设置小圆点大小
+        symbolSize: 5,
+        // 设置小圆点颜色
+        itemStyle: {
+          color: "#fff"
+        },
+        // 让小圆点显示数据
+        label: {
+          show: true,
+          fontSize: 10
+        },
+        // 修饰我们区域填充的背景颜色
+        areaStyle: {
+          color: "rgba(238, 197, 102, 0.6)"
+        }
+      }
+    ]
+  };
+  // 3.把配置和数据给对象
+  myChart.setOption(option);
+  // 当我们浏览器缩放的时候，图表也等比例缩放
+  window.addEventListener("resize", function () {
+    // 让我们的图表调用 resize这个方法
+    myChart.resize();
+  });
+})();
+// 销售模块 饼形图 半圆形 设置方式
+(function () {
+  // 1. 实例化对象
+  var myChart = echarts.init(document.querySelector(".gauge"));
+  // 2. 指定数据和配置
+  var option = {
+    series: [
+      {
+        name: "销售进度",
+        type: "pie",
+        radius: ["130%", "150%"],
+        // 移动下位置  套住50%文字
+        center: ["48%", "80%"],
+        //是否启用防止标签重叠策略
+        // avoidLabelOverlap: false,
+        labelLine: {
+          normal: {
+            show: false
+          }
+        },
+        // 饼形图的起始角度为 180， 注意不是旋转角度
+        startAngle: 180,
+        // 鼠标经过不需要放大偏移图形
+        hoverOffset: 0,
+        data: [
+          {
+            value: 100,
+            itemStyle: {
+              // 颜色渐变#00c9e0->#005fc1
+              color: new echarts.graphic.LinearGradient(
+                // (x1,y2) 点到点 (x2,y2) 之间进行渐变
+                0,
+                0,
+                0,
+                1,
+                [
+                  { offset: 0, color: "#00c9e0" }, // 0 起始颜色
+                  { offset: 1, color: "#005fc1" } // 1 结束颜色
+                ]
+              )
+            }
+          },
+          {
+            value: 100,
+            itemStyle: {
+              color: "#12274d"
+            }
+          },
+          {
+            value: 200,
+            itemStyle: {
+              color: "transparent"
+            }
+          }
+        ]
+      }
+    ]
+  };
+  // 3. 把数据和配置给实例对象
+  myChart.setOption(option);
+  // 当我们浏览器缩放的时候，图表也等比例缩放
+  window.addEventListener("resize", function () {
+    // 让我们的图表调用 resize这个方法
+    myChart.resize();
+  });
+})();
+// 全国热榜模块
+(function () {
+  // 1. 准备相关数据
+  var hotData = [
+    {
+      city: "北京", // 城市
+      sales: "25, 179", // 销售额
+      flag: true, //  上升还是下降
+      brands: [
+        //  品牌种类数据
+        { name: "可爱多", num: "9,086", flag: true },
+        { name: "娃哈哈", num: "8,341", flag: true },
+        { name: "喜之郎", num: "7,407", flag: false },
+        { name: "八喜", num: "6,080", flag: false },
+        { name: "小洋人", num: "6,724", flag: false },
+        { name: "好多鱼", num: "2,170", flag: true }
+      ]
+    },
+    {
+      city: "河北",
+      sales: "23,252",
+      flag: false,
+      brands: [
+        { name: "可爱多", num: "3,457", flag: false },
+        { name: "娃哈哈", num: "2,124", flag: true },
+        { name: "喜之郎", num: "8,907", flag: false },
+        { name: "八喜", num: "6,080", flag: true },
+        { name: "小洋人", num: "1,724", flag: false },
+        { name: "好多鱼", num: "1,170", flag: false }
+      ]
+    },
+    {
+      city: "上海",
+      sales: "20,760",
+      flag: true,
+      brands: [
+        { name: "可爱多", num: "2,345", flag: true },
+        { name: "娃哈哈", num: "7,109", flag: true },
+        { name: "喜之郎", num: "3,701", flag: false },
+        { name: "八喜", num: "6,080", flag: false },
+        { name: "小洋人", num: "2,724", flag: false },
+        { name: "好多鱼", num: "2,998", flag: true }
+      ]
+    },
+    {
+      city: "江苏",
+      sales: "23,252",
+      flag: false,
+      brands: [
+        { name: "可爱多", num: "2,156", flag: false },
+        { name: "娃哈哈", num: "2,456", flag: true },
+        { name: "喜之郎", num: "9,737", flag: true },
+        { name: "八喜", num: "2,080", flag: true },
+        { name: "小洋人", num: "8,724", flag: true },
+        { name: "好多鱼", num: "1,770", flag: false }
+      ]
+    },
+    {
+      city: "山东",
+      sales: "20,760",
+      flag: true,
+      brands: [
+        { name: "可爱多", num: "9,567", flag: true },
+        { name: "娃哈哈", num: "2,345", flag: false },
+        { name: "喜之郎", num: "9,037", flag: false },
+        { name: "八喜", num: "1,080", flag: true },
+        { name: "小洋人", num: "4,724", flag: false },
+        { name: "好多鱼", num: "9,999", flag: true }
+      ]
+    }
+  ];
+  //  2. 根据数据渲染各省热销 sup 模块内容
+  // (1) 遍历 hotData对象
+  var supHTML = "";
+  $.each(hotData, function (index, item) {
+    // console.log(item);
+    supHTML += `<li><span>${item.city}</span><span> ${item.sales} <s class=
+    ${item.flag ? "icon-up" : "icon-down"}></s></span></li>`;
+  });
+  // 把生成的5个小li字符串给 sub dom盒子
+  $(".sup").html(supHTML);
+  // 3. 当鼠标进入 tab 的时候
+  // 鼠标经过当前的小li要高亮显示
+  $(".province .sup").on("mouseenter", "li", function () {
+    index = $(this).index();
+    render($(this));
+  });
+
+  // 声明一个函数 里面设置sup当前小li高亮还有 对应的品牌对象渲染
+  // 这个函数需要传递当前元素进去
+  function render(currentEle) {
+    currentEle.addClass("active").siblings().removeClass();
+    // 拿到当前城市的品牌对象
+    // console.log($(this).index());
+    // 可以通过hotData[$(this).index()] 得到当前的城市
+    // console.log(hotData[$(this).index()]);
+    // 我们可以通过hotData[$(this).index()].brands 拿到的是城市对象的品牌种类
+    // console.log(hotData[$(this).index()].brands);
+    // 开始遍历品牌数组
+    var subHTML = "";
+    $.each(hotData[currentEle.index()].brands, function (index, item) {
+      // 是对应城市的每一个品牌对象
+      // console.log(item);
+      subHTML += `<li><span>${item.name}</span><span> ${item.num}<s class=
+    ${item.flag ? "icon-up" : "icon-down"}
+    ></s></span></li>`;
+    });
+    // 把生成的6个小li字符串给 sub dom盒子
+    $(".sub").html(subHTML);
+  }
+  // 4. 默认把第一个小li处于鼠标经过状态
+  var lis = $(".province .sup li");
+  lis.eq(0).mouseenter();
+  // 5 开启定时器
+  var index = 0;
+  var timer = setInterval(function () {
+    index++;
+    if (index >= 5) index = 0;
+    // lis.eq(index).mouseenter();
+    render(lis.eq(index));
+  }, 2000);
+
+  $(".province .sup").hover(
+    // 鼠标经过事件
+    function () {
+      clearInterval(timer);
+    },
+    // 鼠标离开事件
+    function () {
+      clearInterval(timer);
+      timer = setInterval(function () {
+        index++;
+        if (index >= 5) index = 0;
+        // lis.eq(index).mouseenter();
+        render(lis.eq(index));
+      }, 2000);
+    }
+  );
+})();
+```
+
+myMap.js
+
+```js
+(function () {
+  // 1. 实例化对象
+  var myChart = echarts.init(document.querySelector(".geo"));
+  // 2. 指定配置和数据,该数据记录的中国哪些地方有飞机场,以及经纬度值
+  var geoCoordMap = {
+    上海: [121.4648, 31.2891],
+    东莞: [113.8953, 22.901],
+    东营: [118.7073, 37.5513],
+    中山: [113.4229, 22.478],
+    临汾: [111.4783, 36.1615],
+    临沂: [118.3118, 35.2936],
+    丹东: [124.541, 40.4242],
+    丽水: [119.5642, 28.1854],
+    乌鲁木齐: [87.9236, 43.5883],
+    佛山: [112.8955, 23.1097],
+    保定: [115.0488, 39.0948],
+    兰州: [103.5901, 36.3043],
+    包头: [110.3467, 41.4899],
+    北京: [116.4551, 40.2539],
+    北海: [109.314, 21.6211],
+    南京: [118.8062, 31.9208],
+    南宁: [108.479, 23.1152],
+    南昌: [116.0046, 28.6633],
+    南通: [121.1023, 32.1625],
+    厦门: [118.1689, 24.6478],
+    台州: [121.1353, 28.6688],
+    合肥: [117.29, 32.0581],
+    呼和浩特: [111.4124, 40.4901],
+    咸阳: [108.4131, 34.8706],
+    哈尔滨: [127.9688, 45.368],
+    唐山: [118.4766, 39.6826],
+    嘉兴: [120.9155, 30.6354],
+    大同: [113.7854, 39.8035],
+    大连: [122.2229, 39.4409],
+    天津: [117.4219, 39.4189],
+    太原: [112.3352, 37.9413],
+    威海: [121.9482, 37.1393],
+    宁波: [121.5967, 29.6466],
+    宝鸡: [107.1826, 34.3433],
+    宿迁: [118.5535, 33.7775],
+    常州: [119.4543, 31.5582],
+    广州: [113.5107, 23.2196],
+    廊坊: [116.521, 39.0509],
+    延安: [109.1052, 36.4252],
+    张家口: [115.1477, 40.8527],
+    徐州: [117.5208, 34.3268],
+    德州: [116.6858, 37.2107],
+    惠州: [114.6204, 23.1647],
+    成都: [103.9526, 30.7617],
+    扬州: [119.4653, 32.8162],
+    承德: [117.5757, 41.4075],
+    拉萨: [91.1865, 30.1465],
+    无锡: [120.3442, 31.5527],
+    日照: [119.2786, 35.5023],
+    昆明: [102.9199, 25.4663],
+    杭州: [119.5313, 29.8773],
+    枣庄: [117.323, 34.8926],
+    柳州: [109.3799, 24.9774],
+    株洲: [113.5327, 27.0319],
+    武汉: [114.3896, 30.6628],
+    汕头: [117.1692, 23.3405],
+    江门: [112.6318, 22.1484],
+    沈阳: [123.1238, 42.1216],
+    沧州: [116.8286, 38.2104],
+    河源: [114.917, 23.9722],
+    泉州: [118.3228, 25.1147],
+    泰安: [117.0264, 36.0516],
+    泰州: [120.0586, 32.5525],
+    济南: [117.1582, 36.8701],
+    济宁: [116.8286, 35.3375],
+    海口: [110.3893, 19.8516],
+    淄博: [118.0371, 36.6064],
+    淮安: [118.927, 33.4039],
+    深圳: [114.5435, 22.5439],
+    清远: [112.9175, 24.3292],
+    温州: [120.498, 27.8119],
+    渭南: [109.7864, 35.0299],
+    湖州: [119.8608, 30.7782],
+    湘潭: [112.5439, 27.7075],
+    滨州: [117.8174, 37.4963],
+    潍坊: [119.0918, 36.524],
+    烟台: [120.7397, 37.5128],
+    玉溪: [101.9312, 23.8898],
+    珠海: [113.7305, 22.1155],
+    盐城: [120.2234, 33.5577],
+    盘锦: [121.9482, 41.0449],
+    石家庄: [114.4995, 38.1006],
+    福州: [119.4543, 25.9222],
+    秦皇岛: [119.2126, 40.0232],
+    绍兴: [120.564, 29.7565],
+    聊城: [115.9167, 36.4032],
+    肇庆: [112.1265, 23.5822],
+    舟山: [122.2559, 30.2234],
+    苏州: [120.6519, 31.3989],
+    莱芜: [117.6526, 36.2714],
+    菏泽: [115.6201, 35.2057],
+    营口: [122.4316, 40.4297],
+    葫芦岛: [120.1575, 40.578],
+    衡水: [115.8838, 37.7161],
+    衢州: [118.6853, 28.8666],
+    西宁: [101.4038, 36.8207],
+    西安: [109.1162, 34.2004],
+    贵阳: [106.6992, 26.7682],
+    连云港: [119.1248, 34.552],
+    邢台: [114.8071, 37.2821],
+    邯郸: [114.4775, 36.535],
+    郑州: [113.4668, 34.6234],
+    鄂尔多斯: [108.9734, 39.2487],
+    重庆: [107.7539, 30.1904],
+    金华: [120.0037, 29.1028],
+    铜川: [109.0393, 35.1947],
+    银川: [106.3586, 38.1775],
+    镇江: [119.4763, 31.9702],
+    长春: [125.8154, 44.2584],
+    长沙: [113.0823, 28.2568],
+    长治: [112.8625, 36.4746],
+    阳泉: [113.4778, 38.0951],
+    青岛: [120.4651, 36.3373],
+    韶关: [113.7964, 24.7028]
+  };
+
+  var XAData = [
+    [{ name: "西安" }, { name: "北京", value: 100 }],
+    [{ name: "西安" }, { name: "上海", value: 100 }],
+    [{ name: "西安" }, { name: "广州", value: 100 }],
+    [{ name: "西安" }, { name: "西宁", value: 100 }],
+    [{ name: "西安" }, { name: "拉萨", value: 100 }]
+  ];
+
+  var XNData = [
+    [{ name: "西宁" }, { name: "北京", value: 100 }],
+    [{ name: "西宁" }, { name: "上海", value: 100 }],
+    [{ name: "西宁" }, { name: "广州", value: 100 }],
+    [{ name: "西宁" }, { name: "西安", value: 100 }],
+    [{ name: "西宁" }, { name: "银川", value: 100 }]
+  ];
+
+  var YCData = [
+    // 前面是出发地址,后面是到达地址
+    [{ name: "拉萨" }, { name: "北京", value: 100 }],
+    [{ name: "拉萨" }, { name: "潍坊", value: 100 }],
+    [{ name: "拉萨" }, { name: "哈尔滨", value: 100 }]
+  ];
+
+  var planePath =
+    "path://M1705.06,1318.313v-89.254l-319.9-221.799l0.073-208.063c0.521-84.662-26.629-121.796-63.961-121.491c-37.332-0.305-64.482,36.829-63.961,121.491l0.073,208.063l-319.9,221.799v89.254l330.343-157.288l12.238,241.308l-134.449,92.931l0.531,42.034l175.125-42.917l175.125,42.917l0.531-42.034l-134.449-92.931l12.238-241.308L1705.06,1318.313z";
+  //var planePath = 'arrow';
+  var convertData = function (data) {
+    var res = [];
+    for (var i = 0; i < data.length; i++) {
+      var dataItem = data[i];
+
+      var fromCoord = geoCoordMap[dataItem[0].name];
+      var toCoord = geoCoordMap[dataItem[1].name];
+      if (fromCoord && toCoord) {
+        res.push({
+          fromName: dataItem[0].name,
+          toName: dataItem[1].name,
+          coords: [fromCoord, toCoord],
+          value: dataItem[1].value
+        });
+      }
+    }
+    return res;
+  };
+
+  var color = ["#a6c84c", "#ffa022", "#46bee9"]; //航线的颜色
+  var series = [];
+  [
+    ["西安", XAData],
+    ["西宁", XNData],
+    ["银川", YCData]
+  ].forEach(function (item, i) {
+    series.push(
+      {
+        name: item[0] + " Top3",
+        type: "lines",
+        zlevel: 1,
+        effect: {
+          show: true,
+          period: 6,
+          trailLength: 0.7,
+          color: "red", //arrow箭头的颜色
+          symbolSize: 3
+        },
+        lineStyle: {
+          normal: {
+            color: color[i],
+            width: 0,
+            curveness: 0.2
+          }
+        },
+        data: convertData(item[1])
+      },
+      {
+        name: item[0] + " Top3",
+        type: "lines",
+        zlevel: 2,
+        symbol: ["none", "arrow"],
+        symbolSize: 10,
+        effect: {
+          show: true,
+          period: 6,
+          trailLength: 0,
+          symbol: planePath,
+          symbolSize: 15
+        },
+        lineStyle: {
+          normal: {
+            color: color[i],
+            width: 1,
+            opacity: 0.6,
+            curveness: 0.2
+          }
+        },
+        data: convertData(item[1])
+      },
+      {
+        name: item[0] + " Top3",
+        type: "effectScatter",
+        coordinateSystem: "geo",
+        zlevel: 2,
+        rippleEffect: {
+          brushType: "stroke"
+        },
+        label: {
+          normal: {
+            show: true,
+            position: "right",
+            formatter: "{b}"
+          }
+        },
+        symbolSize: function (val) {
+          return val[2] / 8;
+        },
+        itemStyle: {
+          normal: {
+            color: color[i]
+          },
+          emphasis: {
+            areaColor: "#2B91B7"
+          }
+        },
+        data: item[1].map(function (dataItem) {
+          return {
+            name: dataItem[1].name,
+            value: geoCoordMap[dataItem[1].name].concat([dataItem[1].value])
+          };
+        })
+      }
+    );
+  });
+  var option = {
+    //去掉背景颜色
+    // backgroundColor: "#000",
+    tooltip: {
+      trigger: "item",
+      formatter: function (params, ticket, callback) {
+        if (params.seriesType == "effectScatter") {
+          return "线路：" + params.data.name + "" + params.data.value[2];
+        } else if (params.seriesType == "lines") {
+          return (
+            params.data.fromName +
+            ">" +
+            params.data.toName +
+            "<br />" +
+            params.data.value
+          );
+        } else {
+          return params.name;
+        }
+      }
+    },
+
+    geo: {
+      map: "china",
+      label: {
+        emphasis: {
+          show: true,
+          color: "#fff"
+        }
+      },
+      roam: true,
+      // 放大我们的地图
+      zoom: 1.2,
+      itemStyle: {
+        normal: {
+          // 修改地图区域的颜色
+          areaColor: "#142957",
+          borderColor: "#195BB9",
+          borderWidth: 1
+        },
+        emphasis: {
+          areaColor: "#2B91B7"
+        }
+      }
+    },
+    series: series
+  };
+  // 3. 把数据和配置给实例对象
+  myChart.setOption(option);
+
+  window.addEventListener("resize", function () {
+    myChart.resize();
+  });
+})();
+```
+
+icomoon.css
+
+```css
+@font-face {
+  font-family: 'icomoon';
+  src:  url('icomoon.eot');
+  src:  url('icomoon.eot#iefix') format('embedded-opentype'),
+    url('icomoon.ttf') format('truetype'),
+    url('icomoon.woff') format('woff'),
+    url('icomoon.svg#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-dot:before {
+  content: "\e900";
+}
+.icon-cup1:before {
+  content: "\e901";
+}
+.icon-cup2:before {
+  content: "\e902";
+}
+.icon-cup3:before {
+  content: "\e903";
+}
+.icon-clock:before {
+  content: "\e904";
+}
+.icon-down:before {
+  content: "\e905";
+}
+.icon-cube:before {
+  content: "\e906";
+}
+.icon-plane:before {
+  content: "\e907";
+}
+.icon-train:before {
+  content: "\e908";
+}
+.icon-bus:before {
+  content: "\e909";
+}
+.icon-bag:before {
+  content: "\e90a";
+}
+.icon-up:before {
+  content: "\e90b";
+}
+```
+
+
+
+ECharts总结：
+
+1. ECharts配置无需背诵，需要时根据官方文档查阅即可；
+2. 使用各种图表可以从**Echarts使用的笔记文档**中查询；
+3. 基本配置熟悉后，可以尝试其他配置；
+4. 可以使用**百度**搜索图表配置，这样会更高效。
