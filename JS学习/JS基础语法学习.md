@@ -402,7 +402,7 @@ console.log(false + 1); //1
 
 ##### 2.4.2.4 undefined与null
 
-一个变量被声明时默认值为undefined。`undefined`表示数值为空。
+一个变量被声明时默认值为undefined。**表示变量只被声明未被赋值**。`undefined`类型只有唯一值，它的值就是undefined。它的类型是"undefined"。
 
 ```js
 var age;
@@ -413,7 +413,9 @@ console.log(a + 1); //NAN
 console.log(a + true); //NAN
 ```
 
-`null`是空值或空对象。一般用于赋值对象为空。也就是变量本打算存储对象，但暂时没想好因此用null先代替。
+`null`是**空值或空对象**。一般用于赋值对象为空。null也是**唯一值null**,它的类型是`object`。
+
+**程序开始时变量赋值为null**，其意思就是变量本打算存储对象，但暂时没想好存什么因此用null先代替。**程序结束时变量再赋值为null**，其意思是变量不使用了，使用null切断其与内存的联系，让其成为垃圾对象**方便程序快速回收**。
 
 ```js
 var space = null;
@@ -422,9 +424,63 @@ console.log(space + 1); //1
 console.log(space + true); //1
 ```
 
-##### 2.4.2.5 数据类型检测 typeof
+区分undefined与null:
 
-js中有专门的**运算符**用于帮助我们判断数据类型，它就是`typeof`。
+1. undefined表示只声明为赋值的变量。null表示声明后赋值为null的变量。
+2. undefined主要用于定义为赋值的变量，null主要用于初始赋值空对象，或者清空对象。
+3. undefined类型是undefined，null类型的Object。
+
+```js
+//null
+console.log(null, typeof null); //null 'object'
+console.log(undefined, typeof undefined); // undefined 'undefined'
+
+//判断undefined类型
+console.log(undefined === undefined); //true
+console.log(typeof undefined === "undefined"); //true
+console.log(typeof undefined === undefined); //false
+
+//判断null类型
+console.log(null === null); //true
+console.log(typeof null === "object"); //true
+```
+
+
+
+##### 2.4.2.5 引用数据类型 Object(重要) 
+
+引用数据类型又叫**复合/合成数据类型**，其往往是由多个原始数据类型组合而成的**对象（object）**。**引用数据类型就是对象类型**。
+
+为什么叫引用数据类型，是因为对象使用`=`进行变量赋值时，变量保存的都是**存储数据的地址值**，该值又叫引用值。
+
+```js
+// {}包裹对象，赋值用冒号，每个原始数据用逗号分隔开
+var user = {
+    name: "张三",
+    age: 10,
+    learned: true,
+    //可嵌套
+    add: {
+          name2: "gg"
+    },
+    //数组
+    array: [1, 2, 3]
+};
+//打印属性
+console.log(user.name);//张三
+console.log(user.add.name2);//gg
+console.log(user.array[1]);//2
+```
+
+在js中，**所有引用数据类型都是对象类型**：
+
+1. 对象是对象类型;
+2. **函数**也是一种特殊的对象类型，它可以使用`()`进行调用的对象，构造函数可以创建对象;
+3. **数组**也是一种特殊的对象类型，它是**属性名为索引号**，属性值是有序的对象。
+
+##### 2.4.2.6 数据类型检测 typeof  instanceof
+
+js中有专门的**运算符**用于帮助我们判断数据类型，它就是`typeof`。注意typeof返回的值是**字符串**。
 
 ```js
 var age = 10;
@@ -457,27 +513,50 @@ console.log(typeof ss); //string
 >
 > 布尔字面量：true,false
 
-* 未写**引用数据类型**，又叫复合/合成数据类型，其往往是由多个原始数据类型组合而成的**对象（object）**。
-  ```js
-  // {}包裹对象，赋值用冒号，每个原始数据用逗号分隔开
-  var user = {
-      name: "张三",
-      age: 10,
-      learned: true,
-      //可嵌套
-      add: {
-            name2: "gg"
-      },
-      //数组
-      array: [1, 2, 3]
-  };
-  //打印属性
-  console.log(user.name);//张三
-  console.log(user.add.name2);//gg
-  console.log(user.array[1]);//2
-  ```
+typeof只能检测简单数据类型，如果是对象类型，则需要使用`instanceof`进行检测。instanceof单词的意思是**是不是什么对象的实例**。`a instanceof b `就是a是不是b的实例。instanceof是用于**检测对象的具体类型**。
 
-##### 2.4.2.6 数据类型转换
+```js
+//undefined 可以使用typeof 和 === 判断
+var a;
+console.log(a, typeof a === "undefined"); //undefined true
+console.log(a === undefined); //true
+//number类型
+a = 3;
+console.log(a, typeof a === "number"); //3 true
+console.log(a === "number", a === 3); //false true
+//string类型
+a = "ss";
+console.log(a, typeof a === "string"); //ss true
+console.log(a === "string", a === "ss"); //false true
+//boolean类型
+a = false;
+console.log(a, typeof a === "boolean"); //false true
+console.log(a === "boolean", a === false); //false true
+//null类型
+a = null;
+console.log(a, typeof a === "null"); //null false
+console.log(a === null); //true
+
+console.log("---------------------");
+//对象类型
+var b1 = {
+  b2: [1, "abc", console.log],
+  b3: function () {
+    console.log("b3");
+  }
+};
+
+console.log(b1 instanceof Object, b1 instanceof Array); //true false
+console.log(b1.b2 instanceof Array, b1.b2 instanceof Object); //true true
+console.log(b1.b3 instanceof Function, b1.b3 instanceof Object); //true true
+//判断函数
+console.log(typeof b1.b3 === "function"); //true
+
+var b = "aa";
+console.log(b instanceof String); //false 简单类型不是对象类型
+```
+
+##### 2.4.2.7 数据类型转换
 
 数据类型转换就是把一种数据类型的变量转换成另外一种数据类型。
 
@@ -544,8 +623,6 @@ console.log(Boolean("aa")); //true
 console.log(Boolean(12)); //true
 console.log(Boolean(" ")); //空格也为true
 ```
-
-
 
 ### 2.5 运算符
 
@@ -1346,8 +1423,67 @@ console.log(arr);//[1, 2, 3, 4, 5, 6]
 var arr = ["zhan", "jjs", "adk", "Frank"];
 
 for (var i in arr) {
-  console.log(arr[i]);
+  console.log(arr[i]); //zhan jjs adk Frank
 }
+```
+
+#### 2.8.3 forEach与map
+
+`forEach`方法是用于调用数组的每个元素，并将元素传递给回调函数的。主要用于**遍历数组每个元素**，它不返回值。
+
+forEach适合遍历数组对象，数组内部越复杂，forEach作用越大，普通是数组用for也能做。
+
+```js
+//1.遍历普通数组
+const arr = ["red", "green", "pink"];
+//回调函数中当前元素item是必写的，index可不写。名字不一定非要写item或index
+const result = arr.forEach(function (item, index) {
+  console.log(`当前数组元素是：${item}`);
+  console.log(`当前数组元素的索引是：${index}`);
+});
+console.log(result); //undefined
+
+//2.遍历数组对象
+const arr2 = [
+  { uname: "asa", age: 27 },
+  { uname: "ddd", age: 22 },
+  { uname: "寒冷", age: 12 }
+];
+arr2.forEach(function (item) {
+  console.log(`名字：${item.uname}`);
+  console.log(`年龄：${item.age}`);
+});
+```
+
+`map`方法可以遍历数组，遍历的同时还可处理数据，并且它会**返回新的数组**。map的写法与forEach非常类似，使用跟forEach一样。
+
+map又称为**映射**。是指两个元素的集之间元素相互对应的关系。**map重点在于又返回值，forEach没有返回值。**
+
+```js
+//1.遍历普通数组
+const arr = ["red", "green", "pink"];
+//回调函数中当前元素ele是必写的，index可不写。名字不一定非要写ele或index
+const result = arr.map(function (ele, index) {
+  console.log(`当前数组元素是：${ele}`);
+  console.log(`当前数组元素的索引是：${index}`);
+  return ele + "颜色";
+});
+//返回结果为新数组
+console.log(result); //['red颜色', 'green颜色', 'pink颜色']
+
+//2.遍历数组对象
+const arr2 = [
+  { uname: "asa", age: 27 },
+  { uname: "ddd", age: 22 },
+  { uname: "寒冷", age: 12 }
+];
+const result2 = arr2.map(function (item, index) {
+  console.log(`名字：${item.uname}`);
+  console.log(`年龄：${item.age}`);
+  item.uname = "张三" + index;
+  return item;
+});
+console.log(result2); //[{uname: "张三0", age: 27}, {uname: "张三1", age: 22}, {uname: "张三2", age: 12}]
 ```
 
 ### 2.9 函数
@@ -1644,12 +1780,15 @@ fn(); //需要调用才能执行
 
 **作用域**指的是限定代码名称(例如变量名)**可用性的代码范围**。作用域作用是可以提高程序逻辑的局部性，增强程序的可靠性，**减少命名冲突**。
 
+通俗来讲：**作用域就是函数代码的有效范围**。局部作用域就是代码在局部有效。
+
 **命名冲突**指的是在同一作用域下命名**同名的变量或函数**就会发生冲突，后面的会覆盖前面的命名。
 
-JS中作用域**在ES6之前**主要有两种：
+JS中作用域有三种(两个ES6之前的)：
 
 + **全局作用域**：Html中的**整个script标签范围**或者是**一个单独的js文件**。
 + **局部作用域（函数作用域）**：在函数内部就是局部作用域，该名称只在函数内部起效果和作用。
++ **块级作用域**：js在ES6后新增了**块级作用域**的。所谓块级作用域，就是`{}`包含的代码就是块级作用域。块级作用域包含if，for循环等。
 
 ```js
 //全局作用域
@@ -1664,19 +1803,13 @@ function fn() {
 fn();
 //局部作用域的变量不生效
 console.log(num); //100
-```
 
-> **注意：**
->
-> js在ES6后会新增**块级作用域**的。所谓块级作用域，就是{}包含的代码就是块级作用域。例如在java中：
->
-> if(x){ 
->
->   int num = 10;//该num变量就是在块级作用域定义的，外面是不能使用的
->
-> }
->
-> print(num); //会报错，num是块级作用域内部的
+//块级作用域 var没有块级作用域
+if(x){ 
+  let num1 = 10;//该num变量就是在块级作用域定义的，外面是不能使用的
+}
+console.log(num1); //会报错，num是块级作用域内部的
+```
 
 #### 2.10.2 变量的作用域
 
@@ -1708,13 +1841,16 @@ console.log(num2); //30
 console.log(aru); //报错，局部变量没声明
 ```
 
-从执行效率上看，全局变量只有在浏览器关闭时才会销毁，比较占内存。反之局部变量则是**当其所在的代码被执行时才初始化，代码执行完成后就会被销毁**，因此更节省内存空间。
+从执行效率上看，**全局变量只有在浏览器关闭时才会销毁**，比较占内存。反之局部变量则是**当其所在的代码被执行时才初始化，代码执行完成后就会被销毁**，因此更节省内存空间。
 
 #### 2.10.3 作用域链
 
 我们知道只要是代码就有其作用域。函数内部就是局部作用域。如果**函数中嵌套函数**，那么在该局部作用域中会有新的局部作用域，又根据内部函数能够访问外部函数变量的原则，**用链式查找决定哪些数据能被内部函数访问**就被称为**作用域链**。
 
-简单来说，就是**内部函数访问外部数据**，采用**就近原则**一层层往外查找。
+简单来说，就是**内部函数访问外部数据**，子作用域可以访问父级作用域，反之不行。采用**就近原则**一层层往外查找。查找规则为(类似冒泡)：
+
+1. 会优先在当前函数作用域中查找变量；
+2. 查找不到就去上一级的函数作用域中查找，这样依次逐层往外查找，直到查找到全局作用域中的全局变量；
 
 ```js
 var num = 10;
@@ -1748,8 +1884,174 @@ function fn1() {
     }
   }
 }
-fn1();
+fn1(); //最终打印a是4 b是22
 ```
+
+#### 2.10.4 垃圾回收机制
+
+垃圾回收机制(Garbage Collection)简称GC。
+
+JS中内存的分配和回收都是**自动完成**的，内存在不使用的时候就会被**垃圾回收器**自动回收。
+
+JS中内存的生命周期：
+
+1. 内存分配：当我们**声明变量、函数、对象的时候**，系统会自动为它们分配内存空间；
+2. 内存使用：读写内存，就是**使用变量、函数的时候**；
+3. 内存回收：使用完毕，由**垃圾回收器自动回收**不再使用的内存。
+
+全局变量一般不会回收(关闭页面时才回收)，一般情况下**局部变量的值**，不使用了就会被自动回收。
+
+程序中分配的内存由于某种原因**未释放**或**无法释放**就叫做**内存泄漏**。
+
+#### 2.10.5 垃圾回收机制算法
+
+堆栈空间分配区别：
+
+1. **栈**:由操作系统自动分配释放函数的参数值、局部变量等，**基本数据类型放到栈里面**；
+2. **堆**:一般由程序员分配释放，若程序员不释放，由垃圾回收机制回收。**引用数据类型的值放到堆里面**。
+
+常见的浏览器垃圾回收算法：**引用计数法**和**标记清除法**。
+
+IE浏览器采用的引用计数法：定义"内存不再使用"，就是**看一个对象是否有指向它的引用**，没有引用就回收对象。
+
+**引用计数法**算法步骤：
+
+1. 跟踪记录**被引用的次数**；
+2. 如果被引用了一次，那么就记录次数为1，多次引用会累加；
+3. 如果减少一个引用就减一，多次减少就累减；
+4. 如果引用次数为0，就释放内存。
+
+```js
+const arr = [1, 2, 3, 4]; //数组会先在堆里面开辟空间，存储数据，然后再在栈中开辟空间，存放堆中数据的地址。
+arr = null; //数组栈中的地址变为null，这样数组堆中空间地址没有被引用了，就会被释放
+
+let person = {
+  age: 18,
+  name: "pink"
+};
+let p = person; //这时对象数据有两个引用，引用次数为2
+person = 1; //引用次数减一
+p = null; //引用次数再次减一，就没有引用了，会被释放
+```
+
+引用计数算法是个简单有效的算法。但它存在一个致命问题，**嵌套引用(循环引用)**，它是指如果**两个对象相互引用**，尽管他们已不再使用，垃圾回收器也不会进行回收，这样会导致内存泄漏。
+
+```js
+function fn() {
+  let o1 = {};
+  let o2 = {};
+  //循环引用
+  o1.a = o2; //o1中有o2的引用
+  o2.a = o1; //o2中有o1的引用
+  return "引用计数无法回收";
+}
+
+fn();
+```
+
+循环引用的次数永远不会是0。因为是相互持有，一方存在就有另一方的引用，跟外部的引用无关了。这样的相互引用如果大量存在就会导致大量内存泄漏。
+
+现在大部分浏览器都是用**基于标记清除法**的某些改进算法，但总体思想跟标记清除法一致。其核心：
+
+1. 标记清除法是**将'不再使用的对象'定义为'无法达到的对象'**；
+2. 从根部(js全局对象)出发定时扫描内存中的对象，凡是能从根部到达的对象，就是还需要使用的；
+3. 那些无法从根部出发能触及到的对象就被标记为不再使用，稍后进行回收。
+
+**标记清除法**就可以解决循环引用的问题，因为不管三者如何引用，只要无法从根部找到，就说明它们是无用的直接回收。
+
+```js
+//因为函数内部是局部作用域，是无法从根部进入的，因此只要函数执行完成就会被回收，不管内部是否有循环引用
+function fn() {
+  let o1 = {};
+  let o2 = {};
+  //循环引用
+  o1.a = o2; //o1中有o2的引用
+  o2.a = o1; //o2中有o1的引用
+  return "标记清除法回收";
+}
+
+fn();
+```
+
+#### 2.10.6 闭包
+
+**闭包**是指一个函数对周围状态的引用捆绑在一起，内层函数中能访问到其外层函数的作用域。简单来说：**闭包=内层函数+外层函数的变量**。
+
+```js
+//最简单的闭包
+function outer() {
+  const a = 1;
+  function fn() {
+    //函数套函数是不会产生闭包的，只有内层函数使用了外层函数的变量时，才会产生闭包
+    console.log(a);
+  }
+  fn();
+}
+
+outer();
+```
+
+![image-20260908221224251](./assets/image-20260908221224251.png)
+
+闭包的作用：封闭数据，提供操作，**外部也可以访问函数内部的变量**。
+
+闭包的基本格式：
+
+```js
+//最简单的闭包
+function outer() {
+  let i = 10;
+  function fn() {
+    //函数套函数是不会产生闭包的，只有内层函数使用了外层函数的变量时，才会产生闭包
+    console.log(i);
+  }
+  return fn;
+}
+const fun = outer();
+
+//外层函数使用内部函数的变量
+fun(); //10
+```
+
+闭包的应用，实现数据的私有,实现一个统计函数调用次数的方法
+
+```js
+//i放在外部容易被篡改，从而无法正确统计
+let i = 0;
+
+//统计函数被调用的次数
+function fn() {
+  i++;
+  console.log(i);
+}
+
+fn(); //1
+fn(); //2
+i=1000;
+fn(); //1001次
+```
+
+使用闭包优化：
+
+```js
+//统计函数被调用的次数
+function count() {
+  let i = 0;
+  function fn() {
+    i++;
+    console.log(i);
+  }
+  return fn;
+}
+
+const fun = count();
+fun(); //1
+fun(); //2
+i = 1000; //无法修改局部变量
+fun(); //3
+```
+
+闭包是有内存泄漏的风险，因为它内部的变量是可以通过全局变量访问到的，因此不会被回收。
 
 ### 2.11 预解析
 
@@ -1760,7 +2062,7 @@ JS代码是由浏览器中的JavaScript解析器(js引擎)来执行的。JavaScr
 
 预解析分为变量提升和函数提升：
 
-+ **变量提升**就是把所有的变量声明提升到当前作用域最前面，只提升变量声明不提升赋值。
++ **变量提升**就是把所有的变量声明提升到**当前作用域最前面**，只提升变量声明不提升赋值。
 
   ```js
   console.log(a); //undefined
@@ -1802,6 +2104,22 @@ JS代码是由浏览器中的JavaScript解析器(js引擎)来执行的。JavaScr
     console.log(22);
   }
   fun(); //不会报错
+  ```
+  
+  函数表达式不能提升
+  
+  ```js
+  fun(); //会报错 fun is not a function
+  var fun = function () {
+    console.log("函数表达式");
+  };
+  
+  //相当于下面的写法
+  var fun;
+  fun();
+  fun = function(){
+      console.log("函数表达式");
+  }
   ```
 
 预解析案例
