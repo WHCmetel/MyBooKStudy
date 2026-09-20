@@ -1486,6 +1486,347 @@ const result2 = arr2.map(function (item, index) {
 console.log(result2); //[{uname: "张三0", age: 27}, {uname: "张三1", age: 22}, {uname: "张三2", age: 12}]
 ```
 
+**实际案例：渲染赠品**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div></div>
+    <script>
+      const gifts = "50g的茶叶,清洁球";
+      //拆分字符串为数组，根据数组元素个数生成对应的span标签
+      const str = gifts
+        .split(",")
+        .map(function (item) {
+          return `<span>[赠品] ${item} </span> <br>`;
+        })
+        .join("");
+      //箭头函数简写形式
+      //const str = gifts.split(",").map((item) => `<span>[赠品] ${item} </span> <br>`).join("");
+      document.querySelector("div").innerHTML = str;
+    </script>
+  </body>
+</html>
+```
+
+**实际综合案例：购物车案例**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .list {
+        width: 990px;
+        margin: 100px auto 0;
+      }
+
+      .item {
+        padding: 15px;
+        transition: all 0.5s;
+        display: flex;
+        border-top: 1px solid #e4e4e4;
+      }
+
+      .item:nth-child(4n) {
+        margin-left: 0;
+      }
+
+      .item:hover {
+        cursor: pointer;
+        background-color: #f5f5f5;
+      }
+
+      .item img {
+        width: 80px;
+        height: 80px;
+        margin-right: 10px;
+      }
+
+      .item .name {
+        font-size: 18px;
+        margin-right: 10px;
+        color: #333;
+        flex: 2;
+      }
+
+      .item .name .tag {
+        display: block;
+        padding: 2px;
+        font-size: 12px;
+        color: #999;
+      }
+
+      .item .price,
+      .item .sub-total {
+        font-size: 18px;
+        color: firebrick;
+        flex: 1;
+      }
+
+      .item .price::before,
+      .item .sub-total::before,
+      .amount::before {
+        content: "¥";
+        font-size: 12px;
+      }
+
+      .item .spec {
+        flex: 2;
+        color: #888;
+        font-size: 14px;
+      }
+
+      .item .count {
+        flex: 1;
+        color: #aaa;
+      }
+
+      .total {
+        width: 990px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: flex-end;
+        border-top: 1px solid #e4e4e4;
+        padding: 20px;
+      }
+
+      .total .amount {
+        font-size: 18px;
+        color: firebrick;
+        font-weight: bold;
+        margin-right: 50px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="list">
+      <!-- div的样式结构 -->
+      <!-- <div class="item">
+      <img src="https://yanxuan-item.nosdn.127.net/84a59ff9c58a77032564e61f716846d6.jpg" alt="">
+      <p class="name">称心如意手摇咖啡磨豆机咖啡豆研磨机 <span class="tag">【赠品】10优惠券</span></p>
+      <p class="spec">白色/10寸</p>
+      <p class="price">289.90</p>
+      <p class="count">x2</p>
+      <p class="sub-total">579.80</p>
+    </div> -->
+    </div>
+    <div class="total">
+      <div>合计：<span class="amount">1000.00</span></div>
+    </div>
+    <script>
+      // 后台数据
+      const goodsList = [
+        {
+          id: "4001172",
+          name: "称心如意手摇咖啡磨豆机咖啡豆研磨机",
+          price: 289.9,
+          picture:
+            "https://yanxuan-item.nosdn.127.net/84a59ff9c58a77032564e61f716846d6.jpg",
+          count: 2,
+          spec: { color: "白色" }
+        },
+        {
+          id: "4001009",
+          name: "竹制干泡茶盘正方形沥水茶台品茶盘",
+          price: 109.8,
+          picture:
+            "https://yanxuan-item.nosdn.127.net/2d942d6bc94f1e230763e1a5a3b379e1.png",
+          count: 3,
+          spec: { size: "40cm*40cm", color: "黑色" }
+        },
+        {
+          id: "4001874",
+          name: "古法温酒汝瓷酒具套装白酒杯莲花温酒器",
+          price: 488,
+          picture:
+            "https://yanxuan-item.nosdn.127.net/44e51622800e4fceb6bee8e616da85fd.png",
+          count: 1,
+          spec: { color: "青色", sum: "一大四小" }
+        },
+        {
+          id: "4001649",
+          name: "大师监制龙泉青瓷茶叶罐",
+          price: 139,
+          picture:
+            "https://yanxuan-item.nosdn.127.net/4356c9fc150753775fe56b465314f1eb.png",
+          count: 1,
+          spec: { size: "小号", color: "紫色" },
+          gift: "50g茶叶,清洗球,宝马, 奔驰"
+        }
+      ];
+
+      // 1. 根据数据渲染页面
+      document.querySelector(".list").innerHTML = goodsList.map((item) => {
+          // 对象解构  item.price item.count
+          const { picture, name, count, price, spec, gift } = item;
+          // 1.1 规格文字模块处理
+          const text = Object.values(spec).join("/");
+          // 1.3 计算小计模块 单价 * 数量  保留两位小数
+          // 注意精度问题，因为保留两位小数，所以乘以 100  最后除以100
+          const subTotal = ((price * 100 * count) / 100).toFixed(2);
+          // 1.2 处理赠品模块 '50g茶叶,清洗球'
+          const str = gift? gift.split(",").map((item) => `<span class="tag">【赠品】${item}</span> `).join(""): "";
+        //返回div结构，使用模板字符串一定要注意空格，不能多也不能少，否则页面渲染会出错，最好就是直接复制写好的html内容
+          return `
+        <div class="item">
+          <img src=${picture} alt="">
+          <p class="name">${name} ${str} </p>
+          <p class="spec">${text} </p>
+          <p class="price">${price.toFixed(2)}</p>
+          <p class="count">x${count}</p>
+          <p class="sub-total">${subTotal}</p>
+        </div>
+      `;
+        }).join("");
+
+      // 3. 合计模块
+      const total = goodsList.reduce((prev, item) => prev + (item.price * 100 * item.count) / 100,0);
+      document.querySelector(".amount").innerHTML = total.toFixed(2);
+    </script>
+  </body>
+</html>
+```
+
+#### 2.8.4 filter与reduce
+
+数组中的`filter()`方法用于**创建一个新数组**，这个新数组包含通过所提供函数测试的所有元素。如果没有元素通过测试，则返回一个空数组。
+
+也就是对数组元素进行过滤。
+
+`filter()`方法不会改变原始数组，它返回一个新数组，其中包含符合条件的元素。例如，从数组中删除所有偶数，只保留奇数。
+
+`filter()`方法接收的回调函数可以有多个参数。通常我们**只使用第一个参数**，表示数组的某个元素。回调函数还可以接收另外两个参数，表示**元素的位置和数组本身**。
+
+利用`filter()`可以巧妙地**去除数组的重复元素**。去除重复元素依靠的是`indexOf`总是返回第一个元素的位置，后续的重复元素位置与 `indexOf`返回的位置不相等，因此被filter滤掉了。
+
+```js
+//1.数组奇数过滤
+var arr = [1, 2, 4, 5, 6, 9, 10, 15];
+var r = arr.filter(function (x) {
+  //x是数组元素，return的是过滤条件 奇数
+  return x % 2 !== 0;
+});
+console.log(r); // 输出: [1, 5, 9, 15]
+
+//2.过滤非空字符
+var arr = ["A", "", "B", null, undefined, "C", " "];
+var r = arr.filter(function (s) {
+  return s && s.trim(); // 注意：IE9以下的版本没有trim()方法
+});
+console.log(r); // 输出: ['A', 'B', 'C']
+
+//3.数组去重
+var arr = [
+  "apple",
+  "strawberry",
+  "banana",
+  "pear",
+  "apple",
+  "orange",
+  "orange",
+  "strawberry"
+];
+var r = arr.filter(function (element, index, self) {
+  return self.indexOf(element) === index;
+});
+console.log(r.toString()); // 输出: apple,strawberry,banana,pear,orange
+```
+
+数组的`reduce()`方法主要对数组中的每个元素按序执行一个提供的`reducer`函数，每一次运行`reducer`会将先前元素的计算结果作为参数传入，**最后将其结果汇总为单个返回值**。
+
+`reduce`方法就是一个累计器，返回累计的处理结果，经常用于数组求和。
+
+reduce的执行过程：
+
+1. 如果**没有起始值**，则上一次值就是数组的第一个数组元素的值；
+2. 每一次循环，把返回值作为下一次循环的上一次值；
+3. 如果**有起始值**，则以起始值作为上一次值。
+
+```js
+const arr = [1, 5, 8];
+//reduce函数的参数分为两种情况,第一个参数为回调函数，有两个参数，分别是上一次值prev和当前值current
+//1.没有初始值的情况
+const total = arr.reduce(function (prev, current) {
+  return prev + current;
+});
+console.log(total); //14
+//模拟执行流程
+//上一次值 当前值 返回值
+//  1       5       6    (第一次循环)
+//  6       8       14   (第二次循环) 遍历数组结束
+
+//2.有初始值的情况
+const total2 = arr.reduce(function (prev, current) {
+  return prev + current;
+}, 10);
+console.log(total2); //24
+//模拟执行流程
+//上一次值 当前值 返回值
+//  10      1       11    (第一次循环)
+//  11      5       16    (第二次循环)
+//  16      8       24    (第三次循环) 遍历数组结束
+
+//3.箭头函数的写法
+// 10 + 1 + 5 + 8
+const initialValue = 10;
+const sumWithInitial = arr.reduce(
+  (accumulator, currentValue) => accumulator + currentValue,
+  initialValue
+);
+console.log(sumWithInitial); // 24
+```
+
+案例：计算薪资
+
+```js
+const arr = [
+  {
+    name: "aaa",
+    salary: 10000
+  },
+  {
+    name: "张三",
+    salary: 10000
+  },
+  {
+    name: "李四",
+    salary: 10000
+  }
+];
+
+//遇到的是对象数组，则第二个参数要设置为0，否则prev开始是一个对象无法进行累加
+const total = arr.reduce((prev, current) => {
+  return prev + current.salary;
+}, 0);
+
+console.log(total); //30000
+
+//涨薪水30%,计算当月累加总支出
+const total2 = arr.reduce((prev, current) => {
+  return prev + current.salary * 1.3;
+}, 0);
+
+console.log(total2); //39000
+```
+
 ### 2.9 函数
 
 **函数**就是封装一段可以被反复调用执行的**代码块**。通过此代码块可以实现大量**代码的复用**。
@@ -2300,6 +2641,8 @@ obj.sayHi();
 
 构造函数中封装的不是普通代码，而是对象中抽取出来的属性与方法。因此它是一种特殊的函数，主要就是**用于初始化对象**。它总是和`new运算符`一起使用。它的本质很**java中的类**很像。
 
+构造函数两个使用约定：1.函数名**首字母大写**，2.调用函数前要加`new`表示实例化。
+
 ```js
 //构造函数名的首字母必须大写
 function Star(uname, age, sex) {
@@ -2330,16 +2673,69 @@ zxy.sing("hhh");
 **构造函数与创建对象的关系**：
 
 + 构造函数，抽取的对象的公共部分，封装到函数里，它泛指某一大类对象（class）。例如Star()；
-+ 创建对象，特指某一个对象，通过new关键字创建对象的过程我们称为对象实例化。例如new Star();
++ 创建对象，特指某一个对象，通过new关键字创建对象的过程我们称为**对象实例化**。例如new Star();
 
 **new关键字的执行过程**：
 
 1. 构造函数遇到new后，首先会在内存中创建一个空对象；
 2. this关键字都会指向该空对象；
 3. 执行构造函数中的代码，给空对象添加属性与方法；
-4. 返回这个对象(所有不需要return)。
+4. 返回这个对象(代码中不需要写return)。
 
-#### 2.12.4 遍历对象
+#### 2.12.4 实例成员与静态成员
+
+通过构造函数创建的对象就称为实例对象，**实例对象**中的属性和方法就被称为**实例成员(实例属性和实例方法)**。
+
++ 不同的实例对象虽然创建结构类似，但它们是不同的对象，实例对象间是彼此独立互不影响的。
++ 实例成员只对当前实例对象使用，与其他实例对象无关。
+
+**构造函数**的属性和方法被称为**静态成员(静态属性与静态方法)**。
+
++ 静态成员只能通过构造函数来访问；
++ 静态方法中的this指向构造函数；
++ 常见的静态成员 Date.now()、Math.PI Math.random()。
+
+```js
+//1.实例成员
+function Pig(name) {
+  this.name = name;
+}
+
+const peiqi = new Pig("佩奇");
+const qiaozi = new Pig("乔治");
+
+console.log(peiqi === qiaozi); //false 说明是两个不同的对象
+peiqi.name = "小猪佩奇"; //实例属性
+peiqi.sayHi = () => {
+  console.log("hello");
+};
+
+console.log(peiqi); //{name: '小猪佩奇', sayHi: ƒ}
+console.log(qiaozi); //{name: '乔治'}
+
+//2.静态成员
+function Person(name) {
+  this.name = name;
+}
+
+//静态属性
+Person.eyes = 2;
+Person.arms = 2;
+//静态方法
+Person.walk = function () {
+  console.log("人走");
+  //this指向Person
+  console.log(this); //ƒ Person(name) {this.name = name;}
+  console.log(this.eyes); //2
+};
+
+//打印静态属性
+console.log(Person.arms); //2
+//调用静态方法
+Person.walk(); //人走
+```
+
+#### 2.12.5 遍历对象
 
 因为对象中的**属性是无序的**，传统的for循环无法遍历，这时就需要使用`for...in`语句来遍历对象。它是专门用于遍历对象的。
 
@@ -3062,6 +3458,39 @@ console.log(str.toLowerCase());//aabbcc
 console.log(str.toUpperCase());//AABBCC
 ```
 
+##### 2.13.4.12 startsWith、endsWith与includes
+
+`startsWith`判断当前字符串是否以另外一个给定的子字符串开头，并根据判断结果返回true或false。实际就是检测**是否以某个字符开头**。
+
+`endsWith`检测是否以某个字符结尾。
+
+`includes`检测一个字符串是否包含在另外一个字符串中，根据情况返回true或flase。**数组也有includes方法**，它是判断一个数组是否包含一个指定值的结果。
+
+```js
+var str = "To be, or not to be, that is the question.";
+//1.startsWith 参数有两个searchString要查询的字符串，position在str中搜索searchString的开始位置，默认值是0。可选
+//startsWith方法区分大小写
+console.log(str.startsWith("To be")); //true  以To be开头
+console.log(str.startsWith("not to be")); //false  以To be开头并不是not to be
+console.log(str.startsWith("not to be", 10)); //true  以not to be开头 开始位置从索引号为10的位置开始，注意空格也算一位
+console.log(str.startsWith("to be")); //false 区分大小写
+console.log("-----------------------------");
+//2. endsWith 参数有两个 searchString要查询的字符串，length设置字符串的长度。默认值为原始字符串长度 string.length。可选
+//endsWith方法区分大小写
+console.log(str.endsWith("question.")); //true  以question.结尾
+console.log(str.endsWith("question")); //false  以question.结尾并不是question结尾
+console.log(str.endsWith("or", 9)); //true  字符串只截取9位长，判断以or结尾
+console.log(str.endsWith("QUestion.")); //false 区分大小写
+console.log("-----------------------------");
+//3. includes 参数有两个searchString要查询的字符串，position在str中搜索searchString的开始位置，默认值是0。可选
+//includes方法区分大小写
+console.log(str.includes("To be")); //true  只要包含To be就返回true
+console.log(str.includes("not to be")); //true  只要包含not to be就返回true
+console.log(str.includes("To be", 1)); //false  不包含To be 开始位置从索引号为1的位置开始，注意空格也算一位
+console.log(str.includes("TO be")); //false 区分大小写
+console.log(str.includes("noneexittent")); //false
+```
+
 #### 2.13.5 数组对象
 
 之前学习过创建数组的方式有两种：**字面量方式**与**new Array()**。
@@ -3405,6 +3834,152 @@ console.log(r2); //['June']
 var r3 = months.splice(-2, 2, "ddd", "aaa");
 console.log(months); //['Jan', 'Feb', 'March', 'ddd', 'aaa']
 console.log(r3); //['April', 'May']
+```
+
+##### 2.13.5.9 find方法与findIndex方法
+
+`find`是查找元素，返回符合测试条件的第一个数组元素值，如果没有符合条件的则返回undefined。
+
+```js
+//find 回调函数三个参数 element是数组遍历到元素 index是遍历到的索引 可选  array是数组本身 可选
+const arr = [5, 12, 8, 130, 44];
+const found = arr.find((ele) => ele > 10);
+console.log(found); //12
+
+const found2 = arr.find((ele) => ele > 150);
+console.log(found2); //undefined
+
+//常用案例
+const arr2 = [
+  {
+    name: "小米",
+    price: 1999
+  },
+  {
+    name: "华为",
+    price: 3999
+  }
+];
+
+const found3 = arr2.find(function (item) {
+  return item.name === "小米";
+});
+console.log(found3); //返回结果是对象 {name: '小米', price: 1999}
+```
+
+`findIndex`是查找元素索引值，数组中第一个满足测试条件的元素的索引。否则返回`-1`。
+
+```js
+//findIndex 回调函数也是三个参数 element是数组遍历到元素 index是遍历到的索引 可选  array是数组本身 可选
+const arr = [5, 12, 8, 130, 44];
+const found = arr.findIndex(function (element) {
+  return element > 13;
+});
+console.log(found); //3 索引号为3
+
+//使用箭头函数的简便写法
+const isLargeNumber2 = (element) => element > 143;
+console.log(arr.findIndex(isLargeNumber2)); //-1
+
+//针对对象数组
+const arr2 = [
+  {
+    name: "小米",
+    price: 1999
+  },
+  {
+    name: "华为",
+    price: 3999
+  }
+];
+
+const found3 = arr2.findIndex(function (item) {
+  return item.name === "华为";
+});
+console.log(found3); //返回结果 1
+```
+
+##### 2.13.5.10 every方法与some方法
+
+`every`是检测数组所有元素是否都符合指定条件，如果**所有元素都通过检测**则返回true,否则返回false。
+
+`some`是检测数组中的元素是否满足指定条件，如果**数组中有元素满足条件**就返回true,否则返回false。
+
+```js
+//1. every 回调函数也是三个参数 element是当前测试的值 index是当前测试的索引 可选  array是数组本身 可选
+//检测数组中所有元素都大于10
+const arr = [5, 12, 8, 130, 44];
+const arr2 = [51, 12, 81, 130, 44];
+const found = arr.every(function (element) {
+  return element > 10;
+});
+console.log(found); //false 有一个不是就返回false
+
+//写法2
+function isBig(element) {
+  return element > 10;
+}
+console.log(arr2.every(isBig)); //true
+
+//2. some 回调函数也是三个参数 element是当前测试的值 index是当前测试的索引 可选  array是数组本身 可选
+const found3 = arr.some(function (element) {
+  return element > 10;
+});
+console.log(found3); //true 有一个符合都返回true
+
+//写法2
+function isSmall(element) {
+  return element < 5;
+}
+console.log(arr2.some(isSmall)); //false
+```
+
+##### 2.13.5.11 伪数组转化为真数组 form
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <ul>
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+    </ul>
+    <script>
+      const lis = document.querySelectorAll("ul li");
+      //   console.log(lis.pop()); // 报错 lis.pop is not a function 伪数组没有pop方法
+      const liss = Array.from(lis);
+      console.log(liss.pop()); //<li>3</li>
+      console.log(liss); //(2) [li, li]
+    </script>
+  </body>
+</html>
+```
+
+##### 2.13.5.12 filter 筛选数组
+
+fliter方法会**返回一个新的数组**，新数组的元素是通过检查指定数组中符合条件的所有元素。其使用场景就是**筛选数组符合条件的元素**，并返回筛选之后的新数组，没有符合条件的就返回空数组。返回新数组不会影响原数组。
+
+```js
+const arr = [10, 20, 30];
+//filter使用方法跟map类似,其回调函数的参数也是三个,item是筛选的元素,index是元素索引,array是当前数组,index和array可省略
+const newArr = arr.filter(function (item, index) {
+  console.log(item);
+  console.log(index);
+  //筛选的条件
+  return item > 20;
+});
+
+console.log(newArr); //[30]
+
+//简化写法
+const newArr2 = arr.filter((item) => item > 10);
+console.log(newArr2); //[20, 30]
 ```
 
 ### 2.14 数据存储原理
@@ -8712,7 +9287,11 @@ setInterval(function () {
 
 防抖严格算起来是属于性能优化的知识，但实际上遇到的频率相当高，处理不当或者放任不管就容易引起浏览器卡死。
 
-以滚动条监听为案例，在运行时会发现一个问题，就是监听函数执行频率太高。鼠标稍微滚动一下函数就会执行十多次。
+**防抖**是指单位时间内，频繁触发事件，**只执行最后一次**。类似于游戏中的回城：不停的点回城最后只会执行最后一次点击的回城。
+
+防抖的**使用场景**：搜索框搜索输入，只需要用户最后一次输入完再发送请求、手机号、邮箱验证输入检测、监听滚动条等。
+
+案例:**监听滚动条**，在运行时会发现一个问题，就是监听函数执行频率太高。鼠标稍微滚动一下函数就会执行十多次。
 
 ```html
 <!DOCTYPE html>
@@ -8758,6 +9337,70 @@ setInterval(function () {
 
 > 防抖作用就是对于短时间内连续高频触发的事件，防抖让其在某个时间期限内事件处理函数只执行一次。
 
+防抖函数实现方式有两种：1.直接使用lodash库中的防抖函数`_.debounce`来处理，2.自己手写一个防抖函数。
+
+小案例：鼠标在盒子上移动，鼠标停止500ms之后，里面的数字才会变化+1，使用lodash库完成。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .box {
+        width: 500px;
+        height: 500px;
+        background-color: #ccc;
+        color: #fff;
+        text-align: center;
+        font-size: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box"></div>
+    <!-- 引入lodash库 -->
+    <script src="lodash.min.js"></script>
+    <script>
+      //防抖,鼠标在盒子上移动，鼠标停止500ms之后，里面的数字才会变化+1
+      const box = document.querySelector(".box");
+      let i = 1;
+      function mouseMove() {
+        box.innerHTML = i++;
+      }
+      box.addEventListener("mousemove", _.debounce(mouseMove, 500));
+    </script>
+  </body>
+</html>
+```
+
+手写防抖函数`debounce`，核心是利用setTimeout来实现的
+
+```js
+//手写防抖函数
+function debounce(fn, delay) {
+  var timer = null;
+  //闭包写法 这样写才能让每次监听事件都会触发返回的函数
+  return function () {
+    //存在就清空定时器
+    if (timer) {
+      clearTimeout(timer);
+    }
+    //不存在就开启定时器
+    timer = setTimeout(fn, delay);
+    //如果函数有额外复杂逻辑
+    // timer = setTimeout(function () {
+    //   //其他逻辑
+    //   fn(); //调用函数
+    // }, delay);
+  };
+}
+```
+
+案例：监听滚动条优化，使用手写的防抖函数。
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -8782,7 +9425,7 @@ setInterval(function () {
     <h3>啊啊</h3>
 
     <script>
-      //防抖函数
+      //手写防抖函数
       function debounce(fn, delay) {
         var timer = null;
         //闭包写法
@@ -8814,8 +9457,146 @@ setInterval(function () {
 ##### 3.4.4.4 节流(throttle)
 
 节流也属于性能优化的知识。遇到的频率也很高，放任不管也会让浏览器卡死。
-以上述的防抖案例来说，如果在限定时间200ms内，不断的触发滚动事件(就是一直拖动滚动条)，这样就会出现只要不停止就永远不会触发打印滚动距离函数的情况，但实际我们还是需要在一定时间间隔后给用户反馈。
-解决该问题的实现思路就是:设计一个类似控制阀门的定期开放的函数，也就是让函数执行一次后，在某段时间内暂时失效，过段时间又重新激活。
+
+> 以上述的防抖案例来说，如果在限定时间200ms内，不断的触发滚动事件(就是一直拖动滚动条)，这样就会出现只要不停止就永远不会触发打印滚动距离函数的情况，但实际我们还是需要在一定时间间隔后给用户反馈。
+> 解决该问题的思路就是:设计一个类似**控制阀门**的定期开放的函数，让函数执行一次后，在某段时间内暂时失效，过段时间又重新激活。
+
+**节流**是指单位时间内，频繁触发事件，**只执行一次**。类似于游戏中的技能cd，使用技能后要等几秒后才能再次使用。
+
+节流**使用场景**：鼠标移动mousemove、页面尺寸缩放resize、滚动条滚动scroll等
+
+节流函数实现方式有两种：1.直接使用lodash库中的防抖函数`_.throttle`来处理，2.自己手写一个节流函数。
+
+小案例：鼠标在盒子上移动，不管移动多少次，每隔500ms里面的数字才会变化+1，使用lodash库完成。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .box {
+        width: 500px;
+        height: 500px;
+        background-color: #ccc;
+        color: #fff;
+        text-align: center;
+        font-size: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box"></div>
+    <!-- 引入lodash库 -->
+    <script src="lodash.min.js"></script>
+    <script>
+      //节流,鼠标在盒子上移动，不管移动多少次，每隔500ms里面的数字才会变化+1
+      const box = document.querySelector(".box");
+      let i = 1;
+      function mouseMove() {
+        box.innerHTML = i++;
+      }
+      box.addEventListener("mousemove", _.throttle(mouseMove, 500));
+    </script>
+  </body>
+</html>
+```
+
+手写节流函数，有两种写法，核心也是利用定时器setTimeout实现的。
+
+写法1：直接使用是否存在定时器进行判断
+
+```js
+function throttle(fn, delay) {
+  let timer = null;
+  return function () {
+    if (!timer) {
+      timer = setTimeout(function () {
+        fn();
+        //清空定时器 不使用 clearTimeout，因为在定时器内部使用该函数大部分是无效的
+        timer = null;
+      }, delay);
+    }
+  };
+}
+```
+
+写法2：通过一个验证开关变量进行控制
+
+```js
+//节流函数
+function throttle(fn, delay) {
+  //valid就是验证开关
+  var valid = true;
+  return function () {
+    //valid为false就表示定时器已经打开，就不做任何事直接返回
+    if (!valid) {
+      return false;
+    }
+    //valid为true表示定时器没打开，先设置为false表示打开定时器
+    valid = false;
+    setTimeout(function () {
+      fn();
+      //函数执行完成时，定时器就完成，valid变为true，表示定时器关闭
+      valid = true;
+    }, delay);
+  };
+}
+```
+
+小案例：鼠标在盒子上移动，不管移动多少次，每隔500ms里面的数字才会变化+1，使用手写的节流函数。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .box {
+        width: 500px;
+        height: 500px;
+        background-color: #ccc;
+        color: #fff;
+        text-align: center;
+        font-size: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box"></div>
+    <!-- 引入lodash库 -->
+    <script src="lodash.min.js"></script>
+    <script>
+      //防抖,鼠标在盒子上移动，鼠标停止500ms之后，里面的数字才会变化+1
+      const box = document.querySelector(".box");
+      let i = 1;
+      function mouseMove() {
+        box.innerHTML = i++;
+      }
+      box.addEventListener("mousemove", throttle(mouseMove, 500));
+
+      function throttle(fn, delay) {
+        let timer = null;
+        return function () {
+          if (!timer) {
+            timer = setTimeout(function () {
+              fn();
+              //清空定时器 不使用 clearTimeout，因为在定时器内部使用该函数大部分是无效的
+              timer = null;
+            }, delay);
+          }
+        };
+      }
+    </script>
+  </body>
+</html>
+```
+
+案例：监听滚动条优化，使用手写的节流函数。
 
 ```html
 <!DOCTYPE html>
@@ -8874,6 +9655,95 @@ setInterval(function () {
 
 > 节流实际应用场景
 > 搜索框input事件，例如要支持**输入实时搜索**就使用节流方案，或者实现输入间隔大于某个时间就当做用户输入完成，然后开始搜索。
+
+**节流综合案例**：**记录缓存视频播放时间**，使用节流让视频时间一秒记录一次到本地存储中。打开页面触发事件，就从本地存储里面取出记录的时间， 赋值给video。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      .container {
+        width: 1200px;
+        margin: 0 auto;
+      }
+
+      .video video {
+        width: 100%;
+        padding: 20px 0;
+      }
+
+      .elevator {
+        position: fixed;
+        top: 280px;
+        right: 20px;
+        z-index: 999;
+        background: #fff;
+        border: 1px solid #e4e4e4;
+        width: 60px;
+      }
+
+      .elevator a {
+        display: block;
+        padding: 10px;
+        text-decoration: none;
+        text-align: center;
+        color: #999;
+      }
+
+      .elevator a.active {
+        color: #1286ff;
+      }
+
+      .outline {
+        padding-bottom: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <a href="http://pip.itcast.cn">
+          <img src="https://pip.itcast.cn/img/logo_v3.29b9ba72.png" alt="" />
+        </a>
+      </div>
+      <div class="video">
+        <video src="aaa.mp4" controls></video>
+      </div>
+      <div class="elevator">
+        <a href="javascript:;" data-ref="video">视频介绍</a>
+        <a href="javascript:;" data-ref="intro">课程简介</a>
+        <a href="javascript:;" data-ref="outline">评论列表</a>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script>
+      // 1. 获取元素  要对视频进行操作
+      const video = document.querySelector("video");
+      //ontimeupdate是检测视频时间的监控器，只要视频时间变化就触发一次，频率太高采用节流
+      video.ontimeupdate = _.throttle(() => {
+        // 把当前的时间存储到本地存储 video.currentTime 获得当前的视频时间
+        localStorage.setItem("currentTime", video.currentTime);
+      }, 1000);
+
+      // 打开页面触发事件，就从本地存储里面取出记录的时间， 赋值给video.currentTime
+      video.onloadeddata = () => {
+        //有本地存储就赋值本地存储，没有就赋值0
+        video.currentTime = localStorage.getItem("currentTime") || 0;
+      };
+    </script>
+  </body>
+</html>
+```
 
 #### 3.4.5 this指向问题
 
