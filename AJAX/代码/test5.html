@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>axios 发送ajax请求</title>
+    <!-- 引入bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- 引入axios-->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> -->
+    <script
+      crossorigin="anonymous"
+      src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.2/axios.min.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="page-header">axios发送ajax请求</h2>
+      <button class="btn btn-primary">GET</button>
+      <button class="btn btn-danger">POST</button>
+      <button class="btn btn-info">通用型方法ajax</button>
+    </div>
+    <script>
+      const btns = document.querySelectorAll("button");
+      //配置 baseURL 配置基本路径，用于简化路径
+      axios.defaults.baseURL = "http://127.0.0.1:8000";
+
+      btns[0].onclick = function () {
+        //axios发送GET请求
+        axios
+          .get("/axios-server", {
+            //url参数
+            params: {
+              id: 100,
+              name: "zhang"
+            },
+            //请求头信息
+            headers: {
+              name: "aaa",
+              age: 20
+            }
+          })
+          .then((value) => {
+            //axios请求的处理结果是基于promise进行处理的
+            console.log(value);
+            console.log(value.data); //会自动将json数据转化的为对象
+          });
+      };
+
+      btns[1].onclick = function () {
+        //axios发送POST请求
+        axios
+          .post(
+            "/axios-server",
+            {
+              //请求体
+              username: "admin",
+              password: "admin"
+            },
+            {
+              //请求头信息
+              headers: {
+                name: "aaa",
+                age: 20
+              }
+            }
+          )
+          .then((value) => {
+            //axios请求的处理结果是基于promise进行处理的
+            console.log(value);
+            console.log(value.data); //会自动将json数据转化的为对象
+          });
+      };
+
+      btns[2].onclick = function () {
+        //axios发送通用配置请求,参数是配置对象
+        axios({
+          //请求方法 默认GET
+          method: "POST",
+          //url
+          url: "/axios-server",
+          //请求参数
+          params: {
+            vip: 10,
+            level: 30
+          },
+          //请求头信息
+          headers: {
+            name: "aaa",
+            age: 20
+          },
+          //请求体参数
+          data: {
+            //请求体
+            username: "admin",
+            password: "admin"
+          }
+        }).then((value) => {
+          //axios请求的处理结果是基于promise进行处理的
+          console.log(value);
+          console.log(value.data); //会自动将json数据转化的为对象
+          console.log(value.status); //状态码
+          console.log(value.statusText); //状态字符串
+          console.log(value.headers); //响应头
+        });
+      };
+    </script>
+  </body>
+</html>

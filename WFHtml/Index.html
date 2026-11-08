@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="css/default.css" />
+    <style type="text/css">
+      #gallery-wrapper {
+        position: relative;
+        max-width: 75%;
+        width: 75%;
+        margin: 50px auto;
+      }
+
+      img.thumb {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .white-panel {
+        position: absolute;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+        padding: 10px;
+      }
+
+      .white-panel h1 {
+        font-size: 1em;
+      }
+
+      .white-panel h1 a {
+        color: #a92733;
+      }
+
+      .white-panel:hover {
+        box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+        margin-top: -5px;
+        -webkit-transition: all 0.3s ease-in-out;
+        -moz-transition: all 0.3s ease-in-out;
+        -o-transition: all 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
+      }
+    </style>
+  </head>
+  <body>
+    <section id="gallery-wrapper">
+      <article class="white-panel">
+        <img src="images/Git教程图.png" class="thumb" />
+        <h1>
+           <a href="../gitStudy/git教程.html"  target="_blank">git教程</a>
+        </h1>
+        <p>git教程未完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/svg与AI软件教程.png" class="thumb" />
+        <h1><a href="../svgStudy/svg与AI软件学习.html" target="_blank">svg与AI软件教程</a></h1>
+        <p>svg教程未完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/css教程图.png" class="thumb" />
+        <h1><a href="../cssStudy/css.html"  target="_blank">css教程</a></h1>
+        <p>css教程完成需要优化结构</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/HTML教程图.png" class="thumb" />
+        <h1><a href="../htmlStudy/HTML5基础.html"  target="_blank">HTML5基础教程</a></h1>
+        <p>HTML5基础教程完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/TS教程图.png" class="thumb" />
+        <h1><a href="../TypeScriptStudy/TypeScript基础语法学习.html"  target="_blank">TS基础教程</a></h1>
+        <p>TS基础教程完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/微信小程序图.png" class="thumb" />
+        <h1><a href="../微信小程序/微信小程序.html"  target="_blank">微信小程序教程</a></h1>
+        <p>微信小程序教程完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/nodeJS教程图.png" class="thumb" />
+        <h1><a href="../nodejsStudy/nodeJS基础学习.html"  target="_blank">nodejs教程</a></h1>
+        <p>nodejs教程未完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/RPGMV教程图.png" class="thumb" />
+        <h1><a href="../rpgMakerStudy/RPGMV基础教程.html"  target="_blank">RPGMV基础教程</a></h1>
+        <p>RPGMV基础教程已完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/JS教程图.png" class="thumb" />
+        <h1><a href="../JS学习/JS基础语法学习.html"  target="_blank">JS基础语法</a></h1>
+        <p>JS基础语法已完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/ES教程图.png" class="thumb" />
+        <h1><a href="../ES/ES.html"  target="_blank">ES学习</a></h1>
+        <p>ES已完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/AJAX教程图.png" class="thumb" />
+        <h1><a href="../AJAX/AJAX.html"  target="_blank">AJAX学习</a></h1>
+        <p>AJAX学习已完成</p>
+      </article>
+      <article class="white-panel">
+        <img src="images/Vue2教程图.png" class="thumb" />
+        <h1><a href="../Vue2/vue2.html"  target="_blank">Vue2学习</a></h1>
+        <p>Vue2学习已完成</p>
+      </article>
+    </section>
+
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="js/pinterest_grid.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        $("#gallery-wrapper").pinterest_grid({
+          no_columns: 5, //网格布局一行的列数 一行5个
+          padding_x: 15, //网格在x轴方向的padding内边距值 也就是图与图左右距离
+          padding_y: 10, //网格在y轴方向的padding内边距值 也就是图与图上下距离
+          margin_bottom: 50, //网格底部margin值
+          single_column_breakpoint: 700 //指定视口到达多大时一行只显示一个网格
+        });
+      });
+    </script>
+  </body>
+</html>

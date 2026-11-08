@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AJAX 请求</title>
+  </head>
+  <body>
+    <button>点击发送请求</button>
+    <script>
+      const btn = document.querySelector("button");
+      let xhr = null;
+      //标识变量 标识是否正在发送Ajax请求
+      let isSending = false;
+      //绑定按钮点击事件
+      btn.onclick = function () {
+        //判断标识,如果有就取消
+        if (isSending) xhr.abort();
+        xhr = new XMLHttpRequest();
+        //修改标识
+        isSending = true;
+        xhr.open("GET", "http://127.0.0.1:8000/server2?a=100&b=200&c=300");
+        //3.发送请求
+        xhr.send();
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            //执行完成就修改标识
+            isSending = false;
+          }
+        };
+        console.log(xhr.response);
+      };
+
+      //绑定按钮点击事件
+      btns[1].onclick = function () {
+        //取消请求
+        xhr.abort();
+      };
+    </script>
+  </body>
+</html>

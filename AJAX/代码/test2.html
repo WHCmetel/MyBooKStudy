@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AJAX 请求</title>
+    <style>
+      #result {
+        width: 200px;
+        height: 100px;
+        border: solid 1px pink;
+      }
+    </style>
+  </head>
+  <body>
+    <button>点击发送请求</button>
+    <div id="result"></div>
+    <script>
+      const btn = document.querySelector("button");
+      const div = document.getElementById("result");
+
+      btn.onclick = function () {
+        //1. 创建对象
+        const xhr = new XMLHttpRequest();
+        //自动转化响应数据，设置响应体数据类型
+        xhr.responseType = "json";
+        //超时设置 2s就超时取消请求
+        xhr.timeout = 2000;
+
+        //超时回调
+        xhr.ontimeout = function () {
+          alert("网络超时，请稍后重试");
+        };
+
+        //超时回调
+        xhr.onerror = function () {
+          alert("网络异常，请稍后重试");
+        };
+        //2.初始化，设置请求的方法与url POST请求 发送内容添加时间戳
+        xhr.open("POST", "http://127.0.0.1:8000/ie?t=" + Date.now());
+
+        //设置请求头
+        xhr.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        );
+        xhr.setRequestHeader("name", "aaa");
+        //3.发送请求
+        xhr.send("a=100&b=200&c=300");
+
+        xhr.onreadystatechange = function () {
+          //判断服务端返回了所有的结果
+          if (xhr.readyState === 4) {
+            //判断响应状态码 200，404 303 状态200到300间都是成功的
+            if (xhr.status >= 200 && xhr.status < 300) {
+              //手动对json数据进行转化
+              //  let data = JSON.parse(xhr.response);
+              //  console.log(data.name);
+              console.log(xhr.response.name); //响应体
+            }
+          }
+        };
+      };
+    </script>
+  </body>
+</html>

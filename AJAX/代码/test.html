@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AJAX 请求</title>
+    <style>
+      #result {
+        width: 200px;
+        height: 100px;
+        border: solid 1px pink;
+      }
+    </style>
+  </head>
+  <body>
+    <button>点击发送请求</button>
+    <div id="result"></div>
+    <script>
+      const btn = document.querySelector("button");
+      const div = document.getElementById("result");
+      //绑定按钮点击事件
+      btn.onclick = function () {
+        //最基本的ajax请求创建步骤
+        //1. 创建对象 xhr是XMLHttpRequest单词首字母的简写，表示ajax类型的请求
+        const xhr = new XMLHttpRequest();
+
+        xhr.timeout = 2000;
+
+        //超时回调
+        xhr.ontimeout = function () {
+          alert("网络超时，请稍后重试");
+        };
+
+        //网络异常回调
+        xhr.onerror = function () {
+          alert("网络异常，请稍后重试");
+        };
+        //2.初始化，设置请求的方法与url
+        //无参数的GET请求
+        // xhr.open("GET", "http://127.0.0.1:8000/server");
+        //有参数的GET请求
+        xhr.open("GET", "http://127.0.0.1:8000/server2?a=100&b=200&c=300");
+
+        //3.发送请求
+        xhr.send();
+        //4.事件绑定 处理服务端返回的结果
+        //on是当什么的时候触发事件
+        //readystate 是xhr对象中属性，表示对象状态有五个值
+        /* 0 表示未初始化，最开始值
+            1 表示open方法执行完毕
+            2 表示send方法执行完毕
+            3 表示服务端返回了部分结果
+            4 表示服务端返回了全部的结果
+        */
+        //change表示改变，说明该函数在一次请求中会触发4次
+        xhr.onreadystatechange = function () {
+          //判断服务端返回了所有的结果
+          if (xhr.readyState === 4) {
+            //判断响应状态码 200，404 303 状态200到300间都是成功的
+            if (xhr.status >= 200 && xhr.status < 300) {
+              //处理成功结果 响应头 行 体
+              console.log(xhr.status); //状态码
+              console.log(xhr.statusText); //状态字符串
+              console.log(xhr.getAllResponseHeaders); //所有响应头
+              console.log(xhr.response); //响应体
+              div.innerHTML = xhr.response;
+            } else {
+            }
+          }
+        };
+      };
+    </script>
+  </body>
+</html>
